@@ -8,7 +8,7 @@
 <rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
     <channel>
         <title>Hugo 主题 MemE</title>
-        <link>https://csy.github.com/</link>
+        <link>https://csy.github.io/</link>
         <description>MemE 是一个强大且可高度定制的 GoHugo 博客主题，专为个人博客设计。</description>
         <generator>Hugo 0.68.3 https://gohugo.io/</generator>
         
@@ -23,9 +23,9 @@
         
             <copyright>[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh)</copyright>
         
-        <lastBuildDate>Thu, 02 Apr 2020 01:04:36 +0000</lastBuildDate>
+        <lastBuildDate>Thu, 02 Apr 2020 01:47:58 +0000</lastBuildDate>
         
-            <atom:link rel="self" type="application/rss+xml" href="https://csy.github.com/rss.xml" />
+            <atom:link rel="self" type="application/rss+xml" href="https://csy.github.io/rss.xml" />
         
         
     </channel>
