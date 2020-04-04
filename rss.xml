@@ -23,10 +23,970 @@
         
             <copyright>[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh)</copyright>
         
-        <lastBuildDate>Fri, 03 Apr 2020 13:12:05 +0000</lastBuildDate>
+        <lastBuildDate>Sat, 04 Apr 2020 09:49:55 +0000</lastBuildDate>
         
             <atom:link rel="self" type="application/rss+xml" href="https://chengshuyi.github.io/rss.xml" />
         
+        
+            <item>
+                <title>多车编队 基于行为的方法</title>
+                <link>https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E8%A1%8C%E4%B8%BA%E7%9A%84%E6%96%B9%E6%B3%95/</link>
+                <guid isPermaLink="true">https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E8%A1%8C%E4%B8%BA%E7%9A%84%E6%96%B9%E6%B3%95/</guid>
+                <pubDate>Sat, 04 Apr 2020 09:11:07 +0800</pubDate>
+                
+                    <author>c15271843451@outlook.com (程书意)</author>
+                
+                <copyright>[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh)</copyright>
+                
+                    <description><![CDATA[<p>基于行为的方法的主要思想是将编队任务转换为一系列具有特定功能的基本运动行为，这些基本运动行为是机器人运动的最小运动单位，例如，向左转、前进、奔向目标、姿态调整、蔽障、沿墙运动、目标导航等等。基于行为的方法通常由两部分组成，分别是基本<strong>行为设计</strong>部分和<strong>行为选择</strong>设计部分。对编队中的每个机器人而言，机器人的输入可以是自身传感器的探测信息，也可以是通过通信获取编队中其它某个或者多个机器人的行为输出，行为选择设计部分根据机器人输入信息使得机器人选择对应的基本行为（以一定角速度和线速度的方式）进行输出，从而使得机器人处于编队中理想的位置<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>，具体如下图所示：</p>
+<p><img src="../../../static/img/image-20200404112052576.png" alt="image-20200404112052576"></p>
+<p>基于行为方法的编队控制包括以下三种控制方法<sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup>：</p>
+<ol>
+<li>行为抑制法：首先对每个行为进行优先级排序，这样当无人车需要同时执行多个行为时，无人车就会按照优先级顺序执行优先级最高的行为。</li>
+<li>加权平均法：首先对每个行为规定一个对应的权值，根据对应行为的重要程度设置对应的权值。这样当无人车需要同时执行多个行为时，无人车会计算所有行为的加权求和，得到的结果经过正则化后作为无人车的行为控制；</li>
+<li>模糊逻辑法：当无人车需要同时执行多个行为时，通过查看模糊规则表，执行相对的行为控制。</li>
+</ol>
+<h3 id="基于位姿误差的机器人编队基本运动行为设计3">基于位姿误差的机器人编队基本运动行为设计<sup id="fnref:3"><a href="#fn:3" class="footnote-ref" role="doc-noteref">3</a></sup></h3>
+<h4 id="机器人运动学模型">机器人运动学模型</h4>
+<p>二维空间机器人位置和姿态表示为：
+$$
+q_0=[x_0\quad y_0\quad \theta_0]^T
+$$
+假设机器人当前的线速度$v_0$和角速度$\omega_0$，可得移动机器人的位姿$\dot{q}$：
+$$
+\dot{\boldsymbol{q}}<em>{0}=\left[\begin{array}{c}
+\dot{x}</em>{0} \<br>
+\dot{y}<em>{0} \<br>
+\dot{\theta}</em>{0}
+\end{array}\right]=\left[\begin{array}{cc}
+\cos \theta_{0} &amp; 0 \<br>
+\sin \theta_{0} &amp; 0 \<br>
+0 &amp; 1
+\end{array}\right]\left[\begin{array}{l}
+v_{0} \<br>
+\omega_{0}
+\end{array}\right]
+$$</p>
+<h4 id="位姿误差描述">位姿误差描述</h4>
+<p>虚拟结构仅被用以描述<strong>目标编队的形状</strong>和编队中虚拟机器人的固定位置，而<strong>非限制该位置上真实存在的机器人</strong>。如下图所示：机器人团队由领航者$q_L(x_L,y_L,\theta_L)$和跟随者$q_{F2}(x_{F2},y_{F2},\theta_{F2})$、$q_{F3}(x_{F3},y_{F3},\theta_{F3})$组成。虚线空心图形表示编队中的虚拟机器人，即跟随者$q_{F2}$和$q_{F3}$和应当抵达的位置，表示为$q_{T2}(x_{T2},y_{T2},\theta_{T2})$、$q_{T3}(x_{T3},y_{T3},\theta_{T3})$。$q_L$与$q_{T2}$、$q_{T3}$共同组成虚拟的三角形编队。设计的行为应该能够确保跟随者$q_{F2}$和$q_{F3}$到达编队中$q_{T2}$、$q_{T3}$的位置。那么可以通过$q_{F2}$和$q_{T2}$之间的位置关系描述位姿误差。</p>
+<p><img src="../../../static/img/image-20200404142240713.png" alt="image-20200404142240713"></p>
+<p>最终通过公式推导可以得到：
+$$
+\boldsymbol{e}<em>{FiTj}=\left[\begin{array}{c}
+e</em>{FiTj}^{x} \<br>
+e_{FiTj}^{y} \<br>
+e_{FiTj}^{\theta}
+\end{array}\right]=\left[\begin{array}{ccc}
+\cos \theta_{F i} &amp; \sin \theta_{F i} &amp; 0 \<br>
+-\sin \theta_{F i} &amp; \cos \theta_{F i} &amp; 0 \<br>
+0 &amp; 0 &amp; 1
+\end{array}\right]\left(\boldsymbol{q}_{T j}-\boldsymbol{q}_{F i}\right), i, j \in[2, n]
+$$
+上式中，$\bold{q}_{Tj}$为通过传感器或通信获取的虚拟目标机器人的位姿，$\bold{q}_{Fi}$为机器人自身的位姿信息，主要通过如GPS、编码器等传感器获得。为了使$\bold{e}_{FiTj}$处于一定的阈值内，设计了两种基本运动行为与作为基本运动行为的选择依据的三种描述性行为。两种基本行为是直线运动与旋转运动。设计的思想是首先机器人采用旋转运动面向目标，然后采用直线运动奔向目标，最后通过旋转和目标完全重合，此时机器人到达编队中虚拟机器人的位置。当所有机器人均完成此任务时，编队形成。上述思想可以归纳为转向目标，奔向目标与姿态调整三种描述性行为。</p>
+<p>令阈值为：$\boldsymbol{\delta} = [\delta_p\quad \delta_p\quad \delta_o]^T$，$\delta_p$表示位置误差常数，$\delta_o$表示姿态角度误差常数，T为实际需要的有限时间。</p>
+<h4 id="行为选择">行为选择</h4>
+<ul>
+<li>转向目标</li>
+</ul>
+<p>当机器人与虚拟目标之间的$y$方向误差$|e^y_{FiTj}|&gt;\delta_p$，时，虚拟机器人$q_{Tj}$在跟随机器人$q_{Fi}$运动的正前方的时候，机器人选择奔向目标的行为。该行为同时考虑了当$q_{Fi}$背离$q_{Tj}$且两者在同一直线上的情况，此时$|e^y_{FiTj}|&lt;\delta_p,e^x_{FiTj}&lt;0$。该行为的触发条件：
+$$
+\bigcup\left{\begin{array}{l}
+\left|e_{F i T j}^{y}\right| \geq \delta_{p} \<br>
+e_{F i T j}^{x}&lt;-\delta_{p}\left(\left|e_{FiTj}^{y}\right|&lt;\delta_{p}\right) i, j \in[2, n]
+\end{array}\right.
+$$
+转向目标行为的结束条件为：
+$$
+\lim _{t \rightarrow t_{F i T j}^{T T}}\left|e_{F i T j}^{y}(t)\right|&lt;\delta_{P}, \quad e_{F i T j}^{x} \geq \delta_{P}, i, j \in[2, n]
+$$</p>
+<ul>
+<li>奔向目标</li>
+</ul>
+<p>当虚拟机器人$q_{Tj}$在跟随机器人$q_{Fi}$运动的正前方，即$|e^y_{FiTj}|&lt;\delta_p$时，机器人选择奔向目标的行为。奔向目标行为用于缩短虚拟机器人$q_{Tj}$与跟随机器人$q_{Fi}$之间的直线距离。该行为的触发条件：
+$$
+|e^y_{FiTj}|&lt;\delta_p, |e^x_{FiTj}|\geq\delta_p, i,j\in[2,n].
+$$
+奔向目标行为的结束条件为：
+$$
+|e^y_{FiTj}|&lt;\delta_p, \lim _{t \rightarrow t_{F i T j}^{T T}}|e^x_{FiTj}|(t)&lt;\delta_p, i,j\in[2,n].
+$$</p>
+<ul>
+<li>姿态调整</li>
+</ul>
+<p>当虚拟机器人$q_{Tj}$与跟随机器人$q_{Fi}$之间的距离误差分量$|e^x_{FiTj}|&lt;\delta_p$，$|e^y_{FiTj}|&lt;\delta_p$，且两者方向误差值$|e^\theta_{FiTj}|&gt;\delta_o$的时候，机器人选择姿态调整行为。姿态调整行为是为了让近似处于同一点上的$q_{Tj}$与$q_{Fi}$完成角度的重合。该行为的触发条件：
+$$
+|e^x_{FiTj}|&lt;\delta_p, |e^y_{FiTj}|&lt;\delta_p, |e^\theta_{FiTj}|\geq\delta_o,i,j\in[2,n].
+$$
+姿态调整行为的结束条件为：
+$$
+|e^x_{FiTj}|&lt;\delta_p, |e^y_{FiTj}|&lt;\delta_p, \lim _{t \rightarrow t_{F i T j}^{T T}}|e^\theta_{FiTj}|(t)&lt;\delta_o,i,j\in[2,n].
+$$</p>
+<h3 id="参考文献">参考文献</h3>
+<section class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1" role="doc-endnote">
+<p>陈传均. 多机器人领航—跟随型编队控制研究[D]. 杭州电子科技大学. <a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:2" role="doc-endnote">
+<p>王京.多智能体系统编队避障算法研究[D].上海:华东理工大学,2013. <a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:3" role="doc-endnote">
+<p>刘磊. 多移动机器人编队及协调控制研究[D]. 华中科技大学, 2009. <a href="#fnref:3" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</section>
+]]></description>
+                
+                
+                
+                
+                
+                    
+                        
+                            
+                                
+                                
+                                
+                                    <category domain="https://chengshuyi.github.io/categories/%E6%9C%BA%E5%99%A8%E4%BA%BA/">机器人</category>
+                                
+                            
+                        
+                    
+                        
+                            
+                                
+                                
+                                
+                                    <category domain="https://chengshuyi.github.io/tags/%E6%9C%BA%E5%99%A8%E4%BA%BA/">机器人</category>
+                                
+                            
+                                
+                                
+                                
+                                    <category domain="https://chengshuyi.github.io/tags/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F/">多车编队</category>
+                                
+                            
+                        
+                    
+                
+            </item>
+        
+            <item>
+                <title>c语言运算符</title>
+                <link>https://chengshuyi.github.io/posts/c/%E8%BF%90%E7%AE%97%E7%AC%A6/</link>
+                <guid isPermaLink="true">https://chengshuyi.github.io/posts/c/%E8%BF%90%E7%AE%97%E7%AC%A6/</guid>
+                <pubDate>Fri, 03 Apr 2020 17:25:34 +0800</pubDate>
+                
+                    <author>c15271843451@outlook.com (程书意)</author>
+                
+                <copyright>[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh)</copyright>
+                
+                    <description><![CDATA[<p>本文主要汇总了c语言的一些运算符，因此我们能对运算符有全局的认识。</p>
+<table>
+<thead>
+<tr>
+<th align="center">运算符</th>
+<th align="center">名称</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">算术运算符</td>
+<td align="center"><code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, <code>%</code></td>
+</tr>
+<tr>
+<td align="center">移位运算符</td>
+<td align="center"><code>&gt;&gt;</code>, <code>&lt;&lt;</code></td>
+</tr>
+<tr>
+<td align="center">位运算符</td>
+<td align="center"><code>&amp;</code>, <code>|</code>, <code>^</code></td>
+</tr>
+<tr>
+<td align="center">赋值运算符</td>
+<td align="center"><code>=</code></td>
+</tr>
+<tr>
+<td align="center">复合赋值运算符</td>
+<td align="center"><code>+=</code>, <code>-=</code>, <code>*=</code>, <code>/=</code>, <code>%=</code>, <code>&lt;&lt;=</code>, <code>&gt;&gt;=</code>, <code>&amp;=</code>, <code>^=</code></td>
+</tr>
+<tr>
+<td align="center">单目运算符</td>
+<td align="center"><code>!</code>, <code>++</code>, <code>-</code>, <code>&amp;</code>, <code>sizeof</code>, <code>~</code>, <code>--</code>, <code>+</code>, <code>*</code>, <code>强制类型转换</code></td>
+</tr>
+<tr>
+<td align="center">关系运算符</td>
+<td align="center"><code>&gt;</code>, <code>&gt;=</code>, <code>&lt;</code>, <code>&lt;=</code>, <code>!=</code>, <code>==</code></td>
+</tr>
+<tr>
+<td align="center">逻辑运算符</td>
+<td align="center"><code>&amp;&amp;</code>, <code>||</code></td>
+</tr>
+<tr>
+<td align="center">条件运算符</td>
+<td align="center"><code>a?b:c</code></td>
+</tr>
+<tr>
+<td align="center">逗号运算符</td>
+<td align="center"><code>,</code></td>
+</tr>
+<tr>
+<td align="center">下标运算符</td>
+<td align="center"><code>[]</code></td>
+</tr>
+<tr>
+<td align="center">函数运算符</td>
+<td align="center"><code>()</code></td>
+</tr>
+<tr>
+<td align="center">结构成员运算符</td>
+<td align="center"><code>.</code>, <code>-&gt;</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="算术运算符">算术运算符</h3>
+<p>算术运算符包括：<code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, <code>%</code>，它们也都是双目运算符。</p>
+<blockquote>
+<p>注意同单目运算符中的<code>+</code>, <code>-</code>, <code>*</code>区分开来，算术运算符时双目运算符，所以使用它们时并不会造成语义上的歧义。</p>
+</blockquote>
+<h3 id="--移位运算符--"><!--移位运算符--></h3>
+<!--`>>`, `<<`-->
+<h3 id="--位运算符--"><!--位运算符--></h3>
+  <!--`&`, `|`, `^`-->
+<h3 id="--赋值运算符--"><!--赋值运算符--></h3>
+<!--`=`-->
+<!--复合赋值运算符：`+= -= *= /= %= <<= >>= &= ^= |=-->`
+<h3 id="单目运算符">单目运算符</h3>
+<p>单目运算符包括：<code>!</code>, <code>++</code>, <code>-</code>, <code>&amp;</code>, <code>sizeof</code>, <code>~</code>, <code>--</code>, <code>+</code>, <code>*</code>, <code>强制类型转换</code></p>
+<ul>
+<li>
+<p>经过<code>!</code>的数值只有两种结果：
+$$
+!a=\left{\begin{array}{cc}
+0,a\neq0 \<br>
+1,a=0
+\end{array}\right.
+$$</p>
+</li>
+<li>
+<p><code>~</code>会对所有的位取反，包括符号位：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="cp">#include</span> <span class="cpf">&lt;bits/stdc++.h&gt;</span><span class="cp">
+</span><span class="cp"></span><span class="n">using</span> <span class="n">namespace</span> <span class="n">std</span><span class="p">;</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(){</span>
+    <span class="kt">int</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="o">~</span><span class="n">a</span> <span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span> <span class="c1">//-1
+</span><span class="c1"></span><span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p><code>sizeof</code>的参数可以是数组、指针、类型、对象、函数等，其作用是计算静态对象的内存大小；</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">// sizeof的宏定义原型：#define sizeof(L_Value) ((char*)(&amp;L_Value + 1) - (char*)(&amp;L_Value))
+</span><span class="c1"></span>  
+<span class="cp">#include</span> <span class="cpf">&lt;bits/stdc++.h&gt;</span><span class="cp">
+</span><span class="cp"></span><span class="n">using</span> <span class="n">namespace</span> <span class="n">std</span><span class="p">;</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(){</span>
+    <span class="kt">char</span> <span class="n">a</span><span class="p">[</span><span class="mi">100</span><span class="p">];</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">a_ptr</span> <span class="o">=</span> <span class="n">a</span><span class="p">;</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span><span class="n">a</span> <span class="o">&lt;&lt;</span> <span class="s">&#34; &#34;</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span><span class="n">a_ptr</span> <span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+  <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="s">&#34; &#34;</span> <span class="o">&lt;&lt;</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">a_ptr</span><span class="p">)</span> <span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span> 
+    <span class="c1">//这里可以看出数组和指针并非完全相等，编译器对其处理的方式还是不同的。
+</span><span class="c1"></span>    <span class="c1">//0x62fdb0 0x62fdb0
+</span><span class="c1"></span>    <span class="c1">//100 8
+</span><span class="c1"></span><span class="p">}</span>
+  
+</code></pre></td></tr></table>
+</div>
+</div></li>
+</ul>
+<h3 id="--关系运算符--"><!--关系运算符--></h3>
+<!--`> >= < <= != ==-->`
+<h3 id="--逻辑运算符--"><!--逻辑运算符--></h3>
+<!--`&& ||`-->
+<h3 id="--条件运算符--"><!--条件运算符--></h3>
+<!--?;-->
+<h3 id="--逗号运算符--"><!--逗号运算符--></h3>
+<!--都好运算符将多个表达式分隔开来，这些表达式自左向右逐个进行求值-->
+<h3 id="--下标运算符--"><!--下标运算符--></h3>
+<!--[]-->
+<h3 id="--函数运算符--"><!--函数运算符--></h3>
+<!--()-->
+<h3 id="--结构成员运算符--"><!--结构成员运算符--></h3>
+<!--`.` ->-->
+]]></description>
+                
+                
+                
+                
+                
+                    
+                        
+                            
+                                
+                                
+                                
+                                    <category domain="https://chengshuyi.github.io/categories/c%E8%AF%AD%E8%A8%80/">c语言</category>
+                                
+                            
+                        
+                    
+                        
+                            
+                                
+                                
+                                
+                                    <category domain="https://chengshuyi.github.io/tags/c%E8%AF%AD%E8%A8%80/">c语言</category>
+                                
+                            
+                                
+                                
+                                
+                                    <category domain="https://chengshuyi.github.io/tags/c%E8%AF%AD%E8%A8%80%E8%BF%90%E7%AE%97%E7%AC%A6/">c语言运算符</category>
+                                
+                            
+                        
+                    
+                
+            </item>
+        
+            <item>
+                <title>伙伴系统</title>
+                <link>https://chengshuyi.github.io/posts/linux_kernel/%E4%BC%99%E4%BC%B4%E7%B3%BB%E7%BB%9F/</link>
+                <guid isPermaLink="true">https://chengshuyi.github.io/posts/linux_kernel/%E4%BC%99%E4%BC%B4%E7%B3%BB%E7%BB%9F/</guid>
+                <pubDate>Fri, 03 Apr 2020 15:26:04 +0800</pubDate>
+                
+                    <author>c15271843451@outlook.com (程书意)</author>
+                
+                <copyright>[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh)</copyright>
+                
+                    <description><![CDATA[<p>伙伴算法是一种动态存储分配算法，用于实现操作系统内核空间和用户空间 (如 C 语言库) 的分配和回收操作.。Knowlton和 Knuth最早系统地描述了用于内存管理中的二分伙伴算法。之后，Hirschberg和Shen先后提出斐波那契伙伴算法和加权伙伴算法，作为伙伴算法的两种变体。为了适应不同的内存请求概率分布，Peterson又进一步提出泛化伙伴算法，针对不同请求概率分布采取不同的分配策略。为了追求时间效率，Linux 内核选择实现了二分伙伴算法, 该算法的优点在于伙伴地址的计算更加简便、高效<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>。</p>
+<p>Linux内核伙伴系统算法把所有的空闲页框分组为11个块链表，每个块链表分别包含大小为1、2、4、8、16、32、64、128、256、512和1024个连续页框的页框块。最大可以申请1024个连续页框，也即4MB大小的连续空间。假设要申请一个256个页框的块，先从256个页框的链表中查找空闲块，如果没有，就去512个页框的链表中找，找到了即将页框分为两个256个页框的块，一个分配给应用，另外一个移到256个页框的链表中。如果512个页框的链表中仍没有空闲块，继续向1024个页框的链表查找，如果仍然没有，则返回错误<sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup>。</p>
+<p>下图是伙伴系统只有0阶和2阶内存块时的分配情况。</p>
+<p><img src="../../../static/img/image-20200403231746644.png" alt="image-20200403231746644"></p>
+<p>本文首先介绍了linux内存区域的概念，然后详细描述了伙伴系统算法中分配算法和回收算法，最后简要的描述了伙伴系统算法在分配时区域的选择。</p>
+<h3 id="内存区域">内存区域</h3>
+<p>UMA（Uniform-Memory-Access）模型：物理存储器被所有处理机均匀共享。所有处理机对所有存储字具有相同的存取时间，这就是为什么称它为均匀存储器存取的原因。每台处理机可以有私用高速缓存,外围设备也以一定形式共享。</p>
+<p>NUMA（Non-Uniform-Memory-Access）模型：NUMA模式下，处理器被划分成多个&quot;节点&quot;（node）， 每个节点被分配有的本地存储器空间。 所有节点中的处理器都可以访问全部的系统物理存储器，但是访问本节点内的存储器所需要的时间，比访问某些远程节点内的存储器所花的时间要少得多。</p>
+<p>UMA可以看成NUMA特例。下图是内存区域管理结构，<code>pg_data_t</code>代表着一个节点，<code>zones</code>存储着每个内存区域的物理页的数据结构<code>struct page</code>。</p>
+<p><img src="../../../static/img/image-20200403225121981.png" alt="image-20200403225121981"></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="k">typedef</span> <span class="k">struct</span> <span class="n">pglist_data</span> <span class="p">{</span> 
+    <span class="k">struct</span> <span class="n">zone</span> <span class="n">node_zones</span><span class="p">[</span><span class="n">MAX_NR_ZONES</span><span class="p">];</span> 	<span class="c1">//内存分区，ZONE_DMA, ZONE_NORMAL, ZONE_HIGHMEM
+</span><span class="c1"></span>    <span class="k">struct</span> <span class="n">zonelist</span> <span class="n">node_zonelists</span><span class="p">[</span><span class="n">MAX_ZONELISTS</span><span class="p">];</span>
+    <span class="kt">int</span> <span class="n">nr_zones</span><span class="p">;</span> 
+    <span class="k">struct</span> <span class="n">page</span> <span class="o">*</span><span class="n">node_mem_map</span><span class="p">;</span> 				<span class="c1">//该节点物理内存中每一页的页框描述符
+</span><span class="c1"></span>    <span class="k">struct</span> <span class="n">bootmem_data</span> <span class="o">*</span><span class="n">bdata</span><span class="p">;</span> 
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">node_start_pfn</span><span class="p">;</span> 
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">node_present_pages</span><span class="p">;</span>  
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">node_spanned_pages</span><span class="p">;</span>  
+    <span class="kt">int</span> <span class="n">node_id</span><span class="p">;</span> 
+    <span class="k">struct</span> <span class="n">pglist_data</span> <span class="o">*</span><span class="n">pgdat_next</span><span class="p">;</span> 
+    <span class="n">wait_queue_head_t</span> <span class="n">kswapd_wait</span><span class="p">;</span> 
+    <span class="k">struct</span> <span class="n">task_struct</span> <span class="o">*</span><span class="n">kswapd</span><span class="p">;</span> 
+    <span class="kt">int</span> <span class="n">kswapd_max_order</span><span class="p">;</span> 
+<span class="p">}</span> <span class="n">pg_data_t</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>在内存中，每个node又被分成的区，它们各自描述在内存中的范围。一个管理区(zone)由<code>struct zone</code>结构体来描述，下面是可能分区的情况：</p>
+<ol>
+<li>ZONE_DMA标记适合DMA的内存域。该区域的长度依赖于处理器类型。在IA-32计算机上，一般的限制是16 MiB，这是由古老的ISA设备强加的边界，因此现代的计算机也可能受这一限制的影响。</li>
+<li>ZONE_DMA32标记了使用32位地址字可寻址、适合DMA的内存域。显然，只有在64位系统上，两种DMA内存域才有差别。在32位计算机上，本内存域是空的，即长度为0 MiB。在Alpha和AMD64系统上，该内存域的长度可能从0到4 GiB。</li>
+<li>ZONE_NORMAL标记了可直接映射到内核段的普通内存域。这是在所有体系结构上保证都会存在的唯一内存域，但无法保证该地址范围对应了实际的物理内存。例如，如果AMD64系统有2 GiB内存，那么所有内存都属于ZONE_DMA32范围，而ZONE_NORMAL则为空。</li>
+<li>ZONE_HIGHMEM标记了超出内核段的物理内存，对应着IA-32计算机上896MB以上的物理内存。</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="k">struct</span> <span class="n">zone</span> <span class="p">{</span>
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">pages_min</span><span class="p">,</span> <span class="n">pages_low</span><span class="p">,</span> <span class="n">pages_high</span><span class="p">;</span> 
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">lowmem_reserve</span><span class="p">[</span><span class="n">MAX_NR_ZONES</span><span class="p">];</span> 
+    <span class="k">struct</span> <span class="n">per_cpu_pageset</span> <span class="n">pageset</span><span class="p">[</span><span class="n">NR_CPUS</span><span class="p">];</span> 
+    <span class="n">spinlock_t</span> <span class="n">lock</span><span class="p">;</span> 
+    <span class="k">struct</span> <span class="n">free_area</span> <span class="n">free_area</span><span class="p">[</span><span class="n">MAX_ORDER</span><span class="p">];</span>	<span class="c1">//伙伴系统算法
+</span><span class="c1"></span>    <span class="n">ZONE_PADDING</span><span class="p">(</span><span class="n">_pad1_</span><span class="p">)</span> 
+    <span class="cm">/* 通常由页面收回扫描程序访问的字段 */</span> 
+    <span class="n">spinlock_t</span> <span class="n">lru_lock</span><span class="p">;</span> 
+    <span class="k">struct</span> <span class="n">list_head</span> <span class="n">active_list</span><span class="p">;</span> 
+    <span class="k">struct</span> <span class="n">list_head</span> <span class="n">inactive_list</span><span class="p">;</span> 
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">nr_scan_active</span><span class="p">;</span> 
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">nr_scan_inactive</span><span class="p">;</span> 
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">pages_scanned</span><span class="p">;</span> <span class="cm">/* 上一次回收以来扫描过的页 */</span> 
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">flags</span><span class="p">;</span> <span class="cm">/* 内存域标志，见下文 */</span> 
+    <span class="cm">/* 内存域统计量 */</span> 
+    <span class="n">atomic_long_t</span> <span class="n">vm_stat</span><span class="p">[</span><span class="n">NR_VM_ZONE_STAT_ITEMS</span><span class="p">];</span> 
+    <span class="kt">int</span> <span class="n">prev_priority</span><span class="p">;</span> 
+    <span class="n">ZONE_PADDING</span><span class="p">(</span><span class="n">_pad2_</span><span class="p">)</span> 
+    <span class="cm">/* 很少使用或大多数情况下只读的字段 */</span> 
+    <span class="n">wait_queue_head_t</span> <span class="o">*</span> <span class="n">wait_table</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">wait_table_hash_nr_entries</span><span class="p">;</span> 
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">wait_table_bits</span><span class="p">;</span> 
+    <span class="cm">/* 支持不连续内存模型的字段。 */</span> 
+    <span class="k">struct</span> <span class="n">pglist_data</span> <span class="o">*</span><span class="n">zone_pgdat</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">zone_start_pfn</span><span class="p">;</span> 
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">spanned_pages</span><span class="p">;</span> <span class="cm">/* 总长度，包含空洞 */</span> 
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">present_pages</span><span class="p">;</span> <span class="cm">/* 内存数量（除去空洞） */</span> 
+    <span class="cm">/* 
+</span><span class="cm">    * 很少使用的字段：
+</span><span class="cm">    */</span> 
+     <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">____cacheline_maxaligned_in_smp</span><span class="p">;</span>
+
+<span class="k">struct</span> <span class="n">free_area</span> <span class="p">{</span> 
+	<span class="k">struct</span> <span class="n">list_head</span> <span class="n">free_list</span><span class="p">[</span><span class="n">MIGRATE_TYPES</span><span class="p">];</span> 	<span class="c1">//反内存碎片机制
+</span><span class="c1"></span>	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">nr_free</span><span class="p">;</span> 						
+<span class="p">};</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="分配算法">分配算法</h3>
+<p>当内核请求分配内存时，伙伴系统执行分配算法以满足其需求。分配算法的基本思想是寻找能够满足内核需求的最小空闲内存块，如果该内存块的阶大于内核请求的阶，则将其逐步划分为一系列低阶内存块，直到划分出恰好满足需求的一个内存块，并分配给内核使用。其余低阶内存块按其所属的阶被依次插入相应的空闲链表，用于满足今后的内存请求。</p>
+<p>假设当前内存的分布情况如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="n">free_area</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">nr_free</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">free_area</span><span class="p">[</span><span class="mi">2</span><span class="p">].</span><span class="n">nr_free</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">free_area</span><span class="p">[</span><span class="mi">3</span><span class="p">].</span><span class="n">nr_free</span> <span class="o">=</span> <span class="mi">1</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>内核请求分配一个1 阶空闲内存块，对于 free_area 数组的查找将从 1 阶开始。由于 1 阶的空闲链表为空，因此继续查找高阶空闲链表，直到发现 3 阶空闲链表非空，查找结果为 3，这说明存在一个 3 阶的空闲内存块可供分配。然后，从 3 阶空闲链表移除第一个内存块的首页描述符，并用 page 指针指向它。同时计算 <code>free_area[3].nr_free--</code>。</p>
+<p>由于找到的空闲内存块的尺寸 (3 阶) 超过了内核请求的尺寸 (1 阶)，因此需要划分.。首先将其等分为<strong>两个（二分伙伴算法的名字来源）</strong> 2 阶内存块, 其中高地址端一块的首页描述符指针为 <code>page + 4</code>，将其插入2阶空闲链表，并计算<code>free_area[2].nr_free++</code>。然后，进一步划分低地址端的另一个2阶内存块，将其等分为两个1阶内存块。高地址端一块的首页描述符指针为<code>page+2</code>，将其插入1阶空闲链表，并计算<code>free_area[1].nr_free++</code>。剩下低地址端的一块1阶内存块恰好满足内核的需求，因此停止划分。</p>
+<h3 id="回收算法">回收算法</h3>
+<p>伙伴系统回收算法的基本思想是首先确定待回收内存块的伙伴，如果伙伴是空闲的，则将二者合并为一个高阶空闲内存块。重复上述合并过程, 直至伙伴不再空闲或合并形成的空闲内存块达到最高阶。在上述过程中，每次合并前都要将伙伴从其所在的空闲链表中移除。合并完成后，最终形成的高阶空闲内存块被插入相应空闲链表的表头。不难看出，回收算法的一项重要的工作是确定待回收内存块的伙伴：</p>
+<p>两个内存块互为伙伴 (Buddy) 当且仅当满足以下三个条件：</p>
+<ol>
+<li>二者在内存中<strong>相邻</strong>且不重叠；</li>
+<li>二者具有<strong>相同的阶</strong>；</li>
+<li>假设二者的阶都为k，则合并后形成一个k+1阶空闲内存块。</li>
+</ol>
+<p>我们知道linux采用数组的方式维护每一个物理页的数据结构<code>struct page</code>，即<code>mem_map</code>。所以通过<code>mem_map[page_addr&gt;&gt;12]</code>可以获得某物理页的<code>struct page</code>。该结构中包含了该页是否为空闲的状态。所以可以通过<code>mem_map[(page_addr&gt;&gt;12)-2^k]</code>确定左伙伴是否为空闲；通过<code>mem_map[(page_addr&gt;&gt;12)+2^k]</code>确定右伙伴是否为空闲。</p>
+<h4 id="分配区域的选择">分配区域的选择</h4>
+<p>我们知道Linux内存分为结点，在结点内部分为区域，每一个区域由伙伴系统算法管理。伙伴系统算法在分配时首先会考虑当前结点是否有充足的内存，其次才会考虑从其它结点借用内存。节点内部分配的优先级从高到低依次是：ZONE_HIGHMEM、ZONE_NORMAL和ZONE_DMA。</p>
+<h3 id="参考索引">参考索引</h3>
+<section class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1" role="doc-endnote">
+<p>薛峰.Linux内核伙伴系统分析[J].计算机系统应用,2018,27(01):174-179. <a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:2" role="doc-endnote">
+<p><a href="https://glemontree.github.io/2017/10/23/%5BLinux%5D%20Linux%E4%B8%AD%E7%9A%84%E4%BC%99%E4%BC%B4%E7%B3%BB%E7%BB%9F%E5%92%8Cslab%E6%9C%BA%E5%88%B6/">https://glemontree.github.io/2017/10/23/[Linux]%20Linux%E4%B8%AD%E7%9A%84%E4%BC%99%E4%BC%B4%E7%B3%BB%E7%BB%9F%E5%92%8Cslab%E6%9C%BA%E5%88%B6/</a> <a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</section>
+]]></description>
+                
+                
+                
+                
+                
+                    
+                        
+                            
+                                
+                                
+                                
+                                    <category domain="https://chengshuyi.github.io/categories/linux%E5%86%85%E6%A0%B8/">linux内核</category>
+                                
+                            
+                        
+                    
+                        
+                            
+                                
+                                
+                                
+                                    <category domain="https://chengshuyi.github.io/tags/linux%E5%86%85%E6%A0%B8/">linux内核</category>
+                                
+                            
+                                
+                                
+                                
+                                    <category domain="https://chengshuyi.github.io/tags/%E4%BC%99%E4%BC%B4%E7%B3%BB%E7%BB%9F/">伙伴系统</category>
+                                
+                            
+                        
+                    
+                
+            </item>
+        
+            <item>
+                <title>多车编队 领航跟随法</title>
+                <link>https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E9%A2%86%E8%88%AA%E8%B7%9F%E9%9A%8F%E6%B3%95/</link>
+                <guid isPermaLink="true">https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E9%A2%86%E8%88%AA%E8%B7%9F%E9%9A%8F%E6%B3%95/</guid>
+                <pubDate>Fri, 03 Apr 2020 11:27:11 +0800</pubDate>
+                
+                    <author>c15271843451@outlook.com (程书意)</author>
+                
+                <copyright>[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh)</copyright>
+                
+                    <description><![CDATA[<p>跟随者领航者法的基本思想是将编队控制问题转化为跟随者跟踪领航者的位置和方向的问题。在多机器人组成的群体中，某个机器人被指定为领航者，其余作为它的跟随者，跟随者以一定的距离间隔跟踪领航机器人的位置和方向。</p>
+<p>跟随者通过跟踪功能强大的领航者实现预期的目标，当领航者的位置等参量发生变化时，跟随者机器人通过比较这些参量的误差得到控制量并引导行为。对于跟随领航者法有两种控制器形式：$l-l$ 控制器和$l-\varphi$控制器。$l-\varphi$控制器的控制目标是使跟随者和领航者之间的距离和相对转角达到设定值。$l-l$控制器考虑的是三个机器人之间的相对位置问题。当跟随者和两个领航者之间的距离达到设定值的话，就可以认为整个队形稳定了<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>。</p>
+<h3 id="建立模型2">建立模型<sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup></h3>
+<p>领航跟随编队控制算法可以分为两个部分: 一是确定领航者及队形。二是跟随者跟随领航者。第一部分比较容易实现，可以根据实际情况确定。第二部分比较复杂，是算法的重点。在上面模型中领航跟随法的控制也就是控制领航者和跟随者之间的间距 $l$ 与角度 $\varphi$。这种编队控制的主要思想是: 控制间距 $l$ 和角度 $\varphi$，使之与期望的间距 $l_d$和期望的角度 $\varphi_d$相等。使跟随机器人以角度 $\varphi$ 和间距 $l$ 跟踪领航机器人，从而形成编队。领航者只需要沿着预定规划的路径行走，跟随者需要知道领航者的位置坐标$( x_1，y_1)$ 、角度 $\theta_1$、速度 $v_1$、角速度 $\omega_1$及自身的位置坐标$( x_2，y_2)$ 、角度 $\theta_2$，通过计算确定自身的前进速度 $v_2$、角速度 $\omega_2$来完成编队控制。</p>
+<p><img src="../../../static/img/image-20200403130104645.png" alt="image-20200403130104645"></p>
+<p>使用参考点的坐标来表示机器人描述中的坐标。机器人描述向量 $r_i= ( x_i，y_i，\theta_i，v_i，\omega_i) $描述机器人 $i$ 的位置坐标、角度、前进速度和角速度，则领航者机器人的描述向量为 $r_1= ( x_1，y_1，\theta_1，v_1，\omega_1)$ ，跟随机器人的描述向量为 $r_2= ( x_2，y_2，\theta_2，v_2，\omega_2)$ 。根据上图中的模型可以得出机器人描述向量各个量之间的关系:</p>
+<div>
+$$
+\left\{\begin{array}{1}
+\dot{x}=v_{i} \cos \theta_i \\
+\dot{y}=v_{i} \sin \theta_i \\ 
+\dot{\theta}_{i}=\omega_{i}
+\end{array}\right.
+$$
+</div>
+<blockquote>
+<p>注：单位时间内位姿的变化量。</p>
+</blockquote>
+<p><img src="../../../static/img/image-20200403130200690.png" alt="image-20200403130200690"></p>
+<p>根据上图的控制关系，跟随机器人的运动学方程为:</p>
+<div>
+$$
+\left\{\begin{array}{l}
+\dot{l}=v_{2} \cos \gamma-v_{1} \cos \varphi+d \omega_{2} \sin \gamma \\
+\dot{\varphi}=\frac{1}{l}\left(v_{1} \sin \varphi-v_{2} \sin \gamma+d \omega_{2} \cos \gamma-l \omega_{1}\right) \\
+\dot{\theta}_{2}=\omega_{2} \tag{1}
+\end{array}\right.
+$$
+</div>
+其中 $γ = \varphi + \theta_1－ \theta_2$。
+<div>
+$$
+\left\{\begin{array}{l}
+\omega_{2}=\frac{\cos \gamma}{d}\left[\beta l\left(\varphi_{d}-\varphi\right)-v_{1} \sin \varphi+l \omega_{1}+p \sin \gamma\right] \\
+v_{2}=p-d \omega_{2} \tan \gamma \tag{2}
+\end{array}\right.
+$$
+</div>
+根据算法原理结合结构图的闭环特性可得:
+<div>
+$$
+\left\{\begin{array}{1}
+\dot{l}=\alpha(l_d-l) \\
+\dot{\varphi}=\beta(\varphi_d-\varphi)
+\end{array}\right.\tag{3}
+$$
+</div>
+<blockquote>
+<p>通过控制使得$l$和$\varphi$逐渐达到期望值$l_d$和$\varphi_d$，最终$l$和$\varphi$单位时间内的变化量为0。</p>
+</blockquote>
+<p>式中的 $α，β$ 是闭环控制中的比例系数，联合(2) 式和(3) 式可得跟随机器人的速度$( v_2，\omega_2)$ ，即控制系统的输出：</p>
+<div>
+$$
+\left\{\begin{array}{l}
+\omega_{2}=\frac{\cos \gamma}{d}\left[\beta l\left(\varphi_{d}-\varphi\right)-v_{1} \sin \varphi+l \omega_{1}+p \sin \gamma\right] \\
+v_{2}=p-d \omega_{2} \tan \gamma \tag{4}
+\end{array}\right.
+$$
+</div>
+其中$p=\frac{v_icos\varphi+\alpha(l_d-l)}{cos\gamma}$由( 4) 式得出跟随机器人的控制输入量$( v_2，\omega_2)$ 。根据上面结果输入跟随机器人的控制量来控制跟随机器人的前进速度与角速度，从而完成领航跟随编队控制算法的队形保持，实现编队控制。
+<h3 id="参考文献">参考文献</h3>
+<section class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1" role="doc-endnote">
+<p>胡玮韬.多机器人编队及运动控制研究[D].陕西:西安电子科技大学,2010. DOI:10.7666/d.y1668394. <a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:2" role="doc-endnote">
+<p>赵明, 林茂松, 黄玉清. Leader-following Formation Control of Multi-robots Based on Dynamic Value of $\varphi$%基于动态\varphi值的领航跟随法多机器人编队控制[J]. 西南科技大学学报, 2013, 028(004):57-61. <a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</section>]]></description>
+                
+                
+                
+                
+                
+                    
+                        
+                            
+                                
+                                
+                                
+                                    <category domain="https://chengshuyi.github.io/categories/%E6%9C%BA%E5%99%A8%E4%BA%BA/">机器人</category>
+                                
+                            
+                        
+                    
+                        
+                            
+                                
+                                
+                                
+                                    <category domain="https://chengshuyi.github.io/tags/%E6%9C%BA%E5%99%A8%E4%BA%BA/">机器人</category>
+                                
+                            
+                                
+                                
+                                
+                                    <category domain="https://chengshuyi.github.io/tags/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F/">多车编队</category>
+                                
+                            
+                        
+                    
+                
+            </item>
+        
+            <item>
+                <title>作用域、链接、存储类型</title>
+                <link>https://chengshuyi.github.io/posts/c/%E4%BD%9C%E7%94%A8%E5%9F%9F%E9%93%BE%E6%8E%A5%E5%AD%98%E5%82%A8%E7%B1%BB%E5%9E%8B/</link>
+                <guid isPermaLink="true">https://chengshuyi.github.io/posts/c/%E4%BD%9C%E7%94%A8%E5%9F%9F%E9%93%BE%E6%8E%A5%E5%AD%98%E5%82%A8%E7%B1%BB%E5%9E%8B/</guid>
+                <pubDate>Thu, 02 Apr 2020 13:41:27 +0800</pubDate>
+                
+                    <author>c15271843451@outlook.com (程书意)</author>
+                
+                <copyright>[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh)</copyright>
+                
+                    <description><![CDATA[<p>在开发中经常会使用到static和extern等关键字，它们会涉及到c语言中的作用域、链接和存储期等概念。作用域和链接描述了标识符的可见性，存储期描述了通过这些标识符访问的对象的生存期。</p>
+<h3 id="作用域">作用域</h3>
+<p>作用域描述了标识符可见范围，包括：文件作用域、代码块作用域、函数作用域、函数原型作用域。</p>
+<h4 id="文件作用域">文件作用域</h4>
+<p>在所有代码块之外的声明的标识符具有文件作用域；</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">int</span> <span class="n">a</span><span class="p">;</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(){</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><blockquote>
+<p>先声明再使用；</p>
+</blockquote>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">int</span> <span class="nf">main</span><span class="p">(){</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> 				<span class="c1">//error: &#39;a&#39; was not declared in this scope
+</span><span class="c1"></span><span class="p">}</span>
+<span class="kt">int</span> <span class="n">a</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="代码块作用域">代码块作用域</h4>
+<p>花括号之间声明的标识符具有块作用域；</p>
+<blockquote>
+<p>函数定义的形式参数也具有块作用域。</p>
+</blockquote>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">int</span> <span class="nf">main</span><span class="p">(){</span>
+    <span class="p">{</span>
+        <span class="kt">int</span> <span class="n">a</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> 				<span class="c1">//error: &#39;a&#39; was not declared in this scope
+</span><span class="c1"></span><span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="函数原型作用域">函数原型作用域</h4>
+<p>函数原型中声明的参数名具有函数原型作用域；范围是从形参定义处到函数原型声明的结束。</p>
+<blockquote>
+<p>唯一要注意的是在函数原型中的参数名字不能重复；</p>
+</blockquote>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="nf">func</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">,</span><span class="kt">int</span> <span class="n">a</span><span class="p">);</span> <span class="c1">//redefinition of &#39;int a&#39;
+</span></code></pre></td></tr></table>
+</div>
+</div><h4 id="函数作用域">函数作用域</h4>
+<p>一个标签首次出现在函数的内层块中，它的作用域也延伸至整个函数；</p>
+<blockquote>
+<p>只适用于语句标签</p>
+</blockquote>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="nf">func</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">,</span><span class="kt">int</span> <span class="n">b</span><span class="p">){</span>
+<span class="nl">ret</span><span class="p">:</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(){</span>
+    <span class="k">goto</span> <span class="n">ret</span><span class="p">;</span>			<span class="c1">//error: label &#39;ret&#39; used but not defined
+</span><span class="c1"></span><span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">int</span> <span class="nf">main</span><span class="p">(){</span>
+    <span class="p">{</span>
+        <span class="nl">ret</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="p">{</span>
+        <span class="nl">ret</span><span class="p">:</span> 			<span class="c1">//error: duplicate label &#39;ret&#39;
+</span><span class="c1"></span>        <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="链接属性">链接属性</h3>
+<p>C 变量有 3 种链接属性：外部链接、内部链接或无链接。具有块作用域、函数作用域或函数原型作用域的变量都是无链接变量。这意味着这些变量属于定义它们的块、函数或原型私有。具有文件作用域的变量可以是外部链接或内部链接。<strong>外部链接变量可以在多文件程序中使用，内部链接变量只能在一个翻译单元中使用</strong>。</p>
+<p>static关键字可以使一个<strong>外部链接</strong>变成内部链接（<strong>注意：1. 无法将无链接的变成内部链接，比如在函数内声明static变量，其链接属性仍然是无连接。2. static无法改变标识符的作用域</strong>），即每一个翻译单元都单独享有static声明的标识符。本例有两个源文件：<code>file1.c</code>和<code>file2.c</code>，源文件都包含同一个头文件<code>file.h</code>。具体代码如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">//file.h 
+</span><span class="c1"></span><span class="cp">#ifndef TEST_FILE_H
+</span><span class="cp">#define TEST_FILE_H
+</span><span class="cp"></span><span class="k">static</span> <span class="kt">int</span> <span class="n">a</span><span class="p">;</span>
+<span class="kt">void</span> <span class="nf">file1_modify_static</span><span class="p">();</span>
+<span class="cp">#endif
+</span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">//file1.c
+</span><span class="c1"></span><span class="cp">#include</span> <span class="cpf">&lt;bits/stdc++.h&gt;</span><span class="cp">
+</span><span class="cp">#include</span> <span class="cpf">&#34;file.h&#34;</span><span class="cp">
+</span><span class="cp"></span><span class="n">using</span> <span class="n">namespace</span> <span class="n">std</span><span class="p">;</span>
+<span class="kt">void</span> <span class="nf">file1_modify_static</span><span class="p">(){</span>
+	<span class="n">a</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="n">__func__</span><span class="o">&lt;&lt;</span><span class="s">&#34;: a is &#34;</span><span class="o">&lt;&lt;</span><span class="n">a</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">//file2.c
+</span><span class="c1"></span><span class="cp">#include</span> <span class="cpf">&lt;bits/stdc++.h&gt;</span><span class="cp">
+</span><span class="cp">#include</span> <span class="cpf">&#34;file.h&#34;</span><span class="cp">
+</span><span class="cp"></span><span class="n">using</span> <span class="n">namespace</span> <span class="n">std</span><span class="p">;</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(){</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="n">__func__</span><span class="o">&lt;&lt;</span><span class="s">&#34;: a is &#34;</span><span class="o">&lt;&lt;</span><span class="n">a</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+    <span class="n">file1_modify_static</span><span class="p">();</span>
+    <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="n">__func__</span><span class="o">&lt;&lt;</span><span class="s">&#34;: a is &#34;</span><span class="o">&lt;&lt;</span><span class="n">a</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>最终的输出是：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="nl">main</span><span class="p">:</span> <span class="n">a</span> <span class="n">is</span> <span class="mi">0</span>
+<span class="nl">file1_modify_static</span><span class="p">:</span> <span class="n">a</span> <span class="n">is</span> <span class="mi">1</span>
+<span class="nl">main</span><span class="p">:</span> <span class="n">a</span> <span class="n">is</span> <span class="mi">0</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>可以看到文件1和文件2修改的a不是同一个a，说明static将变量a变成了内部链接。</p>
+<h3 id="存储期">存储期</h3>
+<p>C对象有4种存储期：静态存储期、线程存储期、自动存储期、动态分配存储期。这里主要需要了解静态存储期和自动存储期：</p>
+<ol>
+<li>
+<p>如果对象具有静态存储期，那么它在程序的执行期间一直存在。</p>
+</li>
+<li>
+<p>块作用域的变量通常都具有自动存储期。当程序进入定义这些变量的块时，为这些变量分配内存；当退出这个块时，释放刚才为变量分配的内存。</p>
+</li>
+</ol>
+<h3 id="总结">总结</h3>
+<p><img src="C:%5CUsers%5Cc1527%5CDesktop%5Chugo_0.68.3_Windows-64bit%5Cblog%5Cstatic%5Cimg%5Cimage-20200402133937695.png" alt="image-20200402133937695"></p>
+<blockquote>
+<p>static关键字的作用</p>
+</blockquote>
+<ol>
+<li>
+<p>static用于修改标识符的链接属性，将其链接属性从<strong>外部链接</strong>转换成内部链接，使得改标识符只能由该源文件访问，但标识符的存储期和作用域不受影响；</p>
+<blockquote>
+<p>外部链接和内部链接的存储期和作用域都一样，属于：文件作用域，静态存储期</p>
+</blockquote>
+</li>
+<li>
+<p>static用于块作用域的标识符声明时，将其从自动变量转换成静态变量，但变量的链接属性和作用域不受影响。</p>
+</li>
+</ol>
+]]></description>
+                
+                
+                
+                
+                
+                    
+                        
+                            
+                                
+                                
+                                
+                                    <category domain="https://chengshuyi.github.io/categories/c%E8%AF%AD%E8%A8%80/">c语言</category>
+                                
+                            
+                        
+                    
+                        
+                            
+                                
+                                
+                                
+                                    <category domain="https://chengshuyi.github.io/tags/c%E8%AF%AD%E8%A8%80c%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/">c语言、c语言基础概念</category>
+                                
+                            
+                        
+                    
+                
+            </item>
         
     </channel>
 </rss>

@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+    <head prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article#">
+    <meta charset="UTF-8" />
+
+    <meta name="generator" content="Hugo 0.68.3" /><meta name="theme-color" content="#fff" />
+        <script>
+            const userPrefers = localStorage.getItem('theme');
+            const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+            const lightModeMediaQuery = window.matchMedia('(prefers-color-scheme: light)');
+            if (userPrefers === 'dark') {
+                changeModeMeta('dark');
+            } else if (userPrefers === 'light') {
+                changeModeMeta('light');
+            } else if (darkModeMediaQuery.matches) {
+                changeModeMeta('dark');
+            } else if (lightModeMediaQuery.matches) {
+                changeModeMeta('light');
+            }
+            function changeModeMeta(theme) {
+                document.documentElement.setAttribute('data-theme', theme);
+                if (theme === 'dark') {
+                    changeThemeColor('#282a36');
+                } else {
+                    changeThemeColor('#fff');
+                }
+            }
+            function changeThemeColor(themeColor) {
+                document.querySelector('meta[name="theme-color"]').setAttribute('content', themeColor);
+            }
+        </script>
+
+    
+
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes" />
+    
+    <meta name="format-detection" content="telephone=no, date=no, address=no, email=no" />
+    
+    <meta http-equiv="Cache-Control" content="no-transform" />
+    
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+
+    <title>伙伴系统 | 程书意</title>
+
+    <link rel="stylesheet" href="/css/meme.min.7017b47455e4b6bed857c02833f6d06f858f9a254053e88aca9d919df7fa0b9c.css" integrity="sha256-cBe0dFXktr7YV8AoM/bQb4WPmiVAU+iKyp2Rnff6C5w=" />
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB&#43;Garamond:ital,wght@0,400;0,500;0,700;1,400;1,700&amp;family=Noto&#43;Serif&#43;SC:wght@400;500;700&amp;family=Source&#43;Code&#43;Pro:ital,wght@0,400;0,700;1,400;1,700&amp;display=swap" media="print" onload="this.media='all'" />
+        <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB&#43;Garamond:ital,wght@0,400;0,500;0,700;1,400;1,700&amp;family=Noto&#43;Serif&#43;SC:wght@400;500;700&amp;family=Source&#43;Code&#43;Pro:ital,wght@0,400;0,700;1,400;1,700&amp;display=swap" /></noscript>
+
+    <meta name="author" content="程书意" />
+    
+    
+    <meta name="description" content="伙伴算法是一种动态存储分配算法，用于实现操作系统内核空间和用户空间 (如 C 语言库) 的分配和回收操作.。Knowlton和 Knuth最早系统地描述了用于内存管理中的二分伙伴……" />
+
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="mask-icon" href="/icons/safari-pinned-tab.svg" color="#2a6df4" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="程书意" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="application-name" content="程书意" />
+    <meta name="msapplication-starturl" content="../../../" />
+    <meta name="msapplication-TileColor" content="#fff" />
+    <meta name="msapplication-TileImage" content="../../../icons/mstile-150x150.png" />
+    <link rel="manifest" href="/manifest.json" />
+
+    
+    
+
+    
+    <link rel="canonical" href="https://chengshuyi.github.io/posts/linux_kernel/%E4%BC%99%E4%BC%B4%E7%B3%BB%E7%BB%9F/" />
+
+
+
+<script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "datePublished": "2020-04-03T15:26:04+08:00",
+        "dateModified": "2020-04-04T09:49:53+00:00",
+        "url": "https://chengshuyi.github.io/posts/linux_kernel/%E4%BC%99%E4%BC%B4%E7%B3%BB%E7%BB%9F/",
+        "headline": "伙伴系统",
+        "description": "伙伴算法是一种动态存储分配算法，用于实现操作系统内核空间和用户空间 (如 C 语言库) 的分配和回收操作.。Knowlton和 Knuth最早系统地描述了用于内存管理中的二分伙伴……",
+        "inLanguage" : "zh-CN",
+        "articleSection": "posts",
+        "wordCount":  3031 ,
+        "image": ["https://chengshuyi.github.io/static/img/image-20200403231746644.png","https://chengshuyi.github.io/static/img/image-20200403225121981.png"],
+        "author": {
+            "@type": "Person",
+            "description": "技术宅",
+            "email": "c15271843451@outlook.com",
+            "image": "https://chengshuyi.github.io/icons/apple-touch-icon.png",
+            "url": "https://chengshuyi.github.io",
+            "name": "程书意"
+        },
+        "license": "[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh)",
+        "publisher": {
+            "@type": "Organization",
+            "name": "程书意",
+            "logo": {
+                "@type": "ImageObject",
+                "url": "https://chengshuyi.github.io/icons/apple-touch-icon.png"
+            },
+            "url": "https://chengshuyi.github.io/"
+        },
+        "mainEntityOfPage": {
+            "@type": "WebSite",
+            "@id": "https://chengshuyi.github.io/"
+        }
+    }
+</script>
+
+    
+
+
+
+<meta name="twitter:card" content="summary_large_image" />
+
+
+<meta name="twitter:site" content="@reuixiy" />
+<meta name="twitter:creator" content="@无" />
+
+    
+
+
+
+
+
+<meta property="og:title" content="伙伴系统" />
+<meta property="og:description" content="伙伴算法是一种动态存储分配算法，用于实现操作系统内核空间和用户空间 (如 C 语言库) 的分配和回收操作.。Knowlton和 Knuth最早系统地描述了用于内存管理中的二分伙伴……" />
+<meta property="og:url" content="https://chengshuyi.github.io/posts/linux_kernel/%E4%BC%99%E4%BC%B4%E7%B3%BB%E7%BB%9F/" />
+<meta property="og:site_name" content="程书意" />
+<meta property="og:locale" content="zh" /><meta property="og:image" content="https://chengshuyi.github.io/static/img/image-20200403231746644.png" />
+<meta property="og:type" content="article" />
+    <meta property="article:published_time" content="2020-04-03T15:26:04+08:00" />
+    <meta property="article:modified_time" content="2020-04-04T09:49:53+00:00" />
+    
+    <meta property="article:section" content="posts" />
+
+
+
+    
+</head>
+
+    <body>
+        <div class="container">
+            
+    <header class="header" data-scroll-header>
+        
+            <div class="header-wrapper">
+                <div class="header-inner">
+                    
+    <div class="site-brand">
+        
+            <a href="/" class="brand">程书意</a>
+        
+    </div>
+
+                    <nav class="nav">
+    <ul class="menu" id="menu">
+        
+            
+        
+        
+        
+        
+            
+                <li class="menu-item"><a href="/posts/"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon "><path d="M32 448c0 17.7 14.3 32 32 32h384c17.7 0 32-14.3 32-32V160H32v288zm160-212c0-6.6 5.4-12 12-12h104c6.6 0 12 5.4 12 12v8c0 6.6-5.4 12-12 12H204c-6.6 0-12-5.4-12-12v-8zM480 32H32C14.3 32 0 46.3 0 64v48c0 8.8 7.2 16 16 16h480c8.8 0 16-7.2 16-16V64c0-17.7-14.3-32-32-32z"/></svg><span class="menu-item-name">文章</span></a>
+                </li>
+            
+        
+            
+                <li class="menu-item"><a href="/categories/"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon "><path d="M149.333 56v80c0 13.255-10.745 24-24 24H24c-13.255 0-24-10.745-24-24V56c0-13.255 10.745-24 24-24h101.333c13.255 0 24 10.745 24 24zm181.334 240v-80c0-13.255-10.745-24-24-24H205.333c-13.255 0-24 10.745-24 24v80c0 13.255 10.745 24 24 24h101.333c13.256 0 24.001-10.745 24.001-24zm32-240v80c0 13.255 10.745 24 24 24H488c13.255 0 24-10.745 24-24V56c0-13.255-10.745-24-24-24H386.667c-13.255 0-24 10.745-24 24zm-32 80V56c0-13.255-10.745-24-24-24H205.333c-13.255 0-24 10.745-24 24v80c0 13.255 10.745 24 24 24h101.333c13.256 0 24.001-10.745 24.001-24zm-205.334 56H24c-13.255 0-24 10.745-24 24v80c0 13.255 10.745 24 24 24h101.333c13.255 0 24-10.745 24-24v-80c0-13.255-10.745-24-24-24zM0 376v80c0 13.255 10.745 24 24 24h101.333c13.255 0 24-10.745 24-24v-80c0-13.255-10.745-24-24-24H24c-13.255 0-24 10.745-24 24zm386.667-56H488c13.255 0 24-10.745 24-24v-80c0-13.255-10.745-24-24-24H386.667c-13.255 0-24 10.745-24 24v80c0 13.255 10.745 24 24 24zm0 160H488c13.255 0 24-10.745 24-24v-80c0-13.255-10.745-24-24-24H386.667c-13.255 0-24 10.745-24 24v80c0 13.255 10.745 24 24 24zM181.333 376v80c0 13.255 10.745 24 24 24h101.333c13.255 0 24-10.745 24-24v-80c0-13.255-10.745-24-24-24H205.333c-13.255 0-24 10.745-24 24z"/></svg><span class="menu-item-name">分类</span></a>
+                </li>
+            
+        
+            
+                <li class="menu-item"><a href="/tags/"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" class="icon "><path d="M497.941 225.941L286.059 14.059A48 48 0 0 0 252.118 0H48C21.49 0 0 21.49 0 48v204.118a48 48 0 0 0 14.059 33.941l211.882 211.882c18.744 18.745 49.136 18.746 67.882 0l204.118-204.118c18.745-18.745 18.745-49.137 0-67.882zM112 160c-26.51 0-48-21.49-48-48s21.49-48 48-48 48 21.49 48 48-21.49 48-48 48zm513.941 133.823L421.823 497.941c-18.745 18.745-49.137 18.745-67.882 0l-.36-.36L527.64 323.522c16.999-16.999 26.36-39.6 26.36-63.64s-9.362-46.641-26.36-63.64L331.397 0h48.721a48 48 0 0 1 33.941 14.059l211.882 211.882c18.745 18.745 18.745 49.137 0 67.882z"/></svg><span class="menu-item-name">标签</span></a>
+                </li>
+            
+        
+            
+                <li class="menu-item"><a href="/about/"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512" class="icon "><path d="M248 8C111 8 0 119 0 256s111 248 248 248 248-111 248-248S385 8 248 8zm0 96c48.6 0 88 39.4 88 88s-39.4 88-88 88-88-39.4-88-88 39.4-88 88-88zm0 344c-58.7 0-111.3-26.6-146.5-68.2 18.8-35.4 55.6-59.8 98.5-59.8 2.4 0 4.8.4 7.1 1.1 13 4.2 26.6 6.9 40.9 6.9 14.3 0 28-2.7 40.9-6.9 2.3-.7 4.7-1.1 7.1-1.1 42.9 0 79.7 24.4 98.5 59.8C359.3 421.4 306.7 448 248 448z"/></svg><span class="menu-item-name">关于</span></a>
+                </li>
+            
+        
+            
+                
+                    <li class="menu-item">
+                        
+    
+        
+            
+        
+        <div id="theme-switcher">🌞</div>
+    
+
+
+                    </li>
+                
+            
+        
+            
+                
+            
+        
+    </ul>
+</nav>
+
+                </div>
+            </div>
+            
+    <input type="checkbox" id="nav-toggle" aria-hidden="true" />
+    <label for="nav-toggle" class="nav-toggle"></label>
+    <label for="nav-toggle" class="nav-curtain"></label>
+
+
+        
+    </header>
+
+
+
+
+            
+            
+    <main class="main single" id="main">
+    <div class="main-inner">
+
+        <article class="content post" data-align="justify" data-type="posts" data-toc-num="true">
+
+            <h1 class="post-title">伙伴系统</h1>
+
+            
+
+            
+                
+            
+
+            
+                
+
+<div class="post-meta">
+    
+        
+        <time datetime="2020-04-03T15:26:04+08:00" class="post-meta-item published"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="icon post-meta-icon"><path d="M148 288h-40c-6.6 0-12-5.4-12-12v-40c0-6.6 5.4-12 12-12h40c6.6 0 12 5.4 12 12v40c0 6.6-5.4 12-12 12zm108-12v-40c0-6.6-5.4-12-12-12h-40c-6.6 0-12 5.4-12 12v40c0 6.6 5.4 12 12 12h40c6.6 0 12-5.4 12-12zm96 0v-40c0-6.6-5.4-12-12-12h-40c-6.6 0-12 5.4-12 12v40c0 6.6 5.4 12 12 12h40c6.6 0 12-5.4 12-12zm-96 96v-40c0-6.6-5.4-12-12-12h-40c-6.6 0-12 5.4-12 12v40c0 6.6 5.4 12 12 12h40c6.6 0 12-5.4 12-12zm-96 0v-40c0-6.6-5.4-12-12-12h-40c-6.6 0-12 5.4-12 12v40c0 6.6 5.4 12 12 12h40c6.6 0 12-5.4 12-12zm192 0v-40c0-6.6-5.4-12-12-12h-40c-6.6 0-12 5.4-12 12v40c0 6.6 5.4 12 12 12h40c6.6 0 12-5.4 12-12zm96-260v352c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V112c0-26.5 21.5-48 48-48h48V12c0-6.6 5.4-12 12-12h40c6.6 0 12 5.4 12 12v52h128V12c0-6.6 5.4-12 12-12h40c6.6 0 12 5.4 12 12v52h48c26.5 0 48 21.5 48 48zm-48 346V160H48v298c0 3.3 2.7 6 6 6h340c3.3 0 6-2.7 6-6z"/></svg>&nbsp;2020.4.3</time>
+    
+    
+        
+        <time datetime="2020-04-04T09:49:53+00:00" class="post-meta-item modified"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="icon post-meta-icon"><path d="M400 64h-48V12c0-6.627-5.373-12-12-12h-40c-6.627 0-12 5.373-12 12v52H160V12c0-6.627-5.373-12-12-12h-40c-6.627 0-12 5.373-12 12v52H48C21.49 64 0 85.49 0 112v352c0 26.51 21.49 48 48 48h352c26.51 0 48-21.49 48-48V112c0-26.51-21.49-48-48-48zm-6 400H54a6 6 0 0 1-6-6V160h352v298a6 6 0 0 1-6 6zm-52.849-200.65L198.842 404.519c-4.705 4.667-12.303 4.637-16.971-.068l-75.091-75.699c-4.667-4.705-4.637-12.303.068-16.971l22.719-22.536c4.705-4.667 12.303-4.637 16.97.069l44.104 44.461 111.072-110.181c4.705-4.667 12.303-4.637 16.971.068l22.536 22.718c4.667 4.705 4.636 12.303-.069 16.97z"/></svg>&nbsp;2020.4.4</time>
+    
+    
+    
+        
+        
+        
+            
+                
+                <span class="post-meta-item category"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon post-meta-icon"><path d="M464 128H272l-54.63-54.63c-6-6-14.14-9.37-22.63-9.37H48C21.49 64 0 85.49 0 112v288c0 26.51 21.49 48 48 48h416c26.51 0 48-21.49 48-48V176c0-26.51-21.49-48-48-48zm0 272H48V112h140.12l54.63 54.63c6 6 14.14 9.37 22.63 9.37H464v224z"/></svg>&nbsp;<a href="/categories/linux%E5%86%85%E6%A0%B8/" class="category-link">linux内核</a></span>
+            
+        
+    
+    
+        
+        <span class="post-meta-item wordcount"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon post-meta-icon"><path d="M497.9 142.1l-46.1 46.1c-4.7 4.7-12.3 4.7-17 0l-111-111c-4.7-4.7-4.7-12.3 0-17l46.1-46.1c18.7-18.7 49.1-18.7 67.9 0l60.1 60.1c18.8 18.7 18.8 49.1 0 67.9zM284.2 99.8L21.6 362.4.4 483.9c-2.9 16.4 11.4 30.6 27.8 27.8l121.5-21.3 262.6-262.6c4.7-4.7 4.7-12.3 0-17l-111-111c-4.8-4.7-12.4-4.7-17.1 0zM124.1 339.9c-5.5-5.5-5.5-14.3 0-19.8l154-154c5.5-5.5 14.3-5.5 19.8 0s5.5 14.3 0 19.8l-154 154c-5.5 5.5-14.3 5.5-19.8 0zM88 424h48v36.3l-64.5 11.3-31.1-31.1L51.7 376H88v48z"/></svg>&nbsp;3031</span>
+    
+    
+        
+        <span class="post-meta-item reading-time"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon post-meta-icon"><path d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm0 448c-110.5 0-200-89.5-200-200S145.5 56 256 56s200 89.5 200 200-89.5 200-200 200zm61.8-104.4l-84.9-61.7c-3.1-2.3-4.9-5.9-4.9-9.7V116c0-6.6 5.4-12 12-12h32c6.6 0 12 5.4 12 12v141.7l66.8 48.6c5.4 3.9 6.5 11.4 2.6 16.8L334.6 349c-3.9 5.3-11.4 6.5-16.8 2.6z"/></svg>&nbsp;7&nbsp;分钟</span>
+    
+    
+</div>
+            
+
+            <div class="post-body"><p>伙伴算法是一种动态存储分配算法，用于实现操作系统内核空间和用户空间 (如 C 语言库) 的分配和回收操作.。Knowlton和 Knuth最早系统地描述了用于内存管理中的二分伙伴算法。之后，Hirschberg和Shen先后提出斐波那契伙伴算法和加权伙伴算法，作为伙伴算法的两种变体。为了适应不同的内存请求概率分布，Peterson又进一步提出泛化伙伴算法，针对不同请求概率分布采取不同的分配策略。为了追求时间效率，Linux 内核选择实现了二分伙伴算法, 该算法的优点在于伙伴地址的计算更加简便、高效<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">[1]</a></sup>。</p>
+<p>Linux内核伙伴系统算法把所有的空闲页框分组为11个块链表，每个块链表分别包含大小为1、2、4、8、16、32、64、128、256、512和1024个连续页框的页框块。最大可以申请1024个连续页框，也即4MB大小的连续空间。假设要申请一个256个页框的块，先从256个页框的链表中查找空闲块，如果没有，就去512个页框的链表中找，找到了即将页框分为两个256个页框的块，一个分配给应用，另外一个移到256个页框的链表中。如果512个页框的链表中仍没有空闲块，继续向1024个页框的链表查找，如果仍然没有，则返回错误<sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">[2]</a></sup>。</p>
+<p>下图是伙伴系统只有0阶和2阶内存块时的分配情况。</p>
+<p><img src="../../../static/img/image-20200403231746644.png" alt="image-20200403231746644"></p>
+<p>本文首先介绍了linux内存区域的概念，然后详细描述了伙伴系统算法中分配算法和回收算法，最后简要的描述了伙伴系统算法在分配时区域的选择。</p>
+<h3 id="内存区域"><a href="#内存区域" class="anchor-link"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon anchor-icon"><path d="M326.612 185.391c59.747 59.809 58.927 155.698.36 214.59-.11.12-.24.25-.36.37l-67.2 67.2c-59.27 59.27-155.699 59.262-214.96 0-59.27-59.26-59.27-155.7 0-214.96l37.106-37.106c9.84-9.84 26.786-3.3 27.294 10.606.648 17.722 3.826 35.527 9.69 52.721 1.986 5.822.567 12.262-3.783 16.612l-13.087 13.087c-28.026 28.026-28.905 73.66-1.155 101.96 28.024 28.579 74.086 28.749 102.325.51l67.2-67.19c28.191-28.191 28.073-73.757 0-101.83-3.701-3.694-7.429-6.564-10.341-8.569a16.037 16.037 0 0 1-6.947-12.606c-.396-10.567 3.348-21.456 11.698-29.806l21.054-21.055c5.521-5.521 14.182-6.199 20.584-1.731a152.482 152.482 0 0 1 20.522 17.197zM467.547 44.449c-59.261-59.262-155.69-59.27-214.96 0l-67.2 67.2c-.12.12-.25.25-.36.37-58.566 58.892-59.387 154.781.36 214.59a152.454 152.454 0 0 0 20.521 17.196c6.402 4.468 15.064 3.789 20.584-1.731l21.054-21.055c8.35-8.35 12.094-19.239 11.698-29.806a16.037 16.037 0 0 0-6.947-12.606c-2.912-2.005-6.64-4.875-10.341-8.569-28.073-28.073-28.191-73.639 0-101.83l67.2-67.19c28.239-28.239 74.3-28.069 102.325.51 27.75 28.3 26.872 73.934-1.155 101.96l-13.087 13.087c-4.35 4.35-5.769 10.79-3.783 16.612 5.864 17.194 9.042 34.999 9.69 52.721.509 13.906 17.454 20.446 27.294 10.606l37.106-37.106c59.271-59.259 59.271-155.699.001-214.959z"/></svg></a>内存区域</h3>
+<p>UMA（Uniform-Memory-Access）模型：物理存储器被所有处理机均匀共享。所有处理机对所有存储字具有相同的存取时间，这就是为什么称它为均匀存储器存取的原因。每台处理机可以有私用高速缓存,外围设备也以一定形式共享。</p>
+<p>NUMA（Non-Uniform-Memory-Access）模型：NUMA模式下，处理器被划分成多个&quot;节点&quot;（node）， 每个节点被分配有的本地存储器空间。 所有节点中的处理器都可以访问全部的系统物理存储器，但是访问本节点内的存储器所需要的时间，比访问某些远程节点内的存储器所花的时间要少得多。</p>
+<p>UMA可以看成NUMA特例。下图是内存区域管理结构，<code>pg_data_t</code>代表着一个节点，<code>zones</code>存储着每个内存区域的物理页的数据结构<code>struct page</code>。</p>
+<p><img src="../../../static/img/image-20200403225121981.png" alt="image-20200403225121981"></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="k">typedef</span> <span class="k">struct</span> <span class="n">pglist_data</span> <span class="p">{</span> 
+    <span class="k">struct</span> <span class="n">zone</span> <span class="n">node_zones</span><span class="p">[</span><span class="n">MAX_NR_ZONES</span><span class="p">];</span> 	<span class="c1">//内存分区，ZONE_DMA, ZONE_NORMAL, ZONE_HIGHMEM
+</span><span class="c1"></span>    <span class="k">struct</span> <span class="n">zonelist</span> <span class="n">node_zonelists</span><span class="p">[</span><span class="n">MAX_ZONELISTS</span><span class="p">];</span>
+    <span class="kt">int</span> <span class="n">nr_zones</span><span class="p">;</span> 
+    <span class="k">struct</span> <span class="n">page</span> <span class="o">*</span><span class="n">node_mem_map</span><span class="p">;</span> 				<span class="c1">//该节点物理内存中每一页的页框描述符
+</span><span class="c1"></span>    <span class="k">struct</span> <span class="n">bootmem_data</span> <span class="o">*</span><span class="n">bdata</span><span class="p">;</span> 
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">node_start_pfn</span><span class="p">;</span> 
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">node_present_pages</span><span class="p">;</span>  
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">node_spanned_pages</span><span class="p">;</span>  
+    <span class="kt">int</span> <span class="n">node_id</span><span class="p">;</span> 
+    <span class="k">struct</span> <span class="n">pglist_data</span> <span class="o">*</span><span class="n">pgdat_next</span><span class="p">;</span> 
+    <span class="n">wait_queue_head_t</span> <span class="n">kswapd_wait</span><span class="p">;</span> 
+    <span class="k">struct</span> <span class="n">task_struct</span> <span class="o">*</span><span class="n">kswapd</span><span class="p">;</span> 
+    <span class="kt">int</span> <span class="n">kswapd_max_order</span><span class="p">;</span> 
+<span class="p">}</span> <span class="n">pg_data_t</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>在内存中，每个node又被分成的区，它们各自描述在内存中的范围。一个管理区(zone)由<code>struct zone</code>结构体来描述，下面是可能分区的情况：</p>
+<ol>
+<li>ZONE_DMA标记适合DMA的内存域。该区域的长度依赖于处理器类型。在IA-32计算机上，一般的限制是16 MiB，这是由古老的ISA设备强加的边界，因此现代的计算机也可能受这一限制的影响。</li>
+<li>ZONE_DMA32标记了使用32位地址字可寻址、适合DMA的内存域。显然，只有在64位系统上，两种DMA内存域才有差别。在32位计算机上，本内存域是空的，即长度为0 MiB。在Alpha和AMD64系统上，该内存域的长度可能从0到4 GiB。</li>
+<li>ZONE_NORMAL标记了可直接映射到内核段的普通内存域。这是在所有体系结构上保证都会存在的唯一内存域，但无法保证该地址范围对应了实际的物理内存。例如，如果AMD64系统有2 GiB内存，那么所有内存都属于ZONE_DMA32范围，而ZONE_NORMAL则为空。</li>
+<li>ZONE_HIGHMEM标记了超出内核段的物理内存，对应着IA-32计算机上896MB以上的物理内存。</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="k">struct</span> <span class="n">zone</span> <span class="p">{</span>
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">pages_min</span><span class="p">,</span> <span class="n">pages_low</span><span class="p">,</span> <span class="n">pages_high</span><span class="p">;</span> 
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">lowmem_reserve</span><span class="p">[</span><span class="n">MAX_NR_ZONES</span><span class="p">];</span> 
+    <span class="k">struct</span> <span class="n">per_cpu_pageset</span> <span class="n">pageset</span><span class="p">[</span><span class="n">NR_CPUS</span><span class="p">];</span> 
+    <span class="n">spinlock_t</span> <span class="n">lock</span><span class="p">;</span> 
+    <span class="k">struct</span> <span class="n">free_area</span> <span class="n">free_area</span><span class="p">[</span><span class="n">MAX_ORDER</span><span class="p">];</span>	<span class="c1">//伙伴系统算法
+</span><span class="c1"></span>    <span class="n">ZONE_PADDING</span><span class="p">(</span><span class="n">_pad1_</span><span class="p">)</span> 
+    <span class="cm">/* 通常由页面收回扫描程序访问的字段 */</span> 
+    <span class="n">spinlock_t</span> <span class="n">lru_lock</span><span class="p">;</span> 
+    <span class="k">struct</span> <span class="n">list_head</span> <span class="n">active_list</span><span class="p">;</span> 
+    <span class="k">struct</span> <span class="n">list_head</span> <span class="n">inactive_list</span><span class="p">;</span> 
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">nr_scan_active</span><span class="p">;</span> 
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">nr_scan_inactive</span><span class="p">;</span> 
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">pages_scanned</span><span class="p">;</span> <span class="cm">/* 上一次回收以来扫描过的页 */</span> 
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">flags</span><span class="p">;</span> <span class="cm">/* 内存域标志，见下文 */</span> 
+    <span class="cm">/* 内存域统计量 */</span> 
+    <span class="n">atomic_long_t</span> <span class="n">vm_stat</span><span class="p">[</span><span class="n">NR_VM_ZONE_STAT_ITEMS</span><span class="p">];</span> 
+    <span class="kt">int</span> <span class="n">prev_priority</span><span class="p">;</span> 
+    <span class="n">ZONE_PADDING</span><span class="p">(</span><span class="n">_pad2_</span><span class="p">)</span> 
+    <span class="cm">/* 很少使用或大多数情况下只读的字段 */</span> 
+    <span class="n">wait_queue_head_t</span> <span class="o">*</span> <span class="n">wait_table</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">wait_table_hash_nr_entries</span><span class="p">;</span> 
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">wait_table_bits</span><span class="p">;</span> 
+    <span class="cm">/* 支持不连续内存模型的字段。 */</span> 
+    <span class="k">struct</span> <span class="n">pglist_data</span> <span class="o">*</span><span class="n">zone_pgdat</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">zone_start_pfn</span><span class="p">;</span> 
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">spanned_pages</span><span class="p">;</span> <span class="cm">/* 总长度，包含空洞 */</span> 
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">present_pages</span><span class="p">;</span> <span class="cm">/* 内存数量（除去空洞） */</span> 
+    <span class="cm">/* 
+</span><span class="cm">    * 很少使用的字段：
+</span><span class="cm">    */</span> 
+     <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">____cacheline_maxaligned_in_smp</span><span class="p">;</span>
+
+<span class="k">struct</span> <span class="n">free_area</span> <span class="p">{</span> 
+	<span class="k">struct</span> <span class="n">list_head</span> <span class="n">free_list</span><span class="p">[</span><span class="n">MIGRATE_TYPES</span><span class="p">];</span> 	<span class="c1">//反内存碎片机制
+</span><span class="c1"></span>	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">nr_free</span><span class="p">;</span> 						
+<span class="p">};</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="分配算法"><a href="#分配算法" class="anchor-link"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon anchor-icon"><path d="M326.612 185.391c59.747 59.809 58.927 155.698.36 214.59-.11.12-.24.25-.36.37l-67.2 67.2c-59.27 59.27-155.699 59.262-214.96 0-59.27-59.26-59.27-155.7 0-214.96l37.106-37.106c9.84-9.84 26.786-3.3 27.294 10.606.648 17.722 3.826 35.527 9.69 52.721 1.986 5.822.567 12.262-3.783 16.612l-13.087 13.087c-28.026 28.026-28.905 73.66-1.155 101.96 28.024 28.579 74.086 28.749 102.325.51l67.2-67.19c28.191-28.191 28.073-73.757 0-101.83-3.701-3.694-7.429-6.564-10.341-8.569a16.037 16.037 0 0 1-6.947-12.606c-.396-10.567 3.348-21.456 11.698-29.806l21.054-21.055c5.521-5.521 14.182-6.199 20.584-1.731a152.482 152.482 0 0 1 20.522 17.197zM467.547 44.449c-59.261-59.262-155.69-59.27-214.96 0l-67.2 67.2c-.12.12-.25.25-.36.37-58.566 58.892-59.387 154.781.36 214.59a152.454 152.454 0 0 0 20.521 17.196c6.402 4.468 15.064 3.789 20.584-1.731l21.054-21.055c8.35-8.35 12.094-19.239 11.698-29.806a16.037 16.037 0 0 0-6.947-12.606c-2.912-2.005-6.64-4.875-10.341-8.569-28.073-28.073-28.191-73.639 0-101.83l67.2-67.19c28.239-28.239 74.3-28.069 102.325.51 27.75 28.3 26.872 73.934-1.155 101.96l-13.087 13.087c-4.35 4.35-5.769 10.79-3.783 16.612 5.864 17.194 9.042 34.999 9.69 52.721.509 13.906 17.454 20.446 27.294 10.606l37.106-37.106c59.271-59.259 59.271-155.699.001-214.959z"/></svg></a>分配算法</h3>
+<p>当内核请求分配内存时，伙伴系统执行分配算法以满足其需求。分配算法的基本思想是寻找能够满足内核需求的最小空闲内存块，如果该内存块的阶大于内核请求的阶，则将其逐步划分为一系列低阶内存块，直到划分出恰好满足需求的一个内存块，并分配给内核使用。其余低阶内存块按其所属的阶被依次插入相应的空闲链表，用于满足今后的内存请求。</p>
+<p>假设当前内存的分布情况如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="n">free_area</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">nr_free</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">free_area</span><span class="p">[</span><span class="mi">2</span><span class="p">].</span><span class="n">nr_free</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">free_area</span><span class="p">[</span><span class="mi">3</span><span class="p">].</span><span class="n">nr_free</span> <span class="o">=</span> <span class="mi">1</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>内核请求分配一个1 阶空闲内存块，对于 free_area 数组的查找将从 1 阶开始。由于 1 阶的空闲链表为空，因此继续查找高阶空闲链表，直到发现 3 阶空闲链表非空，查找结果为 3，这说明存在一个 3 阶的空闲内存块可供分配。然后，从 3 阶空闲链表移除第一个内存块的首页描述符，并用 page 指针指向它。同时计算 <code>free_area[3].nr_free--</code>。</p>
+<p>由于找到的空闲内存块的尺寸 (3 阶) 超过了内核请求的尺寸 (1 阶)，因此需要划分.。首先将其等分为<strong>两个（二分伙伴算法的名字来源）</strong> 2 阶内存块, 其中高地址端一块的首页描述符指针为 <code>page + 4</code>，将其插入2阶空闲链表，并计算<code>free_area[2].nr_free++</code>。然后，进一步划分低地址端的另一个2阶内存块，将其等分为两个1阶内存块。高地址端一块的首页描述符指针为<code>page+2</code>，将其插入1阶空闲链表，并计算<code>free_area[1].nr_free++</code>。剩下低地址端的一块1阶内存块恰好满足内核的需求，因此停止划分。</p>
+<h3 id="回收算法"><a href="#回收算法" class="anchor-link"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon anchor-icon"><path d="M326.612 185.391c59.747 59.809 58.927 155.698.36 214.59-.11.12-.24.25-.36.37l-67.2 67.2c-59.27 59.27-155.699 59.262-214.96 0-59.27-59.26-59.27-155.7 0-214.96l37.106-37.106c9.84-9.84 26.786-3.3 27.294 10.606.648 17.722 3.826 35.527 9.69 52.721 1.986 5.822.567 12.262-3.783 16.612l-13.087 13.087c-28.026 28.026-28.905 73.66-1.155 101.96 28.024 28.579 74.086 28.749 102.325.51l67.2-67.19c28.191-28.191 28.073-73.757 0-101.83-3.701-3.694-7.429-6.564-10.341-8.569a16.037 16.037 0 0 1-6.947-12.606c-.396-10.567 3.348-21.456 11.698-29.806l21.054-21.055c5.521-5.521 14.182-6.199 20.584-1.731a152.482 152.482 0 0 1 20.522 17.197zM467.547 44.449c-59.261-59.262-155.69-59.27-214.96 0l-67.2 67.2c-.12.12-.25.25-.36.37-58.566 58.892-59.387 154.781.36 214.59a152.454 152.454 0 0 0 20.521 17.196c6.402 4.468 15.064 3.789 20.584-1.731l21.054-21.055c8.35-8.35 12.094-19.239 11.698-29.806a16.037 16.037 0 0 0-6.947-12.606c-2.912-2.005-6.64-4.875-10.341-8.569-28.073-28.073-28.191-73.639 0-101.83l67.2-67.19c28.239-28.239 74.3-28.069 102.325.51 27.75 28.3 26.872 73.934-1.155 101.96l-13.087 13.087c-4.35 4.35-5.769 10.79-3.783 16.612 5.864 17.194 9.042 34.999 9.69 52.721.509 13.906 17.454 20.446 27.294 10.606l37.106-37.106c59.271-59.259 59.271-155.699.001-214.959z"/></svg></a>回收算法</h3>
+<p>伙伴系统回收算法的基本思想是首先确定待回收内存块的伙伴，如果伙伴是空闲的，则将二者合并为一个高阶空闲内存块。重复上述合并过程, 直至伙伴不再空闲或合并形成的空闲内存块达到最高阶。在上述过程中，每次合并前都要将伙伴从其所在的空闲链表中移除。合并完成后，最终形成的高阶空闲内存块被插入相应空闲链表的表头。不难看出，回收算法的一项重要的工作是确定待回收内存块的伙伴：</p>
+<p>两个内存块互为伙伴 (Buddy) 当且仅当满足以下三个条件：</p>
+<ol>
+<li>二者在内存中<strong>相邻</strong>且不重叠；</li>
+<li>二者具有<strong>相同的阶</strong>；</li>
+<li>假设二者的阶都为k，则合并后形成一个k+1阶空闲内存块。</li>
+</ol>
+<p>我们知道linux采用数组的方式维护每一个物理页的数据结构<code>struct page</code>，即<code>mem_map</code>。所以通过<code>mem_map[page_addr&gt;&gt;12]</code>可以获得某物理页的<code>struct page</code>。该结构中包含了该页是否为空闲的状态。所以可以通过<code>mem_map[(page_addr&gt;&gt;12)-2^k]</code>确定左伙伴是否为空闲；通过<code>mem_map[(page_addr&gt;&gt;12)+2^k]</code>确定右伙伴是否为空闲。</p>
+<h4 id="分配区域的选择"><a href="#分配区域的选择" class="anchor-link"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon anchor-icon"><path d="M326.612 185.391c59.747 59.809 58.927 155.698.36 214.59-.11.12-.24.25-.36.37l-67.2 67.2c-59.27 59.27-155.699 59.262-214.96 0-59.27-59.26-59.27-155.7 0-214.96l37.106-37.106c9.84-9.84 26.786-3.3 27.294 10.606.648 17.722 3.826 35.527 9.69 52.721 1.986 5.822.567 12.262-3.783 16.612l-13.087 13.087c-28.026 28.026-28.905 73.66-1.155 101.96 28.024 28.579 74.086 28.749 102.325.51l67.2-67.19c28.191-28.191 28.073-73.757 0-101.83-3.701-3.694-7.429-6.564-10.341-8.569a16.037 16.037 0 0 1-6.947-12.606c-.396-10.567 3.348-21.456 11.698-29.806l21.054-21.055c5.521-5.521 14.182-6.199 20.584-1.731a152.482 152.482 0 0 1 20.522 17.197zM467.547 44.449c-59.261-59.262-155.69-59.27-214.96 0l-67.2 67.2c-.12.12-.25.25-.36.37-58.566 58.892-59.387 154.781.36 214.59a152.454 152.454 0 0 0 20.521 17.196c6.402 4.468 15.064 3.789 20.584-1.731l21.054-21.055c8.35-8.35 12.094-19.239 11.698-29.806a16.037 16.037 0 0 0-6.947-12.606c-2.912-2.005-6.64-4.875-10.341-8.569-28.073-28.073-28.191-73.639 0-101.83l67.2-67.19c28.239-28.239 74.3-28.069 102.325.51 27.75 28.3 26.872 73.934-1.155 101.96l-13.087 13.087c-4.35 4.35-5.769 10.79-3.783 16.612 5.864 17.194 9.042 34.999 9.69 52.721.509 13.906 17.454 20.446 27.294 10.606l37.106-37.106c59.271-59.259 59.271-155.699.001-214.959z"/></svg></a>分配区域的选择</h4>
+<p>我们知道Linux内存分为结点，在结点内部分为区域，每一个区域由伙伴系统算法管理。伙伴系统算法在分配时首先会考虑当前结点是否有充足的内存，其次才会考虑从其它结点借用内存。节点内部分配的优先级从高到低依次是：ZONE_HIGHMEM、ZONE_NORMAL和ZONE_DMA。</p>
+<h3 id="参考索引"><a href="#参考索引" class="anchor-link"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon anchor-icon"><path d="M326.612 185.391c59.747 59.809 58.927 155.698.36 214.59-.11.12-.24.25-.36.37l-67.2 67.2c-59.27 59.27-155.699 59.262-214.96 0-59.27-59.26-59.27-155.7 0-214.96l37.106-37.106c9.84-9.84 26.786-3.3 27.294 10.606.648 17.722 3.826 35.527 9.69 52.721 1.986 5.822.567 12.262-3.783 16.612l-13.087 13.087c-28.026 28.026-28.905 73.66-1.155 101.96 28.024 28.579 74.086 28.749 102.325.51l67.2-67.19c28.191-28.191 28.073-73.757 0-101.83-3.701-3.694-7.429-6.564-10.341-8.569a16.037 16.037 0 0 1-6.947-12.606c-.396-10.567 3.348-21.456 11.698-29.806l21.054-21.055c5.521-5.521 14.182-6.199 20.584-1.731a152.482 152.482 0 0 1 20.522 17.197zM467.547 44.449c-59.261-59.262-155.69-59.27-214.96 0l-67.2 67.2c-.12.12-.25.25-.36.37-58.566 58.892-59.387 154.781.36 214.59a152.454 152.454 0 0 0 20.521 17.196c6.402 4.468 15.064 3.789 20.584-1.731l21.054-21.055c8.35-8.35 12.094-19.239 11.698-29.806a16.037 16.037 0 0 0-6.947-12.606c-2.912-2.005-6.64-4.875-10.341-8.569-28.073-28.073-28.191-73.639 0-101.83l67.2-67.19c28.239-28.239 74.3-28.069 102.325.51 27.75 28.3 26.872 73.934-1.155 101.96l-13.087 13.087c-4.35 4.35-5.769 10.79-3.783 16.612 5.864 17.194 9.042 34.999 9.69 52.721.509 13.906 17.454 20.446 27.294 10.606l37.106-37.106c59.271-59.259 59.271-155.699.001-214.959z"/></svg></a>参考索引</h3>
+<section class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1" role="doc-endnote">
+<p>薛峰.Linux内核伙伴系统分析[J].计算机系统应用,2018,27(01):174-179. <a href="#fnref:1" class="footnote-backref" role="doc-backlink"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" class="icon footnote-icon"><path d="M177 159.7l136 136c9.4 9.4 9.4 24.6 0 33.9l-22.6 22.6c-9.4 9.4-24.6 9.4-33.9 0L160 255.9l-96.4 96.4c-9.4 9.4-24.6 9.4-33.9 0L7 329.7c-9.4-9.4-9.4-24.6 0-33.9l136-136c9.4-9.5 24.6-9.5 34-.1z"/></svg></a></p>
+</li>
+<li id="fn:2" role="doc-endnote">
+<p><a href="https://glemontree.github.io/2017/10/23/%5BLinux%5D%20Linux%E4%B8%AD%E7%9A%84%E4%BC%99%E4%BC%B4%E7%B3%BB%E7%BB%9F%E5%92%8Cslab%E6%9C%BA%E5%88%B6/" target="_blank" rel="noopener">https://glemontree.github.io/2017/10/23/[Linux]%20Linux%E4%B8%AD%E7%9A%84%E4%BC%99%E4%BC%B4%E7%B3%BB%E7%BB%9F%E5%92%8Cslab%E6%9C%BA%E5%88%B6/</a> <a href="#fnref:2" class="footnote-backref" role="doc-backlink"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" class="icon footnote-icon"><path d="M177 159.7l136 136c9.4 9.4 9.4 24.6 0 33.9l-22.6 22.6c-9.4 9.4-24.6 9.4-33.9 0L160 255.9l-96.4 96.4c-9.4 9.4-24.6 9.4-33.9 0L7 329.7c-9.4-9.4-9.4-24.6 0-33.9l136-136c9.4-9.5 24.6-9.5 34-.1z"/></svg></a></p>
+</li>
+</ol>
+</section>
+</div>
+
+        </article>
+
+        
+
+        
+    
+    
+    
+        <ul class="post-copyright">
+            <li class="copyright-item author"><span class="copyright-item-text">作者</span>：<a href="https://chengshuyi.github.io" target="_blank" rel="noopener">程书意</a></li>
+            
+                
+                
+                
+                
+                <li class="copyright-item link"><span class="copyright-item-text">链接</span>：<a href="/posts/linux_kernel/%E4%BC%99%E4%BC%B4%E7%B3%BB%E7%BB%9F/" target="_blank" rel="noopener">https://chengshuyi.github.io/posts/linux_kernel/伙伴系统/</a></li>
+            
+            <li class="copyright-item license"><span class="copyright-item-text">许可</span>：<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a></li>
+            
+        </ul>
+    
+
+
+
+        
+    <div class="updated-badge-container"><div title="Updated @ 2020-04-04 09:49:53 UTC" style="cursor:help;display:inline-block">
+
+<svg xmlns="http://www.w3.org/2000/svg" width="130" height="20" class="updated-badge"><linearGradient id="b" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient><clipPath id="a"><rect width="130" height="20" rx="3" fill="#fff"/></clipPath><g clip-path="url(#a)"><path class="updated-badge-left" d="M0 0h55v20H0z"/><path class="updated-badge-right" d="M55 0h75v20H55z"/><path fill="url(#b)" d="M0 0h130v20H0z"/></g><g fill="#fff" text-anchor="middle" font-size="110"><text x="285" y="150" fill="#010101" fill-opacity=".3" textLength="450" transform="scale(.1)">updated</text><text x="285" y="140" textLength="450" transform="scale(.1)">updated</text><text x="915" y="150" fill="#010101" fill-opacity=".3" textLength="650" transform="scale(.1)">2020-04-04</text><text x="915" y="140" textLength="650" transform="scale(.1)">2020-04-04</text></g></svg></div></div>
+
+
+        
+
+        
+    
+    
+
+<div class="post-share">
+
+        
+
+        <div class="share-items">
+
+            
+                
+                <div class="share-item twitter">
+                    
+                    <a href="https://twitter.com/share?url=https://chengshuyi.github.io/posts/linux_kernel/%E4%BC%99%E4%BC%B4%E7%B3%BB%E7%BB%9F/&amp;text=%e4%bc%99%e4%bc%b4%e7%b3%bb%e7%bb%9f&amp;via=reuixiy" title="分享到「Twitter」" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon twitter-icon"><path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z"/></svg></a>
+                </div>
+            
+
+            
+                
+                <div class="share-item facebook">
+                    
+                    <a href="https://www.facebook.com/sharer/sharer.php?u=https://chengshuyi.github.io/posts/linux_kernel/%E4%BC%99%E4%BC%B4%E7%B3%BB%E7%BB%9F/" title="分享到「Facebook」" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon facebook-icon"><path d="M504 256C504 119 393 8 256 8S8 119 8 256c0 123.78 90.69 226.38 209.25 245V327.69h-63V256h63v-54.64c0-62.15 37-96.48 93.67-96.48 27.14 0 55.52 4.84 55.52 4.84v61h-31.28c-30.8 0-40.41 19.12-40.41 38.73V256h68.78l-11 71.69h-57.78V501C413.31 482.38 504 379.78 504 256z"/></svg></a>
+                </div>
+            
+
+            
+                
+                <div class="share-item linkedin">
+                    
+                    <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https://chengshuyi.github.io/posts/linux_kernel/%E4%BC%99%E4%BC%B4%E7%B3%BB%E7%BB%9F/&amp;title=%e4%bc%99%e4%bc%b4%e7%b3%bb%e7%bb%9f&amp;summary=%e4%bc%99%e4%bc%b4%e7%ae%97%e6%b3%95%e6%98%af%e4%b8%80%e7%a7%8d%e5%8a%a8%e6%80%81%e5%ad%98%e5%82%a8%e5%88%86%e9%85%8d%e7%ae%97%e6%b3%95%ef%bc%8c%e7%94%a8%e4%ba%8e%e5%ae%9e%e7%8e%b0%e6%93%8d%e4%bd%9c%e7%b3%bb%e7%bb%9f%e5%86%85%e6%a0%b8%e7%a9%ba%e9%97%b4%e5%92%8c%e7%94%a8%e6%88%b7%e7%a9%ba%e9%97%b4%20%28%e5%a6%82%20C%20%e8%af%ad%e8%a8%80%e5%ba%93%29%20%e7%9a%84%e5%88%86%e9%85%8d%e5%92%8c%e5%9b%9e%e6%94%b6%e6%93%8d%e4%bd%9c.%e3%80%82Knowlton%e5%92%8c%20Knuth%e6%9c%80%e6%97%a9%e7%b3%bb%e7%bb%9f%e5%9c%b0%e6%8f%8f%e8%bf%b0%e4%ba%86%e7%94%a8%e4%ba%8e%e5%86%85%e5%ad%98%e7%ae%a1%e7%90%86%e4%b8%ad%e7%9a%84%e4%ba%8c%e5%88%86%e4%bc%99%e4%bc%b4%e2%80%a6%e2%80%a6&amp;source=%e7%a8%8b%e4%b9%a6%e6%84%8f" title="分享到「LinkedIn」" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="icon linkedin-icon"><path d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3zM135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5zm282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9V416z"/></svg></a>
+                </div>
+            
+
+            
+                
+                <div class="share-item telegram">
+                    
+                    <a href="https://t.me/share/url?url=https://chengshuyi.github.io/posts/linux_kernel/%E4%BC%99%E4%BC%B4%E7%B3%BB%E7%BB%9F/&amp;text=%e4%bc%99%e4%bc%b4%e7%b3%bb%e7%bb%9f" title="分享到「Telegram」" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512" class="icon telegram-icon"><path d="M248 8C111 8 0 119 0 256s111 248 248 248 248-111 248-248S385 8 248 8zm121.8 169.9l-40.7 191.8c-3 13.6-11.1 16.9-22.4 10.5l-62-45.7-29.9 28.8c-3.3 3.3-6.1 6.1-12.5 6.1l4.4-63.1 114.9-103.8c5-4.4-1.1-6.9-7.7-2.5l-142 89.4-61.2-19.1c-13.3-4.2-13.6-13.3 2.8-19.7l239.1-92.2c11.1-4 20.8 2.7 17.2 19.5z"/></svg></a>
+                </div>
+            
+
+            
+                
+                <div class="share-item weibo">
+                    
+                    <a href="https://service.weibo.com/share/share.php?&amp;url=https://chengshuyi.github.io/posts/linux_kernel/%E4%BC%99%E4%BC%B4%E7%B3%BB%E7%BB%9F/&amp;title=%e4%bc%99%e4%bc%b4%e7%b3%bb%e7%bb%9f&amp;pic=https://chengshuyi.github.io/static/img/image-20200403231746644.png&amp;searchPic=false" title="分享到「新浪微博」" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon weibo-icon"><path d="M407 177.6c7.6-24-13.4-46.8-37.4-41.7-22 4.8-28.8-28.1-7.1-32.8 50.1-10.9 92.3 37.1 76.5 84.8-6.8 21.2-38.8 10.8-32-10.3zM214.8 446.7C108.5 446.7 0 395.3 0 310.4c0-44.3 28-95.4 76.3-143.7C176 67 279.5 65.8 249.9 161c-4 13.1 12.3 5.7 12.3 6 79.5-33.6 140.5-16.8 114 51.4-3.7 9.4 1.1 10.9 8.3 13.1 135.7 42.3 34.8 215.2-169.7 215.2zm143.7-146.3c-5.4-55.7-78.5-94-163.4-85.7-84.8 8.6-148.8 60.3-143.4 116s78.5 94 163.4 85.7c84.8-8.6 148.8-60.3 143.4-116zM347.9 35.1c-25.9 5.6-16.8 43.7 8.3 38.3 72.3-15.2 134.8 52.8 111.7 124-7.4 24.2 29.1 37 37.4 12 31.9-99.8-55.1-195.9-157.4-174.3zm-78.5 311c-17.1 38.8-66.8 60-109.1 46.3-40.8-13.1-58-53.4-40.3-89.7 17.7-35.4 63.1-55.4 103.4-45.1 42 10.8 63.1 50.2 46 88.5zm-86.3-30c-12.9-5.4-30 .3-38 12.9-8.3 12.9-4.3 28 8.6 34 13.1 6 30.8.3 39.1-12.9 8-13.1 3.7-28.3-9.7-34zm32.6-13.4c-5.1-1.7-11.4.6-14.3 5.4-2.9 5.1-1.4 10.6 3.7 12.9 5.1 2 11.7-.3 14.6-5.4 2.8-5.2 1.1-10.9-4-12.9z"/></svg></a>
+                </div>
+            
+
+            
+                
+                <div class="share-item douban">
+                    
+                    <a href="https://www.douban.com/share/service?href=https://chengshuyi.github.io/posts/linux_kernel/%E4%BC%99%E4%BC%B4%E7%B3%BB%E7%BB%9F/&amp;name=%e4%bc%99%e4%bc%b4%e7%b3%bb%e7%bb%9f&amp;text=%e4%bc%99%e4%bc%b4%e7%ae%97%e6%b3%95%e6%98%af%e4%b8%80%e7%a7%8d%e5%8a%a8%e6%80%81%e5%ad%98%e5%82%a8%e5%88%86%e9%85%8d%e7%ae%97%e6%b3%95%ef%bc%8c%e7%94%a8%e4%ba%8e%e5%ae%9e%e7%8e%b0%e6%93%8d%e4%bd%9c%e7%b3%bb%e7%bb%9f%e5%86%85%e6%a0%b8%e7%a9%ba%e9%97%b4%e5%92%8c%e7%94%a8%e6%88%b7%e7%a9%ba%e9%97%b4%20%28%e5%a6%82%20C%20%e8%af%ad%e8%a8%80%e5%ba%93%29%20%e7%9a%84%e5%88%86%e9%85%8d%e5%92%8c%e5%9b%9e%e6%94%b6%e6%93%8d%e4%bd%9c.%e3%80%82Knowlton%e5%92%8c%20Knuth%e6%9c%80%e6%97%a9%e7%b3%bb%e7%bb%9f%e5%9c%b0%e6%8f%8f%e8%bf%b0%e4%ba%86%e7%94%a8%e4%ba%8e%e5%86%85%e5%ad%98%e7%ae%a1%e7%90%86%e4%b8%ad%e7%9a%84%e4%ba%8c%e5%88%86%e4%bc%99%e4%bc%b4%e2%80%a6%e2%80%a6" title="分享到「豆瓣」" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon douban-icon"><path d="M.643.92v2.412h22.714V.92H.643zm1.974 4.926v9.42h18.764v-9.42H2.617zm2.72 2.408H18.69v4.605H5.338V8.254zm1.657 7.412l-2.512.938c1.037 1.461 1.87 2.825 2.512 4.091H0v2.385h24v-2.385h-6.678c.818-1.176 1.589-2.543 2.303-4.091l-2.73-.938a29.952 29.952 0 01-2.479 5.03h-4.75c-.786-1.962-1.677-3.641-2.672-5.03Z"/></svg></a>
+                </div>
+            
+
+            
+                
+                <div class="share-item qq">
+                    
+                    <a href="https://connect.qq.com/widget/shareqq/index.html?url=https://chengshuyi.github.io/posts/linux_kernel/%E4%BC%99%E4%BC%B4%E7%B3%BB%E7%BB%9F/&amp;title=%e4%bc%99%e4%bc%b4%e7%b3%bb%e7%bb%9f&amp;summary=%e4%bc%99%e4%bc%b4%e7%ae%97%e6%b3%95%e6%98%af%e4%b8%80%e7%a7%8d%e5%8a%a8%e6%80%81%e5%ad%98%e5%82%a8%e5%88%86%e9%85%8d%e7%ae%97%e6%b3%95%ef%bc%8c%e7%94%a8%e4%ba%8e%e5%ae%9e%e7%8e%b0%e6%93%8d%e4%bd%9c%e7%b3%bb%e7%bb%9f%e5%86%85%e6%a0%b8%e7%a9%ba%e9%97%b4%e5%92%8c%e7%94%a8%e6%88%b7%e7%a9%ba%e9%97%b4%20%28%e5%a6%82%20C%20%e8%af%ad%e8%a8%80%e5%ba%93%29%20%e7%9a%84%e5%88%86%e9%85%8d%e5%92%8c%e5%9b%9e%e6%94%b6%e6%93%8d%e4%bd%9c.%e3%80%82Knowlton%e5%92%8c%20Knuth%e6%9c%80%e6%97%a9%e7%b3%bb%e7%bb%9f%e5%9c%b0%e6%8f%8f%e8%bf%b0%e4%ba%86%e7%94%a8%e4%ba%8e%e5%86%85%e5%ad%98%e7%ae%a1%e7%90%86%e4%b8%ad%e7%9a%84%e4%ba%8c%e5%88%86%e4%bc%99%e4%bc%b4%e2%80%a6%e2%80%a6&amp;pics=https://chengshuyi.github.io/static/img/image-20200403231746644.png&amp;site=%e7%a8%8b%e4%b9%a6%e6%84%8f" title="分享到「QQ」" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="icon qq-icon"><path d="M433.754 420.445c-11.526 1.393-44.86-52.741-44.86-52.741 0 31.345-16.136 72.247-51.051 101.786 16.842 5.192 54.843 19.167 45.803 34.421-7.316 12.343-125.51 7.881-159.632 4.037-34.122 3.844-152.316 8.306-159.632-4.037-9.045-15.25 28.918-29.214 45.783-34.415-34.92-29.539-51.059-70.445-51.059-101.792 0 0-33.334 54.134-44.859 52.741-5.37-.65-12.424-29.644 9.347-99.704 10.261-33.024 21.995-60.478 40.144-105.779C60.683 98.063 108.982.006 224 0c113.737.006 163.156 96.133 160.264 214.963 18.118 45.223 29.912 72.85 40.144 105.778 21.768 70.06 14.716 99.053 9.346 99.704z"/></svg></a>
+                </div>
+            
+
+            
+                
+                <div class="share-item qzone">
+                    
+                    <a href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=https://chengshuyi.github.io/posts/linux_kernel/%E4%BC%99%E4%BC%B4%E7%B3%BB%E7%BB%9F/&amp;title=%e4%bc%99%e4%bc%b4%e7%b3%bb%e7%bb%9f&amp;summary=%e4%bc%99%e4%bc%b4%e7%ae%97%e6%b3%95%e6%98%af%e4%b8%80%e7%a7%8d%e5%8a%a8%e6%80%81%e5%ad%98%e5%82%a8%e5%88%86%e9%85%8d%e7%ae%97%e6%b3%95%ef%bc%8c%e7%94%a8%e4%ba%8e%e5%ae%9e%e7%8e%b0%e6%93%8d%e4%bd%9c%e7%b3%bb%e7%bb%9f%e5%86%85%e6%a0%b8%e7%a9%ba%e9%97%b4%e5%92%8c%e7%94%a8%e6%88%b7%e7%a9%ba%e9%97%b4%20%28%e5%a6%82%20C%20%e8%af%ad%e8%a8%80%e5%ba%93%29%20%e7%9a%84%e5%88%86%e9%85%8d%e5%92%8c%e5%9b%9e%e6%94%b6%e6%93%8d%e4%bd%9c.%e3%80%82Knowlton%e5%92%8c%20Knuth%e6%9c%80%e6%97%a9%e7%b3%bb%e7%bb%9f%e5%9c%b0%e6%8f%8f%e8%bf%b0%e4%ba%86%e7%94%a8%e4%ba%8e%e5%86%85%e5%ad%98%e7%ae%a1%e7%90%86%e4%b8%ad%e7%9a%84%e4%ba%8c%e5%88%86%e4%bc%99%e4%bc%b4%e2%80%a6%e2%80%a6&amp;pics=https://chengshuyi.github.io/static/img/image-20200403231746644.png&amp;site=%e7%a8%8b%e4%b9%a6%e6%84%8f" title="分享到「QQ 空间」" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon qzone-icon"><path d="M23.985 9.202c-.032-.099-.127-.223-.334-.258-.207-.036-7.351-1.406-7.351-1.406s-.105-.022-.198-.07c-.092-.047-.127-.167-.127-.167S12.447.956 12.349.77C12.25.583 12.104.532 12 .532c-.104 0-.251.051-.349.238-.098.186-3.626 6.531-3.626 6.531s-.035.12-.128.167c-.092.047-.197.07-.197.07S.556 8.908.348 8.943c-.208.036-.302.16-.333.258a.477.477 0 0 0 .125.449l5.362 5.49s.072.08.119.172c.016.104.005.21.005.21s-1.189 7.242-1.22 7.45.075.369.159.43c.083.062.233.106.421.013.189-.093 6.812-3.261 6.812-3.261s.098-.044.201-.061c.103-.017.201.061.201.061s6.623 3.168 6.812 3.261c.188.094.338.049.421-.013a.463.463 0 0 0 .159-.43c-.021-.14-.93-5.677-.93-5.677.876-.54 1.425-1.039 1.849-1.747-2.594.969-6.006 1.717-9.415 1.866-.915.041-2.41.097-3.473-.015-.678-.071-1.17-.144-1.243-.438-.053-.215.054-.46.545-.831a2640.5 2640.5 0 0 1 2.861-2.155c1.285-.968 3.559-2.47 3.559-2.731 0-.285-2.144-.781-4.037-.781-1.945 0-2.275.132-2.811.168-.488.034-.769.005-.804-.138-.06-.248.183-.389.588-.568.709-.314 1.86-.594 1.984-.626.194-.052 3.082-.805 5.618-.535 1.318.14 3.244.668 3.244 1.276 0 .342-1.721 1.494-3.225 2.597-1.149.843-2.217 1.561-2.217 1.688 0 .342 3.533 1.241 6.689 1.01l.003-.022c.048-.092.119-.172.119-.172l5.362-5.49a.477.477 0 0 0 .127-.449z"/></svg></a>
+                </div>
+            
+
+            
+                
+                <div class="share-item qrcode">
+                    <div class="qrcode-container" title="通过「二维码」"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="icon qrcode-icon"><path d="M0 224h192V32H0v192zM64 96h64v64H64V96zm192-64v192h192V32H256zm128 128h-64V96h64v64zM0 480h192V288H0v192zm64-128h64v64H64v-64zm352-64h32v128h-96v-32h-32v96h-64V288h96v32h64v-32zm0 160h32v32h-32v-32zm-64 0h32v32h-32v-32z"/></svg><div id="qrcode-img"></div>
+                    </div>
+                    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+
+<script>
+    var typeNumber = 0;
+    var errorCorrectionLevel = 'L';
+    var qr = qrcode(typeNumber, errorCorrectionLevel);
+    qr.addData('https:\/\/chengshuyi.github.io\/posts\/linux_kernel\/%E4%BC%99%E4%BC%B4%E7%B3%BB%E7%BB%9F\/');
+    qr.make();
+    document.getElementById('qrcode-img').innerHTML = qr.createImgTag();
+</script>
+
+                </div>
+            
+
+        </div>
+
+    </div>
+
+
+
+
+        
+    
+    
+
+
+        
+    
+        <div class="post-tags">
+            
+                
+                
+                
+                
+                    
+                    <a href="/tags/linux%E5%86%85%E6%A0%B8/" rel="tag" class="post-tags-link"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon tag-icon"><path d="M0 252.118V48C0 21.49 21.49 0 48 0h204.118a48 48 0 0 1 33.941 14.059l211.882 211.882c18.745 18.745 18.745 49.137 0 67.882L293.823 497.941c-18.745 18.745-49.137 18.745-67.882 0L14.059 286.059A48 48 0 0 1 0 252.118zM112 64c-26.51 0-48 21.49-48 48s21.49 48 48 48 48-21.49 48-48-21.49-48-48-48z"/></svg>linux内核</a>
+                
+            
+                
+                
+                
+                
+                    
+                    <a href="/tags/%E4%BC%99%E4%BC%B4%E7%B3%BB%E7%BB%9F/" rel="tag" class="post-tags-link"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon tag-icon"><path d="M0 252.118V48C0 21.49 21.49 0 48 0h204.118a48 48 0 0 1 33.941 14.059l211.882 211.882c18.745 18.745 18.745 49.137 0 67.882L293.823 497.941c-18.745 18.745-49.137 18.745-67.882 0L14.059 286.059A48 48 0 0 1 0 252.118zM112 64c-26.51 0-48 21.49-48 48s21.49 48 48 48 48-21.49 48-48-21.49-48-48-48z"/></svg>伙伴系统</a>
+                
+            
+        </div>
+    
+
+
+        
+
+        
+
+        
+    
+        
+        
+    
+    
+    
+    
+        <ul class="post-nav">
+            
+                <li class="post-nav-prev">
+                    <a href="/posts/c/%E8%BF%90%E7%AE%97%E7%AC%A6/" rel="prev">< c语言运算符</a>
+                </li>
+            
+            
+                <li class="post-nav-next">
+                    <a href="/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E9%A2%86%E8%88%AA%E8%B7%9F%E9%9A%8F%E6%B3%95/" rel="next">多车编队 领航跟随法 ></a>
+                </li>
+            
+        </ul>
+    
+
+
+        
+
+
+    </div>
+</main>
+
+
+            
+    <div id="back-to-top" class="back-to-top">
+        <a href="#"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="icon"><path d="M34.9 289.5l-22.2-22.2c-9.4-9.4-9.4-24.6 0-33.9L207 39c9.4-9.4 24.6-9.4 33.9 0l194.3 194.3c9.4 9.4 9.4 24.6 0 33.9L413 289.4c-9.5 9.5-25 9.3-34.3-.4L264 168.6V456c0 13.3-10.7 24-24 24h-32c-13.3 0-24-10.7-24-24V168.6L69.2 289.1c-9.3 9.8-24.8 10-34.3.4z"/></svg></a>
+    </div>
+
+            
+    <footer id="footer" class="footer">
+        <div class="footer-inner"><div class="site-info">©&nbsp;1969–2020&nbsp;<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon footer-icon"><path d="M462.3 62.6C407.5 15.9 326 24.3 275.7 76.2L256 96.5l-19.7-20.3C186.1 24.3 104.5 15.9 49.7 62.6c-62.8 53.6-66.1 149.8-9.9 207.9l193.5 199.8c12.5 12.9 32.8 12.9 45.3 0l193.5-199.8c56.3-58.1 53-154.3-9.8-207.9z"/></svg>&nbsp;程书意</div><div class="powered-by">Powered by <a href="https://github.com/gohugoio/hugo" target="_blank" rel="noopener">Hugo</a> | Theme is <a href="https://github.com/reuixiy/hugo-theme-meme" target="_blank" rel="noopener">MemE</a></div><div class="site-copyright"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a></div>
+
+            
+        </div>
+    </footer>
+
+
+        </div>
+        <script src="/js/meme.min.e173d917b4d2012bf68b1ff9d69316b4067c8f101bc3edf8d126cded554538b6.js" integrity="sha256-4XPZF7TSASv2ix/51pMWtAZ8jxAbw+340SbN7VVFOLY="></script>
+
+
+    <script src="https://cdn.jsdelivr.net/gh/cferdinandi/smooth-scroll/dist/smooth-scroll.polyfills.min.js"></script>
+
+<script>
+    var scroll = new SmoothScroll('a[href*="#"]', {
+        speedAsDuration: true,
+        header: '[data-scroll-header]'
+    });
+</script>
+
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous" />
+<script>
+    if (typeof renderMathInElement === 'undefined') {
+        var getScript = (options) => {
+            var script = document.createElement('script');
+            script.defer = true;
+            script.crossOrigin = 'anonymous';
+            Object.keys(options).forEach((key) => {
+                script[key] = options[key];
+            });
+            document.body.appendChild(script);
+        };
+        getScript({
+            src: 'https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.js',
+            integrity: 'sha384-JiKN5O8x9Hhs/UE5cT5AAJqieYlOZbGT3CHws/y97o3ty4R7/O5poG9F3JoiOYw1',
+            onload: () => {
+                getScript({
+                    src: 'https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/contrib/mhchem.min.js',
+                    integrity: 'sha384-oa0lfxCGjaU1LdYckhq8LZcP+JTf8cyJXe69O6VE6UrShzWveT6KiCElJrck/stm',
+                    onload: () => {
+                        getScript({
+                            src: 'https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/contrib/auto-render.min.js',
+                            integrity: 'sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI',
+                            onload: () => {
+                                renderKaTex();
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    } else {
+        renderKaTex();
+    }
+    function renderKaTex() {
+        renderMathInElement(
+            document.body,
+            {
+                delimiters: [
+                    {left: "$$", right: "$$", display: true},
+                    {left: "\\[", right: "\\]", display: true},
+                    {left: "$", right: "$", display: false},
+                    {left: "\\(", right: "\\)", display: false}
+                ]
+            }
+        );
+    }
+</script>
+
+
+
+    <script>
+    if (typeof MathJax === 'undefined') {
+        window.MathJax = {
+            loader: {
+                load: ['[tex]/mhchem']
+            },
+            
+            tex: {
+                inlineMath: {'[+]': [['$', '$']]},
+                tags: 'ams',
+                packages: {'[+]': ['mhchem']}
+            }
+        };
+        (function() {
+            var script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js';
+            script.defer = true;
+            document.head.appendChild(script);
+        })();
+    } else {
+        MathJax.texReset();
+        MathJax.typeset();
+    }
+</script>
+
+
+
+
+
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/medium-zoom@latest/dist/medium-zoom.min.js"></script>
+
+<script>
+    mediumZoom(document.querySelectorAll('div.post-body img'), {
+        background: 'hsla(var(--color-bg-h), var(--color-bg-s), var(--color-bg-l), 0.95)'
+    })
+</script>
+
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/instant.page@3.0.0/instantpage.min.js" type="module" defer></script>
+
+
+
+
+
+
+
+
+
+
+    </body>
+</html>
