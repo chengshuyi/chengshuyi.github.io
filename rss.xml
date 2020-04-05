@@ -23,10 +23,137 @@
         
             <copyright>[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh)</copyright>
         
-        <lastBuildDate>Sat, 04 Apr 2020 09:49:55 +0000</lastBuildDate>
+        <lastBuildDate>Sun, 05 Apr 2020 06:36:58 +0000</lastBuildDate>
         
             <atom:link rel="self" type="application/rss+xml" href="https://chengshuyi.github.io/rss.xml" />
         
+        
+            <item>
+                <title>多车编队 人工势场法</title>
+                <link>https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E4%BA%BA%E5%B7%A5%E5%8A%BF%E5%9C%BA%E6%B3%95/</link>
+                <guid isPermaLink="true">https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E4%BA%BA%E5%B7%A5%E5%8A%BF%E5%9C%BA%E6%B3%95/</guid>
+                <pubDate>Sat, 04 Apr 2020 10:02:06 +0800</pubDate>
+                
+                    <author>c15271843451@outlook.com (程书意)</author>
+                
+                <copyright>[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh)</copyright>
+                
+                    <description><![CDATA[<p>人工势场法，即Artificial Potential Field，最早于20世纪80年代中期，由Khatib和Krogh提出的一种虚拟力法，其基本思想是将机器人在环境中的运动视为一种虚拟的人工受力场中的运动，其中障碍物对机器人产生斥力，而目标点对机器人产生引力，引力和斥力的合力作为机器人的加速力来控制机器人的运动方向和计算机器人的位置。</p>
+<p>下图中包括多机器人，障碍物和目标物，目标位置势场最低，即其虚拟重力势能是最小的,机器人的最初处于较高的位置因此具有较大的重力势能，环境中的障碍物可以看成为重力场中的凸点,因此机器人由于重力势能从初始位置运动到目标位置的过程可以看成<strong>从高处向低处</strong>运动的物体。环境中虚拟的势场用等势线的形式表现出来，即图中的密集分布的曲线上的势场都是相等的。因此容易得到如果机器人的运动模型是<strong>完整约束</strong>的，则机器人的理想运动曲线应该是<strong>垂直于所有的等势线</strong>的。然而因为机器人模型和障碍物形状的不规则，使得势场法在实际应用中存在一定的缺陷<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>。</p>
+<p><img src="https://gitee.com/chengshuyi/scripts/raw/master/img/20200405135443.png" alt=""></p>
+<p>机器人群集的基本特征：避障避碰、速度匹配和群集中心。相对的，在多机器人群集势场包含三个基本特征，因此可设$U_{obstacle}(q)$为障碍物产生的势场,$U_{neighbor}(q)$为群集中周围邻域的机器人产生的势场，$U_{centre}(q)$为群集中心产生的势场，另外群集运动目标产生的势场为$U_{goal}(q)$，其中q表示机器人的当前位置。进行势场叠加后可得：</p>
+<div>
+$$
+U_{\Sigma}(q)=\underbrace{U_{\text {goal }}(q)+U_{\text {centre }}(q)}_{\text {引力势场 }}+\underbrace{\sum U_{\text {obstacles }}(q)}_{\text {斥力势场 }}+\underbrace{\sum U_{\text {neighbors }}(q)}_{\text {引力/斥力同时存在 }}\\
+F(q) = -\nabla U_{\Sigma}(q)
+$$
+</div>
+$U_{\Sigma}(q)$表示机器人在环境中$q$位置时的综合势场，$F(q)$则表示势场中的势场力，方向沿势场的负梯度方向。
+<p>在通常情况下，对于机器人而言环境地图一般都是未知的，常用的策略是传感器对环境进行实时感知并获得局部的位置信息，以进行决策，因此基于这种反应式的势场反馈导航原理如下图所示：</p>
+<p><img src="https://gitee.com/chengshuyi/scripts/raw/master/img/20200405140801.png" alt=""></p>
+<h3 id="目标势场和障碍物势场">目标势场和障碍物势场</h3>
+<p>目标势场体现一种全局的引力效应，即势场存在于环境中一切位置，表现出来的特性为机器人离目标点越远，引力越大，按照这种规律可以建立目标势场函数：</p>
+<div>
+$$
+\left\{\begin{array}{1}
+U_{goal}(x) = \frac{1}{2}k(x-x_{goal})^2\\
+F_{goal}(x) = -k\|x-x_{goal}\|
+<p>\end{array}\right.
+$$</p>
+</div>
+其中$x_{goal}$为目标点位置，$x$为机器人的实时位置。因此目标点的引力势场通常是基于全局地图的，即机器人和目标点在全局地图中的位置己知，或者机器人
+与目标点的相互关系己知为前提。
+<p>相对的，障碍物势场为局部排斥力效应，即当且仅当机器人与障碍物之间的距离小于某定值时，才会有斥力势场的存在，而通常情况下要建立具有障碍物的环境地图，尤其是当环境中的障碍物变化的时候，全局地图的建立比较困难，通常采用基于外部传感器的反应式避障。设$f(x)$为当机器人处于$x$位置时激光探测距离，常数$d$为斥力场范围,因此当$f(x)&lt;d$时机器人将受到斥力场的作用。</p>
+<div>
+$$
+\left\{\begin{array}{ll}
+U_{\text {obs }}(x)=\left\{\begin{array}{ll}
+\frac{\eta}{2}\left(\frac{1}{f(x)}-\frac{1}{d}\right)^{2} & f(x) \leq d \\
+0 & f(x)>d
+\end{array}\right. \\
+F_{\text {obs }}(x)=\left\{\begin{array}{ll}
+\|\left(\frac{1}{f(x)}-\frac{1}{d}\right) \frac{\eta \cdot \partial f}{f^{2} \cdot \partial x} \| & f(x) \leq d \\
+0 & f(x)>d
+\end{array}\right.
+\end{array}\right.
+$$
+</div>
+<h3 id="邻域机器人势场">邻域机器人势场</h3>
+<p>借用物理学中对微小粒子（如分子，原子）的引力和斥力的关系，来描述邻域机器人的势场规律。假设机器人$i$与$j$相邻，则$i$相对$j$的势场函数和势场力函数分别为：</p>
+<div>
+$$
+\left\{\begin{array}{l}
+U_{n e i g}\left(x_{i} | x_{j}\right)=\frac{\mu}{2} \ln ^{2} \frac{\left\|x_{i}-x_{j}\right\|}{\delta}=\frac{\mu}{2} \ln ^{2} \frac{\left\|r_{i j}\right\|}{\delta} \\
+F_{\text {neig }}\left(x_{i} | x_{j}\right)=-\frac{\mu \cdot \delta}{\left(x_{i}-x_{j}\right)} \cdot \ln \frac{|| x_{i}-x_{j} \|}{\delta}=-\frac{\mu \cdot \delta}{r_{i j}} \cdot \ln \frac{\left\|r_{i j}\right\|}{\delta}
+\end{array}\right.
+$$
+</div>
+可以得到该势场函数和势场力函数对应的曲线：
+<p><img src="https://gitee.com/chengshuyi/scripts/raw/master/img/20200405142530.png" alt=""></p>
+<h3 id="群集中心势场">群集中心势场</h3>
+<p>在群集中除了目标点、障碍物以及邻域机器人这些可见的势场源外，还存在一种无形的吸引势场使得机器人朝某群集中心聚拢，该势场就是群集中心产生的
+势场。首先群集中心本来就是一个非实体的概念，一般将群体的几何中心作为机
+器人的群集中心，这样可以缩短机器人聚拢的距离，因此如果设群集中机器人的
+个数为$M$个，则群集的几何中心为：</p>
+<div>
+$$
+\bar{x}=\sum_{1}^{M} x_{j} / M
+$$
+</div>
+由于同为引力场，所以类似目标点的势场函数规律可得群集中心的势场和势场力满足：
+<div>
+$$
+\left\{\begin{array}\\
+U_{centre}(x) = \frac{1}{2}c\|x-\bar{x})^2\| \\
+F_{centre}(x) = -c(x-\bar{x})
+<p>\end{array}\right.
+$$</p>
+</div>
+<!--省略了部分-->
+<h3 id="参考文献">参考文献</h3>
+<section class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1" role="doc-endnote">
+<p>刘磊. 多移动机器人编队及协调控制研究[D]. 华中科技大学, 2009. <a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</section>
+]]></description>
+                
+                
+                
+                
+                
+                    
+                        
+                            
+                                
+                                
+                                
+                                    <category domain="https://chengshuyi.github.io/categories/%E6%9C%BA%E5%99%A8%E4%BA%BA/">机器人</category>
+                                
+                            
+                        
+                    
+                        
+                            
+                                
+                                
+                                
+                                    <category domain="https://chengshuyi.github.io/tags/%E6%9C%BA%E5%99%A8%E4%BA%BA/">机器人</category>
+                                
+                            
+                                
+                                
+                                
+                                    <category domain="https://chengshuyi.github.io/tags/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F/">多车编队</category>
+                                
+                            
+                        
+                    
+                
+            </item>
         
             <item>
                 <title>多车编队 基于行为的方法</title>
@@ -39,7 +166,7 @@
                 <copyright>[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh)</copyright>
                 
                     <description><![CDATA[<p>基于行为的方法的主要思想是将编队任务转换为一系列具有特定功能的基本运动行为，这些基本运动行为是机器人运动的最小运动单位，例如，向左转、前进、奔向目标、姿态调整、蔽障、沿墙运动、目标导航等等。基于行为的方法通常由两部分组成，分别是基本<strong>行为设计</strong>部分和<strong>行为选择</strong>设计部分。对编队中的每个机器人而言，机器人的输入可以是自身传感器的探测信息，也可以是通过通信获取编队中其它某个或者多个机器人的行为输出，行为选择设计部分根据机器人输入信息使得机器人选择对应的基本行为（以一定角速度和线速度的方式）进行输出，从而使得机器人处于编队中理想的位置<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>，具体如下图所示：</p>
-<p><img src="../../../static/img/image-20200404112052576.png" alt="image-20200404112052576"></p>
+<p><img src="https://gitee.com/chengshuyi/scripts/raw/master/img/image-20200404112052576.png" alt=""></p>
 <p>基于行为方法的编队控制包括以下三种控制方法<sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup>：</p>
 <ol>
 <li>行为抑制法：首先对每个行为进行优先级排序，这样当无人车需要同时执行多个行为时，无人车就会按照优先级顺序执行优先级最高的行为。</li>
@@ -48,80 +175,96 @@
 </ol>
 <h3 id="基于位姿误差的机器人编队基本运动行为设计3">基于位姿误差的机器人编队基本运动行为设计<sup id="fnref:3"><a href="#fn:3" class="footnote-ref" role="doc-noteref">3</a></sup></h3>
 <h4 id="机器人运动学模型">机器人运动学模型</h4>
-<p>二维空间机器人位置和姿态表示为：
+<p>二维空间机器人位置和姿态表示为：</p>
+<div>
 $$
 q_0=[x_0\quad y_0\quad \theta_0]^T
 $$
+</div>
 假设机器人当前的线速度$v_0$和角速度$\omega_0$，可得移动机器人的位姿$\dot{q}$：
+<div>
 $$
-\dot{\boldsymbol{q}}<em>{0}=\left[\begin{array}{c}
-\dot{x}</em>{0} \<br>
-\dot{y}<em>{0} \<br>
-\dot{\theta}</em>{0}
+\dot{\boldsymbol{q}}_{0}=\left[\begin{array}{c}
+\dot{x}_{0} \\
+\dot{y}_{0} \\
+\dot{\theta}_{0}
 \end{array}\right]=\left[\begin{array}{cc}
-\cos \theta_{0} &amp; 0 \<br>
-\sin \theta_{0} &amp; 0 \<br>
-0 &amp; 1
+\cos \theta_{0} & 0 \\
+\sin \theta_{0} & 0 \\
+0 & 1
 \end{array}\right]\left[\begin{array}{l}
-v_{0} \<br>
+v_{0} \\
 \omega_{0}
 \end{array}\right]
-$$</p>
-<h4 id="位姿误差描述">位姿误差描述</h4>
-<p>虚拟结构仅被用以描述<strong>目标编队的形状</strong>和编队中虚拟机器人的固定位置，而<strong>非限制该位置上真实存在的机器人</strong>。如下图所示：机器人团队由领航者$q_L(x_L,y_L,\theta_L)$和跟随者$q_{F2}(x_{F2},y_{F2},\theta_{F2})$、$q_{F3}(x_{F3},y_{F3},\theta_{F3})$组成。虚线空心图形表示编队中的虚拟机器人，即跟随者$q_{F2}$和$q_{F3}$和应当抵达的位置，表示为$q_{T2}(x_{T2},y_{T2},\theta_{T2})$、$q_{T3}(x_{T3},y_{T3},\theta_{T3})$。$q_L$与$q_{T2}$、$q_{T3}$共同组成虚拟的三角形编队。设计的行为应该能够确保跟随者$q_{F2}$和$q_{F3}$到达编队中$q_{T2}$、$q_{T3}$的位置。那么可以通过$q_{F2}$和$q_{T2}$之间的位置关系描述位姿误差。</p>
-<p><img src="../../../static/img/image-20200404142240713.png" alt="image-20200404142240713"></p>
-<p>最终通过公式推导可以得到：
 $$
-\boldsymbol{e}<em>{FiTj}=\left[\begin{array}{c}
-e</em>{FiTj}^{x} \<br>
-e_{FiTj}^{y} \<br>
+</div>
+#### 位姿误差描述
+<p>虚拟结构仅被用以描述<strong>目标编队的形状</strong>和编队中虚拟机器人的固定位置，而<strong>非限制该位置上真实存在的机器人</strong>。如下图所示：机器人团队由领航者$q_L(x_L,y_L,\theta_L)$和跟随者$q_{F2}(x_{F2},y_{F2},\theta_{F2})$、$q_{F3}(x_{F3},y_{F3},\theta_{F3})$组成。虚线空心图形表示编队中的虚拟机器人，即跟随者$q_{F2}$和$q_{F3}$和应当抵达的位置，表示为$q_{T2}(x_{T2},y_{T2},\theta_{T2})$、$q_{T3}(x_{T3},y_{T3},\theta_{T3})$。$q_L$与$q_{T2}$、$q_{T3}$共同组成虚拟的三角形编队。设计的行为应该能够确保跟随者$q_{F2}$和$q_{F3}$到达编队中$q_{T2}$、$q_{T3}$的位置。那么可以通过$q_{F2}$和$q_{T2}$之间的位置关系描述位姿误差。</p>
+<p><img src="https://gitee.com/chengshuyi/scripts/raw/master/img/image-20200404142240713.png" alt=""></p>
+<p>最终通过公式推导可以得到：</p>
+<div>
+$$
+\boldsymbol{e}_{FiTj}=\left[\begin{array}{c}
+e_{FiTj}^{x} \\
+e_{FiTj}^{y} \\
 e_{FiTj}^{\theta}
 \end{array}\right]=\left[\begin{array}{ccc}
-\cos \theta_{F i} &amp; \sin \theta_{F i} &amp; 0 \<br>
--\sin \theta_{F i} &amp; \cos \theta_{F i} &amp; 0 \<br>
-0 &amp; 0 &amp; 1
+\cos \theta_{F i} & \sin \theta_{F i} & 0 \\
+-\sin \theta_{F i} & \cos \theta_{F i} & 0 \\
+0 & 0 & 1
 \end{array}\right]\left(\boldsymbol{q}_{T j}-\boldsymbol{q}_{F i}\right), i, j \in[2, n]
 $$
-上式中，$\bold{q}_{Tj}$为通过传感器或通信获取的虚拟目标机器人的位姿，$\bold{q}_{Fi}$为机器人自身的位姿信息，主要通过如GPS、编码器等传感器获得。为了使$\bold{e}_{FiTj}$处于一定的阈值内，设计了两种基本运动行为与作为基本运动行为的选择依据的三种描述性行为。两种基本行为是直线运动与旋转运动。设计的思想是首先机器人采用旋转运动面向目标，然后采用直线运动奔向目标，最后通过旋转和目标完全重合，此时机器人到达编队中虚拟机器人的位置。当所有机器人均完成此任务时，编队形成。上述思想可以归纳为转向目标，奔向目标与姿态调整三种描述性行为。</p>
-<p>令阈值为：$\boldsymbol{\delta} = [\delta_p\quad \delta_p\quad \delta_o]^T$，$\delta_p$表示位置误差常数，$\delta_o$表示姿态角度误差常数，T为实际需要的有限时间。</p>
+</div>
+上式中，$\bold{q}_{Tj}$为通过传感器或通信获取的虚拟目标机器人的位姿，$\bold{q}_{Fi}$为机器人自身的位姿信息，主要通过如GPS、编码器等传感器获得。为了使$\bold{e}_{FiTj}$处于一定的阈值内，设计了两种基本运动行为与作为基本运动行为的选择依据的三种描述性行为。两种基本行为是直线运动与旋转运动。设计的思想是首先机器人采用旋转运动面向目标，然后采用直线运动奔向目标，最后通过旋转和目标完全重合，此时机器人到达编队中虚拟机器人的位置。当所有机器人均完成此任务时，编队形成。上述思想可以归纳为转向目标，奔向目标与姿态调整三种描述性行为。
+<p>令阈值为：$\boldsymbol{\delta} = [\delta_p\quad \delta_p\quad \delta_o]^T$，$\delta_p$表示位置误差常数，$\delta_o$表示姿态角度误差常数，$T$为实际需要的有限时间。</p>
 <h4 id="行为选择">行为选择</h4>
 <ul>
 <li>转向目标</li>
 </ul>
-<p>当机器人与虚拟目标之间的$y$方向误差$|e^y_{FiTj}|&gt;\delta_p$，时，虚拟机器人$q_{Tj}$在跟随机器人$q_{Fi}$运动的正前方的时候，机器人选择奔向目标的行为。该行为同时考虑了当$q_{Fi}$背离$q_{Tj}$且两者在同一直线上的情况，此时$|e^y_{FiTj}|&lt;\delta_p,e^x_{FiTj}&lt;0$。该行为的触发条件：
+<p>当机器人与虚拟目标之间的$y$方向误差$|e^y_{FiTj}|&gt;\delta_p$，时，虚拟机器人$q_{Tj}$在跟随机器人$q_{Fi}$运动的正前方的时候，机器人选择奔向目标的行为。该行为同时考虑了当$q_{Fi}$背离$q_{Tj}$且两者在同一直线上的情况，此时$|e^y_{FiTj}|&lt;\delta_p,e^x_{FiTj}&lt;0$。该行为的触发条件：</p>
+<div>
 $$
-\bigcup\left{\begin{array}{l}
-\left|e_{F i T j}^{y}\right| \geq \delta_{p} \<br>
-e_{F i T j}^{x}&lt;-\delta_{p}\left(\left|e_{FiTj}^{y}\right|&lt;\delta_{p}\right) i, j \in[2, n]
+\bigcup\left\{\begin{array}{l}
+\left|e_{F i T j}^{y}\right| \geq \delta_{p} \\
+e_{F i T j}^{x}<-\delta_{p}\left(\left|e_{FiTj}^{y}\right|<\delta_{p}\right) i, j \in[2, n]
 \end{array}\right.
 $$
+</div>
 转向目标行为的结束条件为：
+<div>
 $$
-\lim _{t \rightarrow t_{F i T j}^{T T}}\left|e_{F i T j}^{y}(t)\right|&lt;\delta_{P}, \quad e_{F i T j}^{x} \geq \delta_{P}, i, j \in[2, n]
-$$</p>
-<ul>
-<li>奔向目标</li>
-</ul>
-<p>当虚拟机器人$q_{Tj}$在跟随机器人$q_{Fi}$运动的正前方，即$|e^y_{FiTj}|&lt;\delta_p$时，机器人选择奔向目标的行为。奔向目标行为用于缩短虚拟机器人$q_{Tj}$与跟随机器人$q_{Fi}$之间的直线距离。该行为的触发条件：
+\lim _{t \rightarrow t_{F i T j}^{T T}}\left|e_{F i T j}^{y}(t)\right|<\delta_{P}, \quad e_{F i T j}^{x} \geq \delta_{P}, i, j \in[2, n]
 $$
-|e^y_{FiTj}|&lt;\delta_p, |e^x_{FiTj}|\geq\delta_p, i,j\in[2,n].
+</div>
+* 奔向目标
+<p>当虚拟机器人$q_{Tj}$在跟随机器人$q_{Fi}$运动的正前方，即$|e^y_{FiTj}|&lt;\delta_p$时，机器人选择奔向目标的行为。奔向目标行为用于缩短虚拟机器人$q_{Tj}$与跟随机器人$q_{Fi}$之间的直线距离。该行为的触发条件：</p>
+<div>
 $$
+|e^y_{FiTj}|<\delta_p, |e^x_{FiTj}|\geq\delta_p, i,j\in[2,n].
+$$
+</div>
 奔向目标行为的结束条件为：
+<div>
 $$
-|e^y_{FiTj}|&lt;\delta_p, \lim _{t \rightarrow t_{F i T j}^{T T}}|e^x_{FiTj}|(t)&lt;\delta_p, i,j\in[2,n].
-$$</p>
+|e^y_{FiTj}|<\delta_p, \lim _{t \rightarrow t_{F i T j}^{T T}}|e^x_{FiTj}|(t)<\delta_p, i,j\in[2,n].
+$$
+</div>
 <ul>
 <li>姿态调整</li>
 </ul>
-<p>当虚拟机器人$q_{Tj}$与跟随机器人$q_{Fi}$之间的距离误差分量$|e^x_{FiTj}|&lt;\delta_p$，$|e^y_{FiTj}|&lt;\delta_p$，且两者方向误差值$|e^\theta_{FiTj}|&gt;\delta_o$的时候，机器人选择姿态调整行为。姿态调整行为是为了让近似处于同一点上的$q_{Tj}$与$q_{Fi}$完成角度的重合。该行为的触发条件：
+<p>当虚拟机器人$q_{Tj}$与跟随机器人$q_{Fi}$之间的距离误差分量$|e^x_{FiTj}|&lt;\delta_p$，$|e^y_{FiTj}|&lt;\delta_p$，且两者方向误差值$|e^\theta_{FiTj}|&gt;\delta_o$的时候，机器人选择姿态调整行为。姿态调整行为是为了让近似处于同一点上的$q_{Tj}$与$q_{Fi}$完成角度的重合。该行为的触发条件：</p>
+<div>
 $$
-|e^x_{FiTj}|&lt;\delta_p, |e^y_{FiTj}|&lt;\delta_p, |e^\theta_{FiTj}|\geq\delta_o,i,j\in[2,n].
+|e^x_{FiTj}|<\delta_p, |e^y_{FiTj}|<\delta_p, |e^\theta_{FiTj}|\geq\delta_o,i,j\in[2,n].
 $$
+</div>
 姿态调整行为的结束条件为：
+<div>
 $$
-|e^x_{FiTj}|&lt;\delta_p, |e^y_{FiTj}|&lt;\delta_p, \lim _{t \rightarrow t_{F i T j}^{T T}}|e^\theta_{FiTj}|(t)&lt;\delta_o,i,j\in[2,n].
-$$</p>
-<h3 id="参考文献">参考文献</h3>
+|e^x_{FiTj}|<\delta_p, |e^y_{FiTj}|<\delta_p, \lim _{t \rightarrow t_{F i T j}^{T T}}|e^\theta_{FiTj}|(t)<\delta_o,i,j\in[2,n].
+$$
+</div>
+### 参考文献
 <section class="footnotes" role="doc-endnotes">
 <hr>
 <ol>
@@ -613,7 +756,7 @@ $$</p>
 <p>跟随者通过跟踪功能强大的领航者实现预期的目标，当领航者的位置等参量发生变化时，跟随者机器人通过比较这些参量的误差得到控制量并引导行为。对于跟随领航者法有两种控制器形式：$l-l$ 控制器和$l-\varphi$控制器。$l-\varphi$控制器的控制目标是使跟随者和领航者之间的距离和相对转角达到设定值。$l-l$控制器考虑的是三个机器人之间的相对位置问题。当跟随者和两个领航者之间的距离达到设定值的话，就可以认为整个队形稳定了<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>。</p>
 <h3 id="建立模型2">建立模型<sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup></h3>
 <p>领航跟随编队控制算法可以分为两个部分: 一是确定领航者及队形。二是跟随者跟随领航者。第一部分比较容易实现，可以根据实际情况确定。第二部分比较复杂，是算法的重点。在上面模型中领航跟随法的控制也就是控制领航者和跟随者之间的间距 $l$ 与角度 $\varphi$。这种编队控制的主要思想是: 控制间距 $l$ 和角度 $\varphi$，使之与期望的间距 $l_d$和期望的角度 $\varphi_d$相等。使跟随机器人以角度 $\varphi$ 和间距 $l$ 跟踪领航机器人，从而形成编队。领航者只需要沿着预定规划的路径行走，跟随者需要知道领航者的位置坐标$( x_1，y_1)$ 、角度 $\theta_1$、速度 $v_1$、角速度 $\omega_1$及自身的位置坐标$( x_2，y_2)$ 、角度 $\theta_2$，通过计算确定自身的前进速度 $v_2$、角速度 $\omega_2$来完成编队控制。</p>
-<p><img src="../../../static/img/image-20200403130104645.png" alt="image-20200403130104645"></p>
+<p><img src="https://gitee.com/chengshuyi/scripts/raw/master/img/image-20200403130104645.png" alt=""></p>
 <p>使用参考点的坐标来表示机器人描述中的坐标。机器人描述向量 $r_i= ( x_i，y_i，\theta_i，v_i，\omega_i) $描述机器人 $i$ 的位置坐标、角度、前进速度和角速度，则领航者机器人的描述向量为 $r_1= ( x_1，y_1，\theta_1，v_1，\omega_1)$ ，跟随机器人的描述向量为 $r_2= ( x_2，y_2，\theta_2，v_2，\omega_2)$ 。根据上图中的模型可以得出机器人描述向量各个量之间的关系:</p>
 <div>
 $$
@@ -627,7 +770,7 @@ $$
 <blockquote>
 <p>注：单位时间内位姿的变化量。</p>
 </blockquote>
-<p><img src="../../../static/img/image-20200403130200690.png" alt="image-20200403130200690"></p>
+<p><img src="https://gitee.com/chengshuyi/scripts/raw/master/img/image-20200403130200690.png" alt="image-20200403130200690"></p>
 <p>根据上图的控制关系，跟随机器人的运动学方程为:</p>
 <div>
 $$
@@ -680,7 +823,8 @@ $$
 <p>赵明, 林茂松, 黄玉清. Leader-following Formation Control of Multi-robots Based on Dynamic Value of $\varphi$%基于动态\varphi值的领航跟随法多机器人编队控制[J]. 西南科技大学学报, 2013, 028(004):57-61. <a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 </ol>
-</section>]]></description>
+</section>
+]]></description>
                 
                 
                 
