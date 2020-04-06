@@ -23,7 +23,7 @@
         
             <copyright>[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh)</copyright>
         
-        <lastBuildDate>Sun, 05 Apr 2020 06:36:58 +0000</lastBuildDate>
+        <lastBuildDate>Mon, 06 Apr 2020 05:53:45 +0000</lastBuildDate>
         
             <atom:link rel="self" type="application/rss+xml" href="https://chengshuyi.github.io/rss.xml" />
         
@@ -55,11 +55,11 @@ $U_{\Sigma}(q)$表示机器人在环境中$q$位置时的综合势场，$F(q)$�
 <p>目标势场体现一种全局的引力效应，即势场存在于环境中一切位置，表现出来的特性为机器人离目标点越远，引力越大，按照这种规律可以建立目标势场函数：</p>
 <div>
 $$
-\left\{\begin{array}{1}
+\left\{\begin{array}{ll}
 U_{goal}(x) = \frac{1}{2}k(x-x_{goal})^2\\
 F_{goal}(x) = -k\|x-x_{goal}\|
-<p>\end{array}\right.
-$$</p>
+\end{array}\right.
+$$
 </div>
 其中$x_{goal}$为目标点位置，$x$为机器人的实时位置。因此目标点的引力势场通常是基于全局地图的，即机器人和目标点在全局地图中的位置己知，或者机器人
 与目标点的相互关系己知为前提。
@@ -103,11 +103,11 @@ $$
 由于同为引力场，所以类似目标点的势场函数规律可得群集中心的势场和势场力满足：
 <div>
 $$
-\left\{\begin{array}\\
+\left\{\begin{array}{ll}
 U_{centre}(x) = \frac{1}{2}c\|x-\bar{x})^2\| \\
 F_{centre}(x) = -c(x-\bar{x})
-<p>\end{array}\right.
-$$</p>
+\end{array}\right.
+$$
 </div>
 <!--省略了部分-->
 <h3 id="参考文献">参考文献</h3>
@@ -116,6 +116,102 @@ $$</p>
 <ol>
 <li id="fn:1" role="doc-endnote">
 <p>刘磊. 多移动机器人编队及协调控制研究[D]. 华中科技大学, 2009. <a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</section>
+]]></description>
+                
+                
+                
+                
+                
+                    
+                        
+                            
+                                
+                                
+                                
+                                    <category domain="https://chengshuyi.github.io/categories/%E6%9C%BA%E5%99%A8%E4%BA%BA/">机器人</category>
+                                
+                            
+                        
+                    
+                        
+                            
+                                
+                                
+                                
+                                    <category domain="https://chengshuyi.github.io/tags/%E6%9C%BA%E5%99%A8%E4%BA%BA/">机器人</category>
+                                
+                            
+                                
+                                
+                                
+                                    <category domain="https://chengshuyi.github.io/tags/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F/">多车编队</category>
+                                
+                            
+                        
+                    
+                
+            </item>
+        
+            <item>
+                <title>多车编队 基于图论的方法</title>
+                <link>https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E5%9B%BE%E8%AE%BA%E7%9A%84%E6%96%B9%E6%B3%95/</link>
+                <guid isPermaLink="true">https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E5%9B%BE%E8%AE%BA%E7%9A%84%E6%96%B9%E6%B3%95/</guid>
+                <pubDate>Sat, 04 Apr 2020 10:00:47 +0800</pubDate>
+                
+                    <author>c15271843451@outlook.com (程书意)</author>
+                
+                <copyright>[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh)</copyright>
+                
+                    <description><![CDATA[<p>基于图论的方法研究多机器人编队，需要将队形信息转换成各种图，依靠图论知识及李雅普诺夫方法分析编队的稳定性，得出队形的控制策略。该方法中机器人编队队形是依据图论理论中图的节点与边的关系来描述。节点即表示机器人的运动学特性，即是对运动方式的描述，而边则表示机器人之间的关系，是对运动的约束，利巧相应的图论知识与控制理论知识研究编队队形控制输出具有一致性。基于图论法的优点在于图的形状可任意变化，队形描述也相对简单，编队中改变队形较容易，并且图论的相关理论研究比较成熟，但不足之处在于物理实现比较复杂，通常只能适用于仿真环境的理论研究<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>。</p>
+<p>用图论的方法描述车辆编队，这种表示方法能够唯一的（无二义性的）定义多车辆编队队形，准确反映出编队中各车辆间的相互作用关系。车辆队表示为图$G=(V,E)$，其中，V 表示图的结点集，代表车辆集$V={1,2,...,N_a}$ } ； E 表示图的边集，其中的边元素是相关车辆 $i,j\in V$ 间的一个有序数对$(i,j)\in E$，表示车辆间的连接关系，对于有$N_a$个车辆的系统，至少用$M=N_a-1$个向量就可以对车辆编队进行唯一描述。编队图被认为是无方向的，所以$(i,j)\in E,(j,i)\in E$，如$(i,j)\in E$，那么车辆 i 和 j就被称为相邻车辆，车辆$i$的相邻车辆集表示为$N_i\in V$。另外，为了保证车辆编队沿给定的路径运行，所以将编队中与寻径相关的车辆定义为核心车辆。尽管在编队中任意两个核心车辆之间可能没有相关向量，但我们认为核心车辆间均为相邻车辆关系，因为它们之间通过寻径目标耦合<sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup>。</p>
+<p>两相邻车辆$i $和$j$间的期望相关向量表示为$d_{ij}\in R^n$，它表示处于期望编队路径位置时，两相邻车辆间的距离。</p>
+<p>给定了编队图$G=(V,E)$和编队路径$q_{ref}$后，就可以定义出编队向量$F=(f_1,...,f_{M+1})\in R^{n(M+1)}$它的分量$f_1\in R^n$定义如下：</p>
+<div>
+$$
+f_l = q_i-q_j+d_{ij},\forall l=1,...,M\\
+f_{M+1}=q_{\Sigma}-q_d
+$$
+</div>
+其中$i$表示构成边$e_l$的尾结点，$j$表示构成边$e_l$的头结点。$q_{\Sigma}$表示当前车辆的几何中心，$q_d$表示期望的车辆几何中心。很明显，当$F\equiv 0$时车辆组成编队，得到从$q$到$F$的映射关系：
+<div>
+$$
+F=Gq+\hat{d}, G^T=[C_{(n)}\quad V]\\
+\hat{d}=(...,d_{ij},...,-q_d)\\
+V^T=[V_1...V_{N_a}]\in R^{n\times n\times N_a}
+$$
+</div>
+$V_i\in R^{n\times n}$定义如下，
+<div>
+$$
+Vi=\left\{\begin{array}{ll}
+\frac{1}{N_a}I_{(n)} \quad if \quad i=1,2,...,N_a\\
+0\quad otherwise
+\end{array}\right.
+$$
+</div>
+矩阵$C_{n}\in R^{n(N_a\times M)}$与关联矩阵$C\in R^{N_a\times M}$有关，其中$C=[c_{ij}]$的元素根据边集$E$的元素定义如下，
+<div>
+$$
+c_{ij} = \left\{\begin{array}{ll}
++1, i为尾结点\\
+-1,i为头节点\\
+0,其它
+\end{array}\right.
+$$
+</div>
+根据以上的定义，当$G_{q^c}=-\hat{q}$ 时就能够计算出每个车辆的期望运行轨线。
+<h3 id="参考文献">参考文献</h3>
+<section class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1" role="doc-endnote">
+<p>岑斌斌. 多机器人编队的分布式协同控制方法研究[D]. 南京大学, 2015. <a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:2" role="doc-endnote">
+<p>贺晨龙, 黄丽湘, 张继业. 多车辆编队协作控制[C]// 全国非线性振动、全国非线性动力学和运动稳定性学术会议. 2007. <a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 </ol>
 </section>
@@ -523,8 +619,8 @@ $$</p>
         
             <item>
                 <title>伙伴系统</title>
-                <link>https://chengshuyi.github.io/posts/linux_kernel/%E4%BC%99%E4%BC%B4%E7%B3%BB%E7%BB%9F/</link>
-                <guid isPermaLink="true">https://chengshuyi.github.io/posts/linux_kernel/%E4%BC%99%E4%BC%B4%E7%B3%BB%E7%BB%9F/</guid>
+                <link>https://chengshuyi.github.io/posts/linux-kernel/%E4%BC%99%E4%BC%B4%E7%B3%BB%E7%BB%9F/</link>
+                <guid isPermaLink="true">https://chengshuyi.github.io/posts/linux-kernel/%E4%BC%99%E4%BC%B4%E7%B3%BB%E7%BB%9F/</guid>
                 <pubDate>Fri, 03 Apr 2020 15:26:04 +0800</pubDate>
                 
                     <author>c15271843451@outlook.com (程书意)</author>
@@ -853,6 +949,113 @@ $$
                                 
                                 
                                     <category domain="https://chengshuyi.github.io/tags/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F/">多车编队</category>
+                                
+                            
+                        
+                    
+                
+            </item>
+        
+            <item>
+                <title>Slab分配器</title>
+                <link>https://chengshuyi.github.io/posts/linux-kernel/slab/</link>
+                <guid isPermaLink="true">https://chengshuyi.github.io/posts/linux-kernel/slab/</guid>
+                <pubDate>Thu, 02 Apr 2020 16:24:50 +0800</pubDate>
+                
+                    <author>c15271843451@outlook.com (程书意)</author>
+                
+                <copyright>[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh)</copyright>
+                
+                    <description><![CDATA[<p>在linux内核中伙伴系统用来管理物理内存，其分配的基本单位是页。由于伙伴系统分配的粒度又太大，因此linux采用slab分配器提供动态内存的管理功能，而且可以作为经常分配并释放的对象的高速缓存。slab分配器的优点：</p>
+<ol>
+<li>
+<p>可以提供小块内存的分配支持，通用高速缓存可分配的大小从$2^5B$到$2^{25}B$，专用高速缓存没有大小限制；</p>
+</li>
+<li>
+<p>不必每次申请释放都和伙伴系统打交道，提供了分配释放效率；</p>
+</li>
+<li>
+<p>如果在slab缓存的话，其在CPU高速缓存的概率也会较高；</p>
+</li>
+<li>
+<p>伙伴系统对系统的数据和指令高速缓存有影响，slab分配器采用着色降低了这种副作用。</p>
+</li>
+</ol>
+<p>伙伴系统分配的内存大小是页的倍数，不利于CPU的高速缓存：如果每次都将数据存放到从伙伴系统分配的页开始的位置会使得高速缓存的有的行被过度使用，而有的行几乎从不被使用**[cpu的L1 cache一般大小为32KB，采用伙伴系统分配$order\geq5$时就会出现上述的问题**]。slab分配器通过着色使得slab对象能够均匀的使用高速缓存，提高高速缓存的利用率。</p>
+<h3 id="基本数据结构">基本数据结构</h3>
+<p><code>struct kmem_cache</code>、<code>struct array_cache</code>、<code>struct kmem_cache_node</code></p>
+<p>程序经常需要创建一些数据结构，比如进程描述符task_struct，内存描述符mm_struct等。slab分配器把这些需要分配的小块内存区作为对象，类似面向对象的思想。每一类对象分配一个cache，cache有一个或多个slab组成，slab由一个或多个物理页面组成。需要分配对象的时候从slab中空闲的对象取，用完了再放回slab中，而不是释放给物理页分配器，这样下次用的时候就不用重新初始化了，实现了对象的复用。</p>
+<p><img src="../../../static/img/image-20200402195625069.png" alt="image-20200402195625069"></p>
+<h3 id="鸡和蛋问题">鸡和蛋问题</h3>
+<p>由于slab分配器对象（<code>struct kmem_cache、struct array_cache、struct kmem_cache_node</code>）也需要用slab分配器提供的高速缓存机制，那么问题是：先有高速缓存还是先有slab分配器对象。</p>
+<ol>
+<li>我们知道slab分配器对象用来管理高速缓存：假设先有高速缓存的话，那么谁来管理高速缓存呢？</li>
+<li>我们知道高速缓存用来存放slab分配器对象：假设先有slab分配器对象，那么它存放在哪里呢？</li>
+</ol>
+<p>linux的做法是：静态分配slab分配器对象内存空间，然后利用伙伴算法分配存储对象的页帧，</p>
+<p>static struct kmem_cache kmem_cache_boot</p>
+<p>#define NUM_INIT_LISTS (2 * MAX_NUMNODES)</p>
+<p>static struct kmem_cache_node __initdata init_kmem_cache_node[NUM_INIT_LISTS];</p>
+<p>struct kmem_cache *</p>
+<p>kmalloc_caches[NR_KMALLOC_TYPES][KMALLOC_SHIFT_HIGH + 1]</p>
+<p>每种对象类型对应一个高速缓存，kmalloc使用的是通用高速缓存</p>
+<p>高速缓存划分为slab，slab有一个或多个物理上连续的页组成（一般是一个页），每个告诉缓存由多个slab</p>
+<p>每个slab包含数据结构，</p>
+<p>slab状态：满、部分满、空</p>
+<p>部分满》空》创建一个slab</p>
+<h3 id="slab着色原理">slab着色原理</h3>
+<p>一般情况下，slab的大小为4KB。我们令cpu的L1 cache为32KB（每一行64B、512行），那么要填充满cpu的L1 cache需要8个slab。那么slab分配器会从伙伴分配系统中分配8个slab，也就是8个页（8个页不一定是物理连续的）。假设获取的8个页对应的的起始地址和终止地址如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="mh">0x10000000</span> <span class="o">-</span> <span class="mh">0x10001000</span><span class="err">：对应</span><span class="n">cache行是0</span><span class="o">-</span><span class="mi">64</span>
+<span class="mh">0x10010000</span> <span class="o">-</span> <span class="mh">0x10011000</span><span class="err">：对应</span><span class="n">cache行是0</span><span class="o">-</span><span class="mi">64</span>
+<span class="mh">0x10020000</span> <span class="o">-</span> <span class="mh">0x10021000</span><span class="err">：对应</span><span class="n">cache行是0</span><span class="o">-</span><span class="mi">64</span>
+<span class="mh">0x10030000</span> <span class="o">-</span> <span class="mh">0x10031000</span><span class="err">：对应</span><span class="n">cache行是0</span><span class="o">-</span><span class="mi">64</span>
+<span class="mh">0x10040000</span> <span class="o">-</span> <span class="mh">0x10041000</span><span class="err">：对应</span><span class="n">cache行是0</span><span class="o">-</span><span class="mi">64</span>
+<span class="mh">0x10050000</span> <span class="o">-</span> <span class="mh">0x10051000</span><span class="err">：对应</span><span class="n">cache行是0</span><span class="o">-</span><span class="mi">64</span>
+<span class="mh">0x10060000</span> <span class="o">-</span> <span class="mh">0x10061000</span><span class="err">：对应</span><span class="n">cache行是0</span><span class="o">-</span><span class="mi">64</span>
+<span class="mh">0x10070000</span> <span class="o">-</span> <span class="mh">0x10071000</span><span class="err">：对应</span><span class="n">cache行是0</span><span class="o">-</span><span class="mi">64</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>可以发现不同的slab起始地址映射到cpu cache的同一行。slab着色原理是利用浪费的空间，假设浪费的空间所占用的cache行是$[1,10)$。那么slab中对象实际占用的cache行是$0\cup[11,64)$。那么可以通过偏移来让部分的对象移动到$[1,10)$行内。尽管slab着色可以使得对象尽可能占满cache，但是slab的着色仍然有很大的限制：</p>
+<ol>
+<li>无法占满剩余的行数，上述实例中$[64,512)$仍然未被使用；</li>
+<li>当slab的个数超过颜色数，效果甚微；</li>
+<li>slab的着色是用空间换时间，浪费一些空间来提高cache的命中率。</li>
+</ol>
+]]></description>
+                
+                
+                
+                
+                
+                    
+                        
+                            
+                                
+                                
+                                
+                                    <category domain="https://chengshuyi.github.io/categories/linux%E5%86%85%E6%A0%B8/">linux内核</category>
+                                
+                            
+                        
+                    
+                        
+                            
+                                
+                                
+                                
+                                    <category domain="https://chengshuyi.github.io/tags/linux%E5%86%85%E6%A0%B8slab%E5%88%86%E9%85%8D%E5%99%A8/">linux内核、slab分配器</category>
                                 
                             
                         

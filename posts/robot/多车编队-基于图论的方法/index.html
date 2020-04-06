@@ -41,7 +41,7 @@
     
     <meta http-equiv="Cache-Control" content="no-siteapp" />
 
-    <title>多车编队 领航跟随法 | 程书意</title>
+    <title>多车编队 基于图论的方法 | 程书意</title>
 
     <link rel="stylesheet" href="/css/meme.min.7017b47455e4b6bed857c02833f6d06f858f9a254053e88aca9d919df7fa0b9c.css" integrity="sha256-cBe0dFXktr7YV8AoM/bQb4WPmiVAU+iKyp2Rnff6C5w=" />
 
@@ -53,7 +53,7 @@
     <meta name="author" content="程书意" />
     
     
-    <meta name="description" content="跟随者领航者法的基本思想是将编队控制问题转化为跟随者跟踪领航者的位置和方向的问题。在多机器人组成的群体中，某个机器人被指定为领航者，其余作为它的跟随者，跟随者以一定的距……" />
+    <meta name="description" content="基于图论的方法研究多机器人编队，需要将队形信息转换成各种图，依靠图论知识及李雅普诺夫方法分析编队的稳定性，得出队形的控制策略。该方法中机器人编队队形是依据图论理论中图的……" />
 
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
     <link rel="mask-icon" href="/icons/safari-pinned-tab.svg" color="#2a6df4" />
@@ -72,7 +72,7 @@
     
 
     
-    <link rel="canonical" href="https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E9%A2%86%E8%88%AA%E8%B7%9F%E9%9A%8F%E6%B3%95/" />
+    <link rel="canonical" href="https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E5%9B%BE%E8%AE%BA%E7%9A%84%E6%96%B9%E6%B3%95/" />
 
 
 
@@ -80,15 +80,15 @@
     {
         "@context": "https://schema.org",
         "@type": "BlogPosting",
-        "datePublished": "2020-04-03T11:27:11+08:00",
+        "datePublished": "2020-04-04T10:00:47+08:00",
         "dateModified": "2020-04-06T05:53:42+00:00",
-        "url": "https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E9%A2%86%E8%88%AA%E8%B7%9F%E9%9A%8F%E6%B3%95/",
-        "headline": "多车编队 领航跟随法",
-        "description": "跟随者领航者法的基本思想是将编队控制问题转化为跟随者跟踪领航者的位置和方向的问题。在多机器人组成的群体中，某个机器人被指定为领航者，其余作为它的跟随者，跟随者以一定的距……",
+        "url": "https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E5%9B%BE%E8%AE%BA%E7%9A%84%E6%96%B9%E6%B3%95/",
+        "headline": "多车编队 基于图论的方法",
+        "description": "基于图论的方法研究多机器人编队，需要将队形信息转换成各种图，依靠图论知识及李雅普诺夫方法分析编队的稳定性，得出队形的控制策略。该方法中机器人编队队形是依据图论理论中图的……",
         "inLanguage" : "zh-CN",
         "articleSection": "posts",
-        "wordCount":  1461 ,
-        "image": ["https://gitee.com/chengshuyi/scripts/raw/master/img/image-20200403130104645.png","https://gitee.com/chengshuyi/scripts/raw/master/img/image-20200403130200690.png"],
+        "wordCount":  1204 ,
+        "image": "https://chengshuyi.github.io/icons/apple-touch-icon.png",
         "author": {
             "@type": "Person",
             "description": "技术宅",
@@ -118,8 +118,7 @@
 
 
 
-<meta name="twitter:card" content="summary_large_image" />
-
+<meta name="twitter:card" content="summary" />
 
 <meta name="twitter:site" content="@reuixiy" />
 <meta name="twitter:creator" content="@无" />
@@ -130,13 +129,13 @@
 
 
 
-<meta property="og:title" content="多车编队 领航跟随法" />
-<meta property="og:description" content="跟随者领航者法的基本思想是将编队控制问题转化为跟随者跟踪领航者的位置和方向的问题。在多机器人组成的群体中，某个机器人被指定为领航者，其余作为它的跟随者，跟随者以一定的距……" />
-<meta property="og:url" content="https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E9%A2%86%E8%88%AA%E8%B7%9F%E9%9A%8F%E6%B3%95/" />
+<meta property="og:title" content="多车编队 基于图论的方法" />
+<meta property="og:description" content="基于图论的方法研究多机器人编队，需要将队形信息转换成各种图，依靠图论知识及李雅普诺夫方法分析编队的稳定性，得出队形的控制策略。该方法中机器人编队队形是依据图论理论中图的……" />
+<meta property="og:url" content="https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E5%9B%BE%E8%AE%BA%E7%9A%84%E6%96%B9%E6%B3%95/" />
 <meta property="og:site_name" content="程书意" />
-<meta property="og:locale" content="zh" /><meta property="og:image" content="https://gitee.com/chengshuyi/scripts/raw/master/img/image-20200403130104645.png" />
-<meta property="og:type" content="article" />
-    <meta property="article:published_time" content="2020-04-03T11:27:11+08:00" />
+<meta property="og:locale" content="zh" /><meta property="og:image" content="https://chengshuyi.github.io/icons/apple-touch-icon.png" />
+    <meta property="og:type" content="article" />
+    <meta property="article:published_time" content="2020-04-04T10:00:47+08:00" />
     <meta property="article:modified_time" content="2020-04-06T05:53:42+00:00" />
     
     <meta property="article:section" content="posts" />
@@ -232,7 +231,7 @@
 
         <article class="content post" data-align="justify" data-type="posts" data-toc-num="true">
 
-            <h1 class="post-title">多车编队 领航跟随法</h1>
+            <h1 class="post-title">多车编队 基于图论的方法</h1>
 
             
 
@@ -246,7 +245,7 @@
 <div class="post-meta">
     
         
-        <time datetime="2020-04-03T11:27:11+08:00" class="post-meta-item published"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="icon post-meta-icon"><path d="M148 288h-40c-6.6 0-12-5.4-12-12v-40c0-6.6 5.4-12 12-12h40c6.6 0 12 5.4 12 12v40c0 6.6-5.4 12-12 12zm108-12v-40c0-6.6-5.4-12-12-12h-40c-6.6 0-12 5.4-12 12v40c0 6.6 5.4 12 12 12h40c6.6 0 12-5.4 12-12zm96 0v-40c0-6.6-5.4-12-12-12h-40c-6.6 0-12 5.4-12 12v40c0 6.6 5.4 12 12 12h40c6.6 0 12-5.4 12-12zm-96 96v-40c0-6.6-5.4-12-12-12h-40c-6.6 0-12 5.4-12 12v40c0 6.6 5.4 12 12 12h40c6.6 0 12-5.4 12-12zm-96 0v-40c0-6.6-5.4-12-12-12h-40c-6.6 0-12 5.4-12 12v40c0 6.6 5.4 12 12 12h40c6.6 0 12-5.4 12-12zm192 0v-40c0-6.6-5.4-12-12-12h-40c-6.6 0-12 5.4-12 12v40c0 6.6 5.4 12 12 12h40c6.6 0 12-5.4 12-12zm96-260v352c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V112c0-26.5 21.5-48 48-48h48V12c0-6.6 5.4-12 12-12h40c6.6 0 12 5.4 12 12v52h128V12c0-6.6 5.4-12 12-12h40c6.6 0 12 5.4 12 12v52h48c26.5 0 48 21.5 48 48zm-48 346V160H48v298c0 3.3 2.7 6 6 6h340c3.3 0 6-2.7 6-6z"/></svg>&nbsp;2020.4.3</time>
+        <time datetime="2020-04-04T10:00:47+08:00" class="post-meta-item published"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="icon post-meta-icon"><path d="M148 288h-40c-6.6 0-12-5.4-12-12v-40c0-6.6 5.4-12 12-12h40c6.6 0 12 5.4 12 12v40c0 6.6-5.4 12-12 12zm108-12v-40c0-6.6-5.4-12-12-12h-40c-6.6 0-12 5.4-12 12v40c0 6.6 5.4 12 12 12h40c6.6 0 12-5.4 12-12zm96 0v-40c0-6.6-5.4-12-12-12h-40c-6.6 0-12 5.4-12 12v40c0 6.6 5.4 12 12 12h40c6.6 0 12-5.4 12-12zm-96 96v-40c0-6.6-5.4-12-12-12h-40c-6.6 0-12 5.4-12 12v40c0 6.6 5.4 12 12 12h40c6.6 0 12-5.4 12-12zm-96 0v-40c0-6.6-5.4-12-12-12h-40c-6.6 0-12 5.4-12 12v40c0 6.6 5.4 12 12 12h40c6.6 0 12-5.4 12-12zm192 0v-40c0-6.6-5.4-12-12-12h-40c-6.6 0-12 5.4-12 12v40c0 6.6 5.4 12 12 12h40c6.6 0 12-5.4 12-12zm96-260v352c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V112c0-26.5 21.5-48 48-48h48V12c0-6.6 5.4-12 12-12h40c6.6 0 12 5.4 12 12v52h128V12c0-6.6 5.4-12 12-12h40c6.6 0 12 5.4 12 12v52h48c26.5 0 48 21.5 48 48zm-48 346V160H48v298c0 3.3 2.7 6 6 6h340c3.3 0 6-2.7 6-6z"/></svg>&nbsp;2020.4.4</time>
     
     
         
@@ -265,7 +264,7 @@
     
     
         
-        <span class="post-meta-item wordcount"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon post-meta-icon"><path d="M497.9 142.1l-46.1 46.1c-4.7 4.7-12.3 4.7-17 0l-111-111c-4.7-4.7-4.7-12.3 0-17l46.1-46.1c18.7-18.7 49.1-18.7 67.9 0l60.1 60.1c18.8 18.7 18.8 49.1 0 67.9zM284.2 99.8L21.6 362.4.4 483.9c-2.9 16.4 11.4 30.6 27.8 27.8l121.5-21.3 262.6-262.6c4.7-4.7 4.7-12.3 0-17l-111-111c-4.8-4.7-12.4-4.7-17.1 0zM124.1 339.9c-5.5-5.5-5.5-14.3 0-19.8l154-154c5.5-5.5 14.3-5.5 19.8 0s5.5 14.3 0 19.8l-154 154c-5.5 5.5-14.3 5.5-19.8 0zM88 424h48v36.3l-64.5 11.3-31.1-31.1L51.7 376H88v48z"/></svg>&nbsp;1461</span>
+        <span class="post-meta-item wordcount"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon post-meta-icon"><path d="M497.9 142.1l-46.1 46.1c-4.7 4.7-12.3 4.7-17 0l-111-111c-4.7-4.7-4.7-12.3 0-17l46.1-46.1c18.7-18.7 49.1-18.7 67.9 0l60.1 60.1c18.8 18.7 18.8 49.1 0 67.9zM284.2 99.8L21.6 362.4.4 483.9c-2.9 16.4 11.4 30.6 27.8 27.8l121.5-21.3 262.6-262.6c4.7-4.7 4.7-12.3 0-17l-111-111c-4.8-4.7-12.4-4.7-17.1 0zM124.1 339.9c-5.5-5.5-5.5-14.3 0-19.8l154-154c5.5-5.5 14.3-5.5 19.8 0s5.5 14.3 0 19.8l-154 154c-5.5 5.5-14.3 5.5-19.8 0zM88 424h48v36.3l-64.5 11.3-31.1-31.1L51.7 376H88v48z"/></svg>&nbsp;1204</span>
     
     
         
@@ -275,75 +274,53 @@
 </div>
             
 
-            <div class="post-body"><p>跟随者领航者法的基本思想是将编队控制问题转化为跟随者跟踪领航者的位置和方向的问题。在多机器人组成的群体中，某个机器人被指定为领航者，其余作为它的跟随者，跟随者以一定的距离间隔跟踪领航机器人的位置和方向。</p>
-<p>跟随者通过跟踪功能强大的领航者实现预期的目标，当领航者的位置等参量发生变化时，跟随者机器人通过比较这些参量的误差得到控制量并引导行为。对于跟随领航者法有两种控制器形式：$l-l$ 控制器和$l-\varphi$控制器。$l-\varphi$控制器的控制目标是使跟随者和领航者之间的距离和相对转角达到设定值。$l-l$控制器考虑的是三个机器人之间的相对位置问题。当跟随者和两个领航者之间的距离达到设定值的话，就可以认为整个队形稳定了<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">[1]</a></sup>。</p>
-<h3 id="建立模型2"><a href="#建立模型2" class="anchor-link"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon anchor-icon"><path d="M326.612 185.391c59.747 59.809 58.927 155.698.36 214.59-.11.12-.24.25-.36.37l-67.2 67.2c-59.27 59.27-155.699 59.262-214.96 0-59.27-59.26-59.27-155.7 0-214.96l37.106-37.106c9.84-9.84 26.786-3.3 27.294 10.606.648 17.722 3.826 35.527 9.69 52.721 1.986 5.822.567 12.262-3.783 16.612l-13.087 13.087c-28.026 28.026-28.905 73.66-1.155 101.96 28.024 28.579 74.086 28.749 102.325.51l67.2-67.19c28.191-28.191 28.073-73.757 0-101.83-3.701-3.694-7.429-6.564-10.341-8.569a16.037 16.037 0 0 1-6.947-12.606c-.396-10.567 3.348-21.456 11.698-29.806l21.054-21.055c5.521-5.521 14.182-6.199 20.584-1.731a152.482 152.482 0 0 1 20.522 17.197zM467.547 44.449c-59.261-59.262-155.69-59.27-214.96 0l-67.2 67.2c-.12.12-.25.25-.36.37-58.566 58.892-59.387 154.781.36 214.59a152.454 152.454 0 0 0 20.521 17.196c6.402 4.468 15.064 3.789 20.584-1.731l21.054-21.055c8.35-8.35 12.094-19.239 11.698-29.806a16.037 16.037 0 0 0-6.947-12.606c-2.912-2.005-6.64-4.875-10.341-8.569-28.073-28.073-28.191-73.639 0-101.83l67.2-67.19c28.239-28.239 74.3-28.069 102.325.51 27.75 28.3 26.872 73.934-1.155 101.96l-13.087 13.087c-4.35 4.35-5.769 10.79-3.783 16.612 5.864 17.194 9.042 34.999 9.69 52.721.509 13.906 17.454 20.446 27.294 10.606l37.106-37.106c59.271-59.259 59.271-155.699.001-214.959z"/></svg></a>建立模型<sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">[2]</a></sup></h3>
-<p>领航跟随编队控制算法可以分为两个部分: 一是确定领航者及队形。二是跟随者跟随领航者。第一部分比较容易实现，可以根据实际情况确定。第二部分比较复杂，是算法的重点。在上面模型中领航跟随法的控制也就是控制领航者和跟随者之间的间距 $l$ 与角度 $\varphi$。这种编队控制的主要思想是: 控制间距 $l$ 和角度 $\varphi$，使之与期望的间距 $l_d$和期望的角度 $\varphi_d$相等。使跟随机器人以角度 $\varphi$ 和间距 $l$ 跟踪领航机器人，从而形成编队。领航者只需要沿着预定规划的路径行走，跟随者需要知道领航者的位置坐标$( x_1，y_1)$ 、角度 $\theta_1$、速度 $v_1$、角速度 $\omega_1$及自身的位置坐标$( x_2，y_2)$ 、角度 $\theta_2$，通过计算确定自身的前进速度 $v_2$、角速度 $\omega_2$来完成编队控制。</p>
-<p><img src="https://gitee.com/chengshuyi/scripts/raw/master/img/image-20200403130104645.png" alt=""></p>
-<p>使用参考点的坐标来表示机器人描述中的坐标。机器人描述向量 $r_i= ( x_i，y_i，\theta_i，v_i，\omega_i) $描述机器人 $i$ 的位置坐标、角度、前进速度和角速度，则领航者机器人的描述向量为 $r_1= ( x_1，y_1，\theta_1，v_1，\omega_1)$ ，跟随机器人的描述向量为 $r_2= ( x_2，y_2，\theta_2，v_2，\omega_2)$ 。根据上图中的模型可以得出机器人描述向量各个量之间的关系:</p>
+            <div class="post-body"><p>基于图论的方法研究多机器人编队，需要将队形信息转换成各种图，依靠图论知识及李雅普诺夫方法分析编队的稳定性，得出队形的控制策略。该方法中机器人编队队形是依据图论理论中图的节点与边的关系来描述。节点即表示机器人的运动学特性，即是对运动方式的描述，而边则表示机器人之间的关系，是对运动的约束，利巧相应的图论知识与控制理论知识研究编队队形控制输出具有一致性。基于图论法的优点在于图的形状可任意变化，队形描述也相对简单，编队中改变队形较容易，并且图论的相关理论研究比较成熟，但不足之处在于物理实现比较复杂，通常只能适用于仿真环境的理论研究<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">[1]</a></sup>。</p>
+<p>用图论的方法描述车辆编队，这种表示方法能够唯一的（无二义性的）定义多车辆编队队形，准确反映出编队中各车辆间的相互作用关系。车辆队表示为图$G=(V,E)$，其中，V 表示图的结点集，代表车辆集$V={1,2,...,N_a}$ } ； E 表示图的边集，其中的边元素是相关车辆 $i,j\in V$ 间的一个有序数对$(i,j)\in E$，表示车辆间的连接关系，对于有$N_a$个车辆的系统，至少用$M=N_a-1$个向量就可以对车辆编队进行唯一描述。编队图被认为是无方向的，所以$(i,j)\in E,(j,i)\in E$，如$(i,j)\in E$，那么车辆 i 和 j就被称为相邻车辆，车辆$i$的相邻车辆集表示为$N_i\in V$。另外，为了保证车辆编队沿给定的路径运行，所以将编队中与寻径相关的车辆定义为核心车辆。尽管在编队中任意两个核心车辆之间可能没有相关向量，但我们认为核心车辆间均为相邻车辆关系，因为它们之间通过寻径目标耦合<sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">[2]</a></sup>。</p>
+<p>两相邻车辆$i $和$j$间的期望相关向量表示为$d_{ij}\in R^n$，它表示处于期望编队路径位置时，两相邻车辆间的距离。</p>
+<p>给定了编队图$G=(V,E)$和编队路径$q_{ref}$后，就可以定义出编队向量$F=(f_1,...,f_{M+1})\in R^{n(M+1)}$它的分量$f_1\in R^n$定义如下：</p>
 <div>
 $$
-\left\{\begin{array}{1}
-\dot{x}=v_{i} \cos \theta_i \\
-\dot{y}=v_{i} \sin \theta_i \\ 
-\dot{\theta}_{i}=\omega_{i}
+f_l = q_i-q_j+d_{ij},\forall l=1,...,M\\
+f_{M+1}=q_{\Sigma}-q_d
+$$
+</div>
+其中$i$表示构成边$e_l$的尾结点，$j$表示构成边$e_l$的头结点。$q_{\Sigma}$表示当前车辆的几何中心，$q_d$表示期望的车辆几何中心。很明显，当$F\equiv 0$时车辆组成编队，得到从$q$到$F$的映射关系：
+<div>
+$$
+F=Gq+\hat{d}, G^T=[C_{(n)}\quad V]\\
+\hat{d}=(...,d_{ij},...,-q_d)\\
+V^T=[V_1...V_{N_a}]\in R^{n\times n\times N_a}
+$$
+</div>
+$V_i\in R^{n\times n}$定义如下，
+<div>
+$$
+Vi=\left\{\begin{array}{ll}
+\frac{1}{N_a}I_{(n)} \quad if \quad i=1,2,...,N_a\\
+0\quad otherwise
 \end{array}\right.
 $$
 </div>
-<blockquote>
-<p>注：单位时间内位姿的变化量。</p>
-</blockquote>
-<p><img src="https://gitee.com/chengshuyi/scripts/raw/master/img/image-20200403130200690.png" alt="image-20200403130200690"></p>
-<p>根据上图的控制关系，跟随机器人的运动学方程为:</p>
+矩阵$C_{n}\in R^{n(N_a\times M)}$与关联矩阵$C\in R^{N_a\times M}$有关，其中$C=[c_{ij}]$的元素根据边集$E$的元素定义如下，
 <div>
 $$
-\left\{\begin{array}{l}
-\dot{l}=v_{2} \cos \gamma-v_{1} \cos \varphi+d \omega_{2} \sin \gamma \\
-\dot{\varphi}=\frac{1}{l}\left(v_{1} \sin \varphi-v_{2} \sin \gamma+d \omega_{2} \cos \gamma-l \omega_{1}\right) \\
-\dot{\theta}_{2}=\omega_{2} \tag{1}
+c_{ij} = \left\{\begin{array}{ll}
++1, i为尾结点\\
+-1,i为头节点\\
+0,其它
 \end{array}\right.
 $$
 </div>
-其中 $γ = \varphi + \theta_1－ \theta_2$。
-<div>
-$$
-\left\{\begin{array}{l}
-\omega_{2}=\frac{\cos \gamma}{d}\left[\beta l\left(\varphi_{d}-\varphi\right)-v_{1} \sin \varphi+l \omega_{1}+p \sin \gamma\right] \\
-v_{2}=p-d \omega_{2} \tan \gamma \tag{2}
-\end{array}\right.
-$$
-</div>
-根据算法原理结合结构图的闭环特性可得:
-<div>
-$$
-\left\{\begin{array}{1}
-\dot{l}=\alpha(l_d-l) \\
-\dot{\varphi}=\beta(\varphi_d-\varphi)
-\end{array}\right.\tag{3}
-$$
-</div>
-<blockquote>
-<p>通过控制使得$l$和$\varphi$逐渐达到期望值$l_d$和$\varphi_d$，最终$l$和$\varphi$单位时间内的变化量为0。</p>
-</blockquote>
-<p>式中的 $α，β$ 是闭环控制中的比例系数，联合(2) 式和(3) 式可得跟随机器人的速度$( v_2，\omega_2)$ ，即控制系统的输出：</p>
-<div>
-$$
-\left\{\begin{array}{l}
-\omega_{2}=\frac{\cos \gamma}{d}\left[\beta l\left(\varphi_{d}-\varphi\right)-v_{1} \sin \varphi+l \omega_{1}+p \sin \gamma\right] \\
-v_{2}=p-d \omega_{2} \tan \gamma \tag{4}
-\end{array}\right.
-$$
-</div>
-其中$p=\frac{v_icos\varphi+\alpha(l_d-l)}{cos\gamma}$由( 4) 式得出跟随机器人的控制输入量$( v_2，\omega_2)$ 。根据上面结果输入跟随机器人的控制量来控制跟随机器人的前进速度与角速度，从而完成领航跟随编队控制算法的队形保持，实现编队控制。
+根据以上的定义，当$G_{q^c}=-\hat{q}$ 时就能够计算出每个车辆的期望运行轨线。
 <h3 id="参考文献"><a href="#参考文献" class="anchor-link"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon anchor-icon"><path d="M326.612 185.391c59.747 59.809 58.927 155.698.36 214.59-.11.12-.24.25-.36.37l-67.2 67.2c-59.27 59.27-155.699 59.262-214.96 0-59.27-59.26-59.27-155.7 0-214.96l37.106-37.106c9.84-9.84 26.786-3.3 27.294 10.606.648 17.722 3.826 35.527 9.69 52.721 1.986 5.822.567 12.262-3.783 16.612l-13.087 13.087c-28.026 28.026-28.905 73.66-1.155 101.96 28.024 28.579 74.086 28.749 102.325.51l67.2-67.19c28.191-28.191 28.073-73.757 0-101.83-3.701-3.694-7.429-6.564-10.341-8.569a16.037 16.037 0 0 1-6.947-12.606c-.396-10.567 3.348-21.456 11.698-29.806l21.054-21.055c5.521-5.521 14.182-6.199 20.584-1.731a152.482 152.482 0 0 1 20.522 17.197zM467.547 44.449c-59.261-59.262-155.69-59.27-214.96 0l-67.2 67.2c-.12.12-.25.25-.36.37-58.566 58.892-59.387 154.781.36 214.59a152.454 152.454 0 0 0 20.521 17.196c6.402 4.468 15.064 3.789 20.584-1.731l21.054-21.055c8.35-8.35 12.094-19.239 11.698-29.806a16.037 16.037 0 0 0-6.947-12.606c-2.912-2.005-6.64-4.875-10.341-8.569-28.073-28.073-28.191-73.639 0-101.83l67.2-67.19c28.239-28.239 74.3-28.069 102.325.51 27.75 28.3 26.872 73.934-1.155 101.96l-13.087 13.087c-4.35 4.35-5.769 10.79-3.783 16.612 5.864 17.194 9.042 34.999 9.69 52.721.509 13.906 17.454 20.446 27.294 10.606l37.106-37.106c59.271-59.259 59.271-155.699.001-214.959z"/></svg></a>参考文献</h3>
 <section class="footnotes" role="doc-endnotes">
 <hr>
 <ol>
 <li id="fn:1" role="doc-endnote">
-<p>胡玮韬.多机器人编队及运动控制研究[D].陕西:西安电子科技大学,2010. DOI:10.7666/d.y1668394. <a href="#fnref:1" class="footnote-backref" role="doc-backlink"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" class="icon footnote-icon"><path d="M177 159.7l136 136c9.4 9.4 9.4 24.6 0 33.9l-22.6 22.6c-9.4 9.4-24.6 9.4-33.9 0L160 255.9l-96.4 96.4c-9.4 9.4-24.6 9.4-33.9 0L7 329.7c-9.4-9.4-9.4-24.6 0-33.9l136-136c9.4-9.5 24.6-9.5 34-.1z"/></svg></a></p>
+<p>岑斌斌. 多机器人编队的分布式协同控制方法研究[D]. 南京大学, 2015. <a href="#fnref:1" class="footnote-backref" role="doc-backlink"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" class="icon footnote-icon"><path d="M177 159.7l136 136c9.4 9.4 9.4 24.6 0 33.9l-22.6 22.6c-9.4 9.4-24.6 9.4-33.9 0L160 255.9l-96.4 96.4c-9.4 9.4-24.6 9.4-33.9 0L7 329.7c-9.4-9.4-9.4-24.6 0-33.9l136-136c9.4-9.5 24.6-9.5 34-.1z"/></svg></a></p>
 </li>
 <li id="fn:2" role="doc-endnote">
-<p>赵明, 林茂松, 黄玉清. Leader-following Formation Control of Multi-robots Based on Dynamic Value of $\varphi$%基于动态\varphi值的领航跟随法多机器人编队控制[J]. 西南科技大学学报, 2013, 028(004):57-61. <a href="#fnref:2" class="footnote-backref" role="doc-backlink"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" class="icon footnote-icon"><path d="M177 159.7l136 136c9.4 9.4 9.4 24.6 0 33.9l-22.6 22.6c-9.4 9.4-24.6 9.4-33.9 0L160 255.9l-96.4 96.4c-9.4 9.4-24.6 9.4-33.9 0L7 329.7c-9.4-9.4-9.4-24.6 0-33.9l136-136c9.4-9.5 24.6-9.5 34-.1z"/></svg></a></p>
+<p>贺晨龙, 黄丽湘, 张继业. 多车辆编队协作控制[C]// 全国非线性振动、全国非线性动力学和运动稳定性学术会议. 2007. <a href="#fnref:2" class="footnote-backref" role="doc-backlink"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" class="icon footnote-icon"><path d="M177 159.7l136 136c9.4 9.4 9.4 24.6 0 33.9l-22.6 22.6c-9.4 9.4-24.6 9.4-33.9 0L160 255.9l-96.4 96.4c-9.4 9.4-24.6 9.4-33.9 0L7 329.7c-9.4-9.4-9.4-24.6 0-33.9l136-136c9.4-9.5 24.6-9.5 34-.1z"/></svg></a></p>
 </li>
 </ol>
 </section>
@@ -364,7 +341,7 @@ $$
                 
                 
                 
-                <li class="copyright-item link"><span class="copyright-item-text">链接</span>：<a href="/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E9%A2%86%E8%88%AA%E8%B7%9F%E9%9A%8F%E6%B3%95/" target="_blank" rel="noopener">https://chengshuyi.github.io/posts/robot/多车编队-领航跟随法/</a></li>
+                <li class="copyright-item link"><span class="copyright-item-text">链接</span>：<a href="/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E5%9B%BE%E8%AE%BA%E7%9A%84%E6%96%B9%E6%B3%95/" target="_blank" rel="noopener">https://chengshuyi.github.io/posts/robot/多车编队-基于图论的方法/</a></li>
             
             <li class="copyright-item license"><span class="copyright-item-text">许可</span>：<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a></li>
             
@@ -395,7 +372,7 @@ $$
                 
                 <div class="share-item twitter">
                     
-                    <a href="https://twitter.com/share?url=https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E9%A2%86%E8%88%AA%E8%B7%9F%E9%9A%8F%E6%B3%95/&amp;text=%e5%a4%9a%e8%bd%a6%e7%bc%96%e9%98%9f%20%e9%a2%86%e8%88%aa%e8%b7%9f%e9%9a%8f%e6%b3%95&amp;via=reuixiy" title="分享到「Twitter」" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon twitter-icon"><path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z"/></svg></a>
+                    <a href="https://twitter.com/share?url=https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E5%9B%BE%E8%AE%BA%E7%9A%84%E6%96%B9%E6%B3%95/&amp;text=%e5%a4%9a%e8%bd%a6%e7%bc%96%e9%98%9f%20%e5%9f%ba%e4%ba%8e%e5%9b%be%e8%ae%ba%e7%9a%84%e6%96%b9%e6%b3%95&amp;via=reuixiy" title="分享到「Twitter」" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon twitter-icon"><path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z"/></svg></a>
                 </div>
             
 
@@ -403,7 +380,7 @@ $$
                 
                 <div class="share-item facebook">
                     
-                    <a href="https://www.facebook.com/sharer/sharer.php?u=https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E9%A2%86%E8%88%AA%E8%B7%9F%E9%9A%8F%E6%B3%95/" title="分享到「Facebook」" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon facebook-icon"><path d="M504 256C504 119 393 8 256 8S8 119 8 256c0 123.78 90.69 226.38 209.25 245V327.69h-63V256h63v-54.64c0-62.15 37-96.48 93.67-96.48 27.14 0 55.52 4.84 55.52 4.84v61h-31.28c-30.8 0-40.41 19.12-40.41 38.73V256h68.78l-11 71.69h-57.78V501C413.31 482.38 504 379.78 504 256z"/></svg></a>
+                    <a href="https://www.facebook.com/sharer/sharer.php?u=https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E5%9B%BE%E8%AE%BA%E7%9A%84%E6%96%B9%E6%B3%95/" title="分享到「Facebook」" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon facebook-icon"><path d="M504 256C504 119 393 8 256 8S8 119 8 256c0 123.78 90.69 226.38 209.25 245V327.69h-63V256h63v-54.64c0-62.15 37-96.48 93.67-96.48 27.14 0 55.52 4.84 55.52 4.84v61h-31.28c-30.8 0-40.41 19.12-40.41 38.73V256h68.78l-11 71.69h-57.78V501C413.31 482.38 504 379.78 504 256z"/></svg></a>
                 </div>
             
 
@@ -411,7 +388,7 @@ $$
                 
                 <div class="share-item linkedin">
                     
-                    <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E9%A2%86%E8%88%AA%E8%B7%9F%E9%9A%8F%E6%B3%95/&amp;title=%e5%a4%9a%e8%bd%a6%e7%bc%96%e9%98%9f%20%e9%a2%86%e8%88%aa%e8%b7%9f%e9%9a%8f%e6%b3%95&amp;summary=%e8%b7%9f%e9%9a%8f%e8%80%85%e9%a2%86%e8%88%aa%e8%80%85%e6%b3%95%e7%9a%84%e5%9f%ba%e6%9c%ac%e6%80%9d%e6%83%b3%e6%98%af%e5%b0%86%e7%bc%96%e9%98%9f%e6%8e%a7%e5%88%b6%e9%97%ae%e9%a2%98%e8%bd%ac%e5%8c%96%e4%b8%ba%e8%b7%9f%e9%9a%8f%e8%80%85%e8%b7%9f%e8%b8%aa%e9%a2%86%e8%88%aa%e8%80%85%e7%9a%84%e4%bd%8d%e7%bd%ae%e5%92%8c%e6%96%b9%e5%90%91%e7%9a%84%e9%97%ae%e9%a2%98%e3%80%82%e5%9c%a8%e5%a4%9a%e6%9c%ba%e5%99%a8%e4%ba%ba%e7%bb%84%e6%88%90%e7%9a%84%e7%be%a4%e4%bd%93%e4%b8%ad%ef%bc%8c%e6%9f%90%e4%b8%aa%e6%9c%ba%e5%99%a8%e4%ba%ba%e8%a2%ab%e6%8c%87%e5%ae%9a%e4%b8%ba%e9%a2%86%e8%88%aa%e8%80%85%ef%bc%8c%e5%85%b6%e4%bd%99%e4%bd%9c%e4%b8%ba%e5%ae%83%e7%9a%84%e8%b7%9f%e9%9a%8f%e8%80%85%ef%bc%8c%e8%b7%9f%e9%9a%8f%e8%80%85%e4%bb%a5%e4%b8%80%e5%ae%9a%e7%9a%84%e8%b7%9d%e2%80%a6%e2%80%a6&amp;source=%e7%a8%8b%e4%b9%a6%e6%84%8f" title="分享到「LinkedIn」" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="icon linkedin-icon"><path d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3zM135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5zm282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9V416z"/></svg></a>
+                    <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E5%9B%BE%E8%AE%BA%E7%9A%84%E6%96%B9%E6%B3%95/&amp;title=%e5%a4%9a%e8%bd%a6%e7%bc%96%e9%98%9f%20%e5%9f%ba%e4%ba%8e%e5%9b%be%e8%ae%ba%e7%9a%84%e6%96%b9%e6%b3%95&amp;summary=%e5%9f%ba%e4%ba%8e%e5%9b%be%e8%ae%ba%e7%9a%84%e6%96%b9%e6%b3%95%e7%a0%94%e7%a9%b6%e5%a4%9a%e6%9c%ba%e5%99%a8%e4%ba%ba%e7%bc%96%e9%98%9f%ef%bc%8c%e9%9c%80%e8%a6%81%e5%b0%86%e9%98%9f%e5%bd%a2%e4%bf%a1%e6%81%af%e8%bd%ac%e6%8d%a2%e6%88%90%e5%90%84%e7%a7%8d%e5%9b%be%ef%bc%8c%e4%be%9d%e9%9d%a0%e5%9b%be%e8%ae%ba%e7%9f%a5%e8%af%86%e5%8f%8a%e6%9d%8e%e9%9b%85%e6%99%ae%e8%af%ba%e5%a4%ab%e6%96%b9%e6%b3%95%e5%88%86%e6%9e%90%e7%bc%96%e9%98%9f%e7%9a%84%e7%a8%b3%e5%ae%9a%e6%80%a7%ef%bc%8c%e5%be%97%e5%87%ba%e9%98%9f%e5%bd%a2%e7%9a%84%e6%8e%a7%e5%88%b6%e7%ad%96%e7%95%a5%e3%80%82%e8%af%a5%e6%96%b9%e6%b3%95%e4%b8%ad%e6%9c%ba%e5%99%a8%e4%ba%ba%e7%bc%96%e9%98%9f%e9%98%9f%e5%bd%a2%e6%98%af%e4%be%9d%e6%8d%ae%e5%9b%be%e8%ae%ba%e7%90%86%e8%ae%ba%e4%b8%ad%e5%9b%be%e7%9a%84%e2%80%a6%e2%80%a6&amp;source=%e7%a8%8b%e4%b9%a6%e6%84%8f" title="分享到「LinkedIn」" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="icon linkedin-icon"><path d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3zM135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5zm282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9V416z"/></svg></a>
                 </div>
             
 
@@ -419,7 +396,7 @@ $$
                 
                 <div class="share-item telegram">
                     
-                    <a href="https://t.me/share/url?url=https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E9%A2%86%E8%88%AA%E8%B7%9F%E9%9A%8F%E6%B3%95/&amp;text=%e5%a4%9a%e8%bd%a6%e7%bc%96%e9%98%9f%20%e9%a2%86%e8%88%aa%e8%b7%9f%e9%9a%8f%e6%b3%95" title="分享到「Telegram」" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512" class="icon telegram-icon"><path d="M248 8C111 8 0 119 0 256s111 248 248 248 248-111 248-248S385 8 248 8zm121.8 169.9l-40.7 191.8c-3 13.6-11.1 16.9-22.4 10.5l-62-45.7-29.9 28.8c-3.3 3.3-6.1 6.1-12.5 6.1l4.4-63.1 114.9-103.8c5-4.4-1.1-6.9-7.7-2.5l-142 89.4-61.2-19.1c-13.3-4.2-13.6-13.3 2.8-19.7l239.1-92.2c11.1-4 20.8 2.7 17.2 19.5z"/></svg></a>
+                    <a href="https://t.me/share/url?url=https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E5%9B%BE%E8%AE%BA%E7%9A%84%E6%96%B9%E6%B3%95/&amp;text=%e5%a4%9a%e8%bd%a6%e7%bc%96%e9%98%9f%20%e5%9f%ba%e4%ba%8e%e5%9b%be%e8%ae%ba%e7%9a%84%e6%96%b9%e6%b3%95" title="分享到「Telegram」" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512" class="icon telegram-icon"><path d="M248 8C111 8 0 119 0 256s111 248 248 248 248-111 248-248S385 8 248 8zm121.8 169.9l-40.7 191.8c-3 13.6-11.1 16.9-22.4 10.5l-62-45.7-29.9 28.8c-3.3 3.3-6.1 6.1-12.5 6.1l4.4-63.1 114.9-103.8c5-4.4-1.1-6.9-7.7-2.5l-142 89.4-61.2-19.1c-13.3-4.2-13.6-13.3 2.8-19.7l239.1-92.2c11.1-4 20.8 2.7 17.2 19.5z"/></svg></a>
                 </div>
             
 
@@ -427,7 +404,7 @@ $$
                 
                 <div class="share-item weibo">
                     
-                    <a href="https://service.weibo.com/share/share.php?&amp;url=https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E9%A2%86%E8%88%AA%E8%B7%9F%E9%9A%8F%E6%B3%95/&amp;title=%e5%a4%9a%e8%bd%a6%e7%bc%96%e9%98%9f%20%e9%a2%86%e8%88%aa%e8%b7%9f%e9%9a%8f%e6%b3%95&amp;pic=https://gitee.com/chengshuyi/scripts/raw/master/img/image-20200403130104645.png&amp;searchPic=false" title="分享到「新浪微博」" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon weibo-icon"><path d="M407 177.6c7.6-24-13.4-46.8-37.4-41.7-22 4.8-28.8-28.1-7.1-32.8 50.1-10.9 92.3 37.1 76.5 84.8-6.8 21.2-38.8 10.8-32-10.3zM214.8 446.7C108.5 446.7 0 395.3 0 310.4c0-44.3 28-95.4 76.3-143.7C176 67 279.5 65.8 249.9 161c-4 13.1 12.3 5.7 12.3 6 79.5-33.6 140.5-16.8 114 51.4-3.7 9.4 1.1 10.9 8.3 13.1 135.7 42.3 34.8 215.2-169.7 215.2zm143.7-146.3c-5.4-55.7-78.5-94-163.4-85.7-84.8 8.6-148.8 60.3-143.4 116s78.5 94 163.4 85.7c84.8-8.6 148.8-60.3 143.4-116zM347.9 35.1c-25.9 5.6-16.8 43.7 8.3 38.3 72.3-15.2 134.8 52.8 111.7 124-7.4 24.2 29.1 37 37.4 12 31.9-99.8-55.1-195.9-157.4-174.3zm-78.5 311c-17.1 38.8-66.8 60-109.1 46.3-40.8-13.1-58-53.4-40.3-89.7 17.7-35.4 63.1-55.4 103.4-45.1 42 10.8 63.1 50.2 46 88.5zm-86.3-30c-12.9-5.4-30 .3-38 12.9-8.3 12.9-4.3 28 8.6 34 13.1 6 30.8.3 39.1-12.9 8-13.1 3.7-28.3-9.7-34zm32.6-13.4c-5.1-1.7-11.4.6-14.3 5.4-2.9 5.1-1.4 10.6 3.7 12.9 5.1 2 11.7-.3 14.6-5.4 2.8-5.2 1.1-10.9-4-12.9z"/></svg></a>
+                    <a href="https://service.weibo.com/share/share.php?&amp;url=https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E5%9B%BE%E8%AE%BA%E7%9A%84%E6%96%B9%E6%B3%95/&amp;title=%e5%a4%9a%e8%bd%a6%e7%bc%96%e9%98%9f%20%e5%9f%ba%e4%ba%8e%e5%9b%be%e8%ae%ba%e7%9a%84%e6%96%b9%e6%b3%95&amp;pic=https://chengshuyi.github.io/icons/apple-touch-icon.png&amp;searchPic=false" title="分享到「新浪微博」" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon weibo-icon"><path d="M407 177.6c7.6-24-13.4-46.8-37.4-41.7-22 4.8-28.8-28.1-7.1-32.8 50.1-10.9 92.3 37.1 76.5 84.8-6.8 21.2-38.8 10.8-32-10.3zM214.8 446.7C108.5 446.7 0 395.3 0 310.4c0-44.3 28-95.4 76.3-143.7C176 67 279.5 65.8 249.9 161c-4 13.1 12.3 5.7 12.3 6 79.5-33.6 140.5-16.8 114 51.4-3.7 9.4 1.1 10.9 8.3 13.1 135.7 42.3 34.8 215.2-169.7 215.2zm143.7-146.3c-5.4-55.7-78.5-94-163.4-85.7-84.8 8.6-148.8 60.3-143.4 116s78.5 94 163.4 85.7c84.8-8.6 148.8-60.3 143.4-116zM347.9 35.1c-25.9 5.6-16.8 43.7 8.3 38.3 72.3-15.2 134.8 52.8 111.7 124-7.4 24.2 29.1 37 37.4 12 31.9-99.8-55.1-195.9-157.4-174.3zm-78.5 311c-17.1 38.8-66.8 60-109.1 46.3-40.8-13.1-58-53.4-40.3-89.7 17.7-35.4 63.1-55.4 103.4-45.1 42 10.8 63.1 50.2 46 88.5zm-86.3-30c-12.9-5.4-30 .3-38 12.9-8.3 12.9-4.3 28 8.6 34 13.1 6 30.8.3 39.1-12.9 8-13.1 3.7-28.3-9.7-34zm32.6-13.4c-5.1-1.7-11.4.6-14.3 5.4-2.9 5.1-1.4 10.6 3.7 12.9 5.1 2 11.7-.3 14.6-5.4 2.8-5.2 1.1-10.9-4-12.9z"/></svg></a>
                 </div>
             
 
@@ -435,7 +412,7 @@ $$
                 
                 <div class="share-item douban">
                     
-                    <a href="https://www.douban.com/share/service?href=https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E9%A2%86%E8%88%AA%E8%B7%9F%E9%9A%8F%E6%B3%95/&amp;name=%e5%a4%9a%e8%bd%a6%e7%bc%96%e9%98%9f%20%e9%a2%86%e8%88%aa%e8%b7%9f%e9%9a%8f%e6%b3%95&amp;text=%e8%b7%9f%e9%9a%8f%e8%80%85%e9%a2%86%e8%88%aa%e8%80%85%e6%b3%95%e7%9a%84%e5%9f%ba%e6%9c%ac%e6%80%9d%e6%83%b3%e6%98%af%e5%b0%86%e7%bc%96%e9%98%9f%e6%8e%a7%e5%88%b6%e9%97%ae%e9%a2%98%e8%bd%ac%e5%8c%96%e4%b8%ba%e8%b7%9f%e9%9a%8f%e8%80%85%e8%b7%9f%e8%b8%aa%e9%a2%86%e8%88%aa%e8%80%85%e7%9a%84%e4%bd%8d%e7%bd%ae%e5%92%8c%e6%96%b9%e5%90%91%e7%9a%84%e9%97%ae%e9%a2%98%e3%80%82%e5%9c%a8%e5%a4%9a%e6%9c%ba%e5%99%a8%e4%ba%ba%e7%bb%84%e6%88%90%e7%9a%84%e7%be%a4%e4%bd%93%e4%b8%ad%ef%bc%8c%e6%9f%90%e4%b8%aa%e6%9c%ba%e5%99%a8%e4%ba%ba%e8%a2%ab%e6%8c%87%e5%ae%9a%e4%b8%ba%e9%a2%86%e8%88%aa%e8%80%85%ef%bc%8c%e5%85%b6%e4%bd%99%e4%bd%9c%e4%b8%ba%e5%ae%83%e7%9a%84%e8%b7%9f%e9%9a%8f%e8%80%85%ef%bc%8c%e8%b7%9f%e9%9a%8f%e8%80%85%e4%bb%a5%e4%b8%80%e5%ae%9a%e7%9a%84%e8%b7%9d%e2%80%a6%e2%80%a6" title="分享到「豆瓣」" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon douban-icon"><path d="M.643.92v2.412h22.714V.92H.643zm1.974 4.926v9.42h18.764v-9.42H2.617zm2.72 2.408H18.69v4.605H5.338V8.254zm1.657 7.412l-2.512.938c1.037 1.461 1.87 2.825 2.512 4.091H0v2.385h24v-2.385h-6.678c.818-1.176 1.589-2.543 2.303-4.091l-2.73-.938a29.952 29.952 0 01-2.479 5.03h-4.75c-.786-1.962-1.677-3.641-2.672-5.03Z"/></svg></a>
+                    <a href="https://www.douban.com/share/service?href=https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E5%9B%BE%E8%AE%BA%E7%9A%84%E6%96%B9%E6%B3%95/&amp;name=%e5%a4%9a%e8%bd%a6%e7%bc%96%e9%98%9f%20%e5%9f%ba%e4%ba%8e%e5%9b%be%e8%ae%ba%e7%9a%84%e6%96%b9%e6%b3%95&amp;text=%e5%9f%ba%e4%ba%8e%e5%9b%be%e8%ae%ba%e7%9a%84%e6%96%b9%e6%b3%95%e7%a0%94%e7%a9%b6%e5%a4%9a%e6%9c%ba%e5%99%a8%e4%ba%ba%e7%bc%96%e9%98%9f%ef%bc%8c%e9%9c%80%e8%a6%81%e5%b0%86%e9%98%9f%e5%bd%a2%e4%bf%a1%e6%81%af%e8%bd%ac%e6%8d%a2%e6%88%90%e5%90%84%e7%a7%8d%e5%9b%be%ef%bc%8c%e4%be%9d%e9%9d%a0%e5%9b%be%e8%ae%ba%e7%9f%a5%e8%af%86%e5%8f%8a%e6%9d%8e%e9%9b%85%e6%99%ae%e8%af%ba%e5%a4%ab%e6%96%b9%e6%b3%95%e5%88%86%e6%9e%90%e7%bc%96%e9%98%9f%e7%9a%84%e7%a8%b3%e5%ae%9a%e6%80%a7%ef%bc%8c%e5%be%97%e5%87%ba%e9%98%9f%e5%bd%a2%e7%9a%84%e6%8e%a7%e5%88%b6%e7%ad%96%e7%95%a5%e3%80%82%e8%af%a5%e6%96%b9%e6%b3%95%e4%b8%ad%e6%9c%ba%e5%99%a8%e4%ba%ba%e7%bc%96%e9%98%9f%e9%98%9f%e5%bd%a2%e6%98%af%e4%be%9d%e6%8d%ae%e5%9b%be%e8%ae%ba%e7%90%86%e8%ae%ba%e4%b8%ad%e5%9b%be%e7%9a%84%e2%80%a6%e2%80%a6" title="分享到「豆瓣」" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon douban-icon"><path d="M.643.92v2.412h22.714V.92H.643zm1.974 4.926v9.42h18.764v-9.42H2.617zm2.72 2.408H18.69v4.605H5.338V8.254zm1.657 7.412l-2.512.938c1.037 1.461 1.87 2.825 2.512 4.091H0v2.385h24v-2.385h-6.678c.818-1.176 1.589-2.543 2.303-4.091l-2.73-.938a29.952 29.952 0 01-2.479 5.03h-4.75c-.786-1.962-1.677-3.641-2.672-5.03Z"/></svg></a>
                 </div>
             
 
@@ -443,7 +420,7 @@ $$
                 
                 <div class="share-item qq">
                     
-                    <a href="https://connect.qq.com/widget/shareqq/index.html?url=https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E9%A2%86%E8%88%AA%E8%B7%9F%E9%9A%8F%E6%B3%95/&amp;title=%e5%a4%9a%e8%bd%a6%e7%bc%96%e9%98%9f%20%e9%a2%86%e8%88%aa%e8%b7%9f%e9%9a%8f%e6%b3%95&amp;summary=%e8%b7%9f%e9%9a%8f%e8%80%85%e9%a2%86%e8%88%aa%e8%80%85%e6%b3%95%e7%9a%84%e5%9f%ba%e6%9c%ac%e6%80%9d%e6%83%b3%e6%98%af%e5%b0%86%e7%bc%96%e9%98%9f%e6%8e%a7%e5%88%b6%e9%97%ae%e9%a2%98%e8%bd%ac%e5%8c%96%e4%b8%ba%e8%b7%9f%e9%9a%8f%e8%80%85%e8%b7%9f%e8%b8%aa%e9%a2%86%e8%88%aa%e8%80%85%e7%9a%84%e4%bd%8d%e7%bd%ae%e5%92%8c%e6%96%b9%e5%90%91%e7%9a%84%e9%97%ae%e9%a2%98%e3%80%82%e5%9c%a8%e5%a4%9a%e6%9c%ba%e5%99%a8%e4%ba%ba%e7%bb%84%e6%88%90%e7%9a%84%e7%be%a4%e4%bd%93%e4%b8%ad%ef%bc%8c%e6%9f%90%e4%b8%aa%e6%9c%ba%e5%99%a8%e4%ba%ba%e8%a2%ab%e6%8c%87%e5%ae%9a%e4%b8%ba%e9%a2%86%e8%88%aa%e8%80%85%ef%bc%8c%e5%85%b6%e4%bd%99%e4%bd%9c%e4%b8%ba%e5%ae%83%e7%9a%84%e8%b7%9f%e9%9a%8f%e8%80%85%ef%bc%8c%e8%b7%9f%e9%9a%8f%e8%80%85%e4%bb%a5%e4%b8%80%e5%ae%9a%e7%9a%84%e8%b7%9d%e2%80%a6%e2%80%a6&amp;pics=https://gitee.com/chengshuyi/scripts/raw/master/img/image-20200403130104645.png&amp;site=%e7%a8%8b%e4%b9%a6%e6%84%8f" title="分享到「QQ」" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="icon qq-icon"><path d="M433.754 420.445c-11.526 1.393-44.86-52.741-44.86-52.741 0 31.345-16.136 72.247-51.051 101.786 16.842 5.192 54.843 19.167 45.803 34.421-7.316 12.343-125.51 7.881-159.632 4.037-34.122 3.844-152.316 8.306-159.632-4.037-9.045-15.25 28.918-29.214 45.783-34.415-34.92-29.539-51.059-70.445-51.059-101.792 0 0-33.334 54.134-44.859 52.741-5.37-.65-12.424-29.644 9.347-99.704 10.261-33.024 21.995-60.478 40.144-105.779C60.683 98.063 108.982.006 224 0c113.737.006 163.156 96.133 160.264 214.963 18.118 45.223 29.912 72.85 40.144 105.778 21.768 70.06 14.716 99.053 9.346 99.704z"/></svg></a>
+                    <a href="https://connect.qq.com/widget/shareqq/index.html?url=https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E5%9B%BE%E8%AE%BA%E7%9A%84%E6%96%B9%E6%B3%95/&amp;title=%e5%a4%9a%e8%bd%a6%e7%bc%96%e9%98%9f%20%e5%9f%ba%e4%ba%8e%e5%9b%be%e8%ae%ba%e7%9a%84%e6%96%b9%e6%b3%95&amp;summary=%e5%9f%ba%e4%ba%8e%e5%9b%be%e8%ae%ba%e7%9a%84%e6%96%b9%e6%b3%95%e7%a0%94%e7%a9%b6%e5%a4%9a%e6%9c%ba%e5%99%a8%e4%ba%ba%e7%bc%96%e9%98%9f%ef%bc%8c%e9%9c%80%e8%a6%81%e5%b0%86%e9%98%9f%e5%bd%a2%e4%bf%a1%e6%81%af%e8%bd%ac%e6%8d%a2%e6%88%90%e5%90%84%e7%a7%8d%e5%9b%be%ef%bc%8c%e4%be%9d%e9%9d%a0%e5%9b%be%e8%ae%ba%e7%9f%a5%e8%af%86%e5%8f%8a%e6%9d%8e%e9%9b%85%e6%99%ae%e8%af%ba%e5%a4%ab%e6%96%b9%e6%b3%95%e5%88%86%e6%9e%90%e7%bc%96%e9%98%9f%e7%9a%84%e7%a8%b3%e5%ae%9a%e6%80%a7%ef%bc%8c%e5%be%97%e5%87%ba%e9%98%9f%e5%bd%a2%e7%9a%84%e6%8e%a7%e5%88%b6%e7%ad%96%e7%95%a5%e3%80%82%e8%af%a5%e6%96%b9%e6%b3%95%e4%b8%ad%e6%9c%ba%e5%99%a8%e4%ba%ba%e7%bc%96%e9%98%9f%e9%98%9f%e5%bd%a2%e6%98%af%e4%be%9d%e6%8d%ae%e5%9b%be%e8%ae%ba%e7%90%86%e8%ae%ba%e4%b8%ad%e5%9b%be%e7%9a%84%e2%80%a6%e2%80%a6&amp;pics=https://chengshuyi.github.io/icons/apple-touch-icon.png&amp;site=%e7%a8%8b%e4%b9%a6%e6%84%8f" title="分享到「QQ」" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="icon qq-icon"><path d="M433.754 420.445c-11.526 1.393-44.86-52.741-44.86-52.741 0 31.345-16.136 72.247-51.051 101.786 16.842 5.192 54.843 19.167 45.803 34.421-7.316 12.343-125.51 7.881-159.632 4.037-34.122 3.844-152.316 8.306-159.632-4.037-9.045-15.25 28.918-29.214 45.783-34.415-34.92-29.539-51.059-70.445-51.059-101.792 0 0-33.334 54.134-44.859 52.741-5.37-.65-12.424-29.644 9.347-99.704 10.261-33.024 21.995-60.478 40.144-105.779C60.683 98.063 108.982.006 224 0c113.737.006 163.156 96.133 160.264 214.963 18.118 45.223 29.912 72.85 40.144 105.778 21.768 70.06 14.716 99.053 9.346 99.704z"/></svg></a>
                 </div>
             
 
@@ -451,7 +428,7 @@ $$
                 
                 <div class="share-item qzone">
                     
-                    <a href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E9%A2%86%E8%88%AA%E8%B7%9F%E9%9A%8F%E6%B3%95/&amp;title=%e5%a4%9a%e8%bd%a6%e7%bc%96%e9%98%9f%20%e9%a2%86%e8%88%aa%e8%b7%9f%e9%9a%8f%e6%b3%95&amp;summary=%e8%b7%9f%e9%9a%8f%e8%80%85%e9%a2%86%e8%88%aa%e8%80%85%e6%b3%95%e7%9a%84%e5%9f%ba%e6%9c%ac%e6%80%9d%e6%83%b3%e6%98%af%e5%b0%86%e7%bc%96%e9%98%9f%e6%8e%a7%e5%88%b6%e9%97%ae%e9%a2%98%e8%bd%ac%e5%8c%96%e4%b8%ba%e8%b7%9f%e9%9a%8f%e8%80%85%e8%b7%9f%e8%b8%aa%e9%a2%86%e8%88%aa%e8%80%85%e7%9a%84%e4%bd%8d%e7%bd%ae%e5%92%8c%e6%96%b9%e5%90%91%e7%9a%84%e9%97%ae%e9%a2%98%e3%80%82%e5%9c%a8%e5%a4%9a%e6%9c%ba%e5%99%a8%e4%ba%ba%e7%bb%84%e6%88%90%e7%9a%84%e7%be%a4%e4%bd%93%e4%b8%ad%ef%bc%8c%e6%9f%90%e4%b8%aa%e6%9c%ba%e5%99%a8%e4%ba%ba%e8%a2%ab%e6%8c%87%e5%ae%9a%e4%b8%ba%e9%a2%86%e8%88%aa%e8%80%85%ef%bc%8c%e5%85%b6%e4%bd%99%e4%bd%9c%e4%b8%ba%e5%ae%83%e7%9a%84%e8%b7%9f%e9%9a%8f%e8%80%85%ef%bc%8c%e8%b7%9f%e9%9a%8f%e8%80%85%e4%bb%a5%e4%b8%80%e5%ae%9a%e7%9a%84%e8%b7%9d%e2%80%a6%e2%80%a6&amp;pics=https://gitee.com/chengshuyi/scripts/raw/master/img/image-20200403130104645.png&amp;site=%e7%a8%8b%e4%b9%a6%e6%84%8f" title="分享到「QQ 空间」" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon qzone-icon"><path d="M23.985 9.202c-.032-.099-.127-.223-.334-.258-.207-.036-7.351-1.406-7.351-1.406s-.105-.022-.198-.07c-.092-.047-.127-.167-.127-.167S12.447.956 12.349.77C12.25.583 12.104.532 12 .532c-.104 0-.251.051-.349.238-.098.186-3.626 6.531-3.626 6.531s-.035.12-.128.167c-.092.047-.197.07-.197.07S.556 8.908.348 8.943c-.208.036-.302.16-.333.258a.477.477 0 0 0 .125.449l5.362 5.49s.072.08.119.172c.016.104.005.21.005.21s-1.189 7.242-1.22 7.45.075.369.159.43c.083.062.233.106.421.013.189-.093 6.812-3.261 6.812-3.261s.098-.044.201-.061c.103-.017.201.061.201.061s6.623 3.168 6.812 3.261c.188.094.338.049.421-.013a.463.463 0 0 0 .159-.43c-.021-.14-.93-5.677-.93-5.677.876-.54 1.425-1.039 1.849-1.747-2.594.969-6.006 1.717-9.415 1.866-.915.041-2.41.097-3.473-.015-.678-.071-1.17-.144-1.243-.438-.053-.215.054-.46.545-.831a2640.5 2640.5 0 0 1 2.861-2.155c1.285-.968 3.559-2.47 3.559-2.731 0-.285-2.144-.781-4.037-.781-1.945 0-2.275.132-2.811.168-.488.034-.769.005-.804-.138-.06-.248.183-.389.588-.568.709-.314 1.86-.594 1.984-.626.194-.052 3.082-.805 5.618-.535 1.318.14 3.244.668 3.244 1.276 0 .342-1.721 1.494-3.225 2.597-1.149.843-2.217 1.561-2.217 1.688 0 .342 3.533 1.241 6.689 1.01l.003-.022c.048-.092.119-.172.119-.172l5.362-5.49a.477.477 0 0 0 .127-.449z"/></svg></a>
+                    <a href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E5%9B%BE%E8%AE%BA%E7%9A%84%E6%96%B9%E6%B3%95/&amp;title=%e5%a4%9a%e8%bd%a6%e7%bc%96%e9%98%9f%20%e5%9f%ba%e4%ba%8e%e5%9b%be%e8%ae%ba%e7%9a%84%e6%96%b9%e6%b3%95&amp;summary=%e5%9f%ba%e4%ba%8e%e5%9b%be%e8%ae%ba%e7%9a%84%e6%96%b9%e6%b3%95%e7%a0%94%e7%a9%b6%e5%a4%9a%e6%9c%ba%e5%99%a8%e4%ba%ba%e7%bc%96%e9%98%9f%ef%bc%8c%e9%9c%80%e8%a6%81%e5%b0%86%e9%98%9f%e5%bd%a2%e4%bf%a1%e6%81%af%e8%bd%ac%e6%8d%a2%e6%88%90%e5%90%84%e7%a7%8d%e5%9b%be%ef%bc%8c%e4%be%9d%e9%9d%a0%e5%9b%be%e8%ae%ba%e7%9f%a5%e8%af%86%e5%8f%8a%e6%9d%8e%e9%9b%85%e6%99%ae%e8%af%ba%e5%a4%ab%e6%96%b9%e6%b3%95%e5%88%86%e6%9e%90%e7%bc%96%e9%98%9f%e7%9a%84%e7%a8%b3%e5%ae%9a%e6%80%a7%ef%bc%8c%e5%be%97%e5%87%ba%e9%98%9f%e5%bd%a2%e7%9a%84%e6%8e%a7%e5%88%b6%e7%ad%96%e7%95%a5%e3%80%82%e8%af%a5%e6%96%b9%e6%b3%95%e4%b8%ad%e6%9c%ba%e5%99%a8%e4%ba%ba%e7%bc%96%e9%98%9f%e9%98%9f%e5%bd%a2%e6%98%af%e4%be%9d%e6%8d%ae%e5%9b%be%e8%ae%ba%e7%90%86%e8%ae%ba%e4%b8%ad%e5%9b%be%e7%9a%84%e2%80%a6%e2%80%a6&amp;pics=https://chengshuyi.github.io/icons/apple-touch-icon.png&amp;site=%e7%a8%8b%e4%b9%a6%e6%84%8f" title="分享到「QQ 空间」" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon qzone-icon"><path d="M23.985 9.202c-.032-.099-.127-.223-.334-.258-.207-.036-7.351-1.406-7.351-1.406s-.105-.022-.198-.07c-.092-.047-.127-.167-.127-.167S12.447.956 12.349.77C12.25.583 12.104.532 12 .532c-.104 0-.251.051-.349.238-.098.186-3.626 6.531-3.626 6.531s-.035.12-.128.167c-.092.047-.197.07-.197.07S.556 8.908.348 8.943c-.208.036-.302.16-.333.258a.477.477 0 0 0 .125.449l5.362 5.49s.072.08.119.172c.016.104.005.21.005.21s-1.189 7.242-1.22 7.45.075.369.159.43c.083.062.233.106.421.013.189-.093 6.812-3.261 6.812-3.261s.098-.044.201-.061c.103-.017.201.061.201.061s6.623 3.168 6.812 3.261c.188.094.338.049.421-.013a.463.463 0 0 0 .159-.43c-.021-.14-.93-5.677-.93-5.677.876-.54 1.425-1.039 1.849-1.747-2.594.969-6.006 1.717-9.415 1.866-.915.041-2.41.097-3.473-.015-.678-.071-1.17-.144-1.243-.438-.053-.215.054-.46.545-.831a2640.5 2640.5 0 0 1 2.861-2.155c1.285-.968 3.559-2.47 3.559-2.731 0-.285-2.144-.781-4.037-.781-1.945 0-2.275.132-2.811.168-.488.034-.769.005-.804-.138-.06-.248.183-.389.588-.568.709-.314 1.86-.594 1.984-.626.194-.052 3.082-.805 5.618-.535 1.318.14 3.244.668 3.244 1.276 0 .342-1.721 1.494-3.225 2.597-1.149.843-2.217 1.561-2.217 1.688 0 .342 3.533 1.241 6.689 1.01l.003-.022c.048-.092.119-.172.119-.172l5.362-5.49a.477.477 0 0 0 .127-.449z"/></svg></a>
                 </div>
             
 
@@ -466,7 +443,7 @@ $$
     var typeNumber = 0;
     var errorCorrectionLevel = 'L';
     var qr = qrcode(typeNumber, errorCorrectionLevel);
-    qr.addData('https:\/\/chengshuyi.github.io\/posts\/robot\/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E9%A2%86%E8%88%AA%E8%B7%9F%E9%9A%8F%E6%B3%95\/');
+    qr.addData('https:\/\/chengshuyi.github.io\/posts\/robot\/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E5%9B%BE%E8%AE%BA%E7%9A%84%E6%96%B9%E6%B3%95\/');
     qr.make();
     document.getElementById('qrcode-img').innerHTML = qr.createImgTag();
 </script>
@@ -493,11 +470,11 @@ $$
                     </li>
                 
                     <li class="related-item">
-                        <a href="/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E5%9B%BE%E8%AE%BA%E7%9A%84%E6%96%B9%E6%B3%95/" class="related-link">多车编队 基于图论的方法</a>
+                        <a href="/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E8%A1%8C%E4%B8%BA%E7%9A%84%E6%96%B9%E6%B3%95/" class="related-link">多车编队 基于行为的方法</a>
                     </li>
                 
                     <li class="related-item">
-                        <a href="/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E8%A1%8C%E4%B8%BA%E7%9A%84%E6%96%B9%E6%B3%95/" class="related-link">多车编队 基于行为的方法</a>
+                        <a href="/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E9%A2%86%E8%88%AA%E8%B7%9F%E9%9A%8F%E6%B3%95/" class="related-link">多车编队 领航跟随法</a>
                     </li>
                 
             </ul>
@@ -544,12 +521,12 @@ $$
         <ul class="post-nav">
             
                 <li class="post-nav-prev">
-                    <a href="/posts/linux-kernel/%E4%BC%99%E4%BC%B4%E7%B3%BB%E7%BB%9F/" rel="prev">< 伙伴系统</a>
+                    <a href="/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E4%BA%BA%E5%B7%A5%E5%8A%BF%E5%9C%BA%E6%B3%95/" rel="prev">< 多车编队 人工势场法</a>
                 </li>
             
             
                 <li class="post-nav-next">
-                    <a href="/posts/linux-kernel/slab/" rel="next">Slab分配器 ></a>
+                    <a href="/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E8%A1%8C%E4%B8%BA%E7%9A%84%E6%96%B9%E6%B3%95/" rel="next">多车编队 基于行为的方法 ></a>
                 </li>
             
         </ul>
