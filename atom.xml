@@ -4,7 +4,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom" xml:lang="zh-CN">
     <title type="text">程书意</title>
     <subtitle type="html">MemE 是一个强大且可高度定制的 GoHugo 博客主题，专为个人博客设计。</subtitle>
-    <updated>2020-04-06T05:53:45+00:00</updated>
+    <updated>2020-04-22T11:16:39+00:00</updated>
     <id>https://chengshuyi.github.io/</id>
     <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/" />
     <link rel="self" type="application/atom+xml" href="https://chengshuyi.github.io/atom.xml" />
@@ -17,10 +17,283 @@
     <rights>[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh)</rights>
     <generator uri="https://gohugo.io/" version="0.68.3">Hugo</generator>
         <entry>
+            <title type="text">嵌入式文件系统</title>
+            <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/embedded-file-system/%E5%B5%8C%E5%85%A5%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/" />
+            <id>https://chengshuyi.github.io/posts/embedded-file-system/%E5%B5%8C%E5%85%A5%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/</id>
+            <updated>2020-04-22T11:16:36+00:00</updated>
+            <published>2020-04-21T14:11:20+08:00</published>
+            <author>
+                    <name>程书意</name>
+                    <uri>https://chengshuyi.github.io</uri>
+                    <email>c15271843451@outlook.com</email>
+                    </author>
+            <rights>[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh)</rights>
+    
+    <summary type="html"><![CDATA[嵌入式采用的存储设备一般是flash，由于flash同块设备有很较大的差异，因此并不能在flash设备上采用通用文件系统，比如Fat、Ext等等。现在对flash存储器……]]></summary>
+            
+                <content type="html"><![CDATA[<p>嵌入式采用的存储设备一般是flash，由于flash同块设备有很较大的差异，因此并不能在flash设备上采用通用文件系统，比如Fat、Ext等等。现在对flash存储器的文件系统越来越多了，主要可以分成两大类：一类是基于转译层和块的设备文件系统，另一类是基于日志结构的文件系统。</p>
+<p>基于转译层的文件系统之所以称为基于转译层，是因为在文件系统和flash设备之间有一个中间层叫转译层。这个转译层可以将 Flash 设备模拟成块设备，以供文件系统控制和使用。而基于日志结构的文件系统又可以分为两大类：一类是通用的flash文件系统，一类是专用的flash文件系统。通用的文件系统可以在nor flash上运行，也可以在nand flash上运行。以 jffs为代表的文件系统就是这样的通用 flash文件系统。另一类专业的flash文件系统指的是专门针对flash的文件系统，以yaffs系列的文件系统为代表<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>。 具体可以参看下图<sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup>：</p>
+<p><img src="https://gitee.com/chengshuyi/scripts/raw/master/img/20200422073948.png" alt=""></p>
+<p>本文首先介绍了flash的特性，最后介绍了flash上常用的文件系统，以及对应的数据压缩技术、坏块管理技术、磨损均衡技术和垃圾回收技术。</p>
+<h3 id="flash介绍12">flash介绍<sup id="fnref:3"><a href="#fn:3" class="footnote-ref" role="doc-noteref">3</a></sup><sup id="fnref:4"><a href="#fn:4" class="footnote-ref" role="doc-noteref">4</a></sup></h3>
+<p>flash存储器，也叫快擦写存储器，和磁盘设备相比，flash存储器在体积、扩展性、耗电等方面都有着显著的优势，因此成为了嵌入式系统首选的存储设备。</p>
+<p>flash属于非易失性半导体存储器，其类型目前主要两种：nor flash和nand flash。  nand flash广泛应用在各种存储卡、U盘、SSD、eMMC等等大容量设备中。nor flash 能快速随机读取，允许系统直接从存储器中读取代码执行即芯片内执行技术（eXecute In Place），而无需先将代码下载至RAM中再执行，可以像普通ROM一样执行程序。</p>
+<p>flash存储器的擦除次数是有限的，一般是$10^6$次。当某块执行过度的擦除操作后，这一块的存储空间将会变为“只读”状态，不能再写入数据。flash存储器也存在着两个主要缺陷：</p>
+<ul>
+<li>一是在重写之前必须进行擦除，因为flash存储器划分成很多擦除块（sector-erase），对任何一位数据进行修改必须先擦除整个块（sector）；</li>
+<li>二是擦除块的擦除次数有限，当一个块提前达到擦除次数上限时，将导致整个存储器无法使用。</li>
+</ul>
+<h4 id="nor-flash">nor flash</h4>
+<p>Intel于1988年首先开发出nor flash存储器技术，这也是最早出现的flash存储器技术，目前主要由供应商Intel与AMD支持，主要应用于擦除和编程操作较少而直接执行代码的场合，尤其是纯代码存储应用的理想选择，如PC的BIOS固件、移 动电话、嵌入式系统中装载启动代码等。其特点如下：</p>
+<ul>
+<li>又名线性flash存储器；</li>
+<li>能快速随机读取，允许系统直接从存储器中读取代码执行即芯片内执行技术（eXecute In Place），而无需先将代码下载至RAM中再执行；</li>
+<li>可以单字节或单字编程，但不能单字节擦除，必须以块为单位或对整片进行擦除操作，重新编程之前需要先擦后写。因执行一个编程擦除操作时间较慢（大约5秒），而块尺寸又较大（64KB-128KB），于是在纯数据存储应用中花费的时间较长。</li>
+</ul>
+<h4 id="nand-flash">nand flash</h4>
+<p>自1989年东芝公司开发出nand flash以来，如今主要由三星、富士通及东芝等日韩厂商大力支持，这种结构的存储器适合于数据和文件存储，主要作为SM卡、CF卡、PCMCIA卡、固态盘的存储介质，并正成存储器技术的核心。其特点如下：</p>
+<ul>
+<li>又名非线性flash存储器；</li>
+<li>以页（256B-512B）为单位进行读和编程操作，以块(4KB-32KB)为单位进行擦除操作,编程擦除时间短一般每块时间为4ms；</li>
+<li>实现串行读取，随机读取速度慢且不能按字节随机编程；</li>
+<li>芯片尺寸小，引脚少，是位成本最低的固态存储器；</li>
+<li>芯片包含有失效块，其数目最大可达到3-35块（取决于存储器密度），失效块虽不影响有效块的性能，但设计者仍需要在地址映射表中屏蔽它。</li>
+</ul>
+<h4 id="对比表格">对比表格</h4>
+<table>
+<thead>
+<tr>
+<th align="center">类型</th>
+<th align="center">nor flash</th>
+<th align="center">nand flash</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">存储容量</td>
+<td align="center">小，一般1MB-32MB</td>
+<td align="center">大，一般8MB-512MB</td>
+</tr>
+<tr>
+<td align="center">擦除块大小</td>
+<td align="center">64KB-256KB</td>
+<td align="center">6KB-128KB，每块被分为若干个512Bytes的页面，每页面含有16Bs附加存储区</td>
+</tr>
+<tr>
+<td align="center">读写方式</td>
+<td align="center">线形时间按字节随机读写</td>
+<td align="center">以页面为单位读写类似磁盘</td>
+</tr>
+<tr>
+<td align="center">读写速度</td>
+<td align="center">读取快，写入慢</td>
+<td align="center">快，2ms-5ms/块</td>
+</tr>
+<tr>
+<td align="center">擦除时间</td>
+<td align="center">慢，2s-5s/块</td>
+<td align="center">高，出场可能有坏道</td>
+</tr>
+<tr>
+<td align="center">坏块比例</td>
+<td align="center">低，出厂一般没有坏道</td>
+<td align="center">高存储密度，尺寸小，价格低</td>
+</tr>
+<tr>
+<td align="center">价格</td>
+<td align="center">低存储密度，尺寸大，价格高</td>
+<td align="center">接串行总线，I/O接口</td>
+</tr>
+<tr>
+<td align="center">接口形式</td>
+<td align="center">接并行总线，内存接口</td>
+<td align="center">接串行总线，I/O接口</td>
+</tr>
+<tr>
+<td align="center">寿命</td>
+<td align="center">十万次级</td>
+<td align="center">百万次级</td>
+</tr>
+<tr>
+<td align="center">可靠性</td>
+<td align="center">高，位交换几率低</td>
+<td align="center">低，位交换几率高，必须采用错误探测/错误更 正（EDC/ECC）算法</td>
+</tr>
+<tr>
+<td align="center">XIP</td>
+<td align="center">可以</td>
+<td align="center">不支持</td>
+</tr>
+<tr>
+<td align="center">易用性</td>
+<td align="center">容易</td>
+<td align="center">复杂，一般需要MTD驱动支持</td>
+</tr>
+<tr>
+<td align="center">设计目的</td>
+<td align="center">作为ROM的替代产品</td>
+<td align="center">磁盘</td>
+</tr>
+<tr>
+<td align="center">编程方式</td>
+<td align="center">允许逐字节编程</td>
+<td align="center">页面编程，且每个页面的编程次数有限制</td>
+</tr>
+</tbody>
+</table>
+<h3 id="基于flash的文件系统">基于flash的文件系统</h3>
+<p>flash存储器的擦除次数是有限的，一般是$10^6$次。当某块执行过度的擦除操作后，这一块的存储空间将会变为“只读”状态，不能再写入数据。根据以上特点，为了避免某些块的过度操作，而导致存储卡使用寿命降低，设计专门针对flash存储器的文件系统是必要的。嵌入式文件系统要考虑得特性<sup id="fnref:4"><a href="#fn:4" class="footnote-ref" role="doc-noteref">4</a></sup>：</p>
+<ul>
+<li>数据压缩：通过压缩算法不仅可以降低数据的容量，而且间接的加速了I/O；</li>
+<li>坏块管理：坏块通常使用带外区域中的特定标记来标识；</li>
+<li>磨损均衡：由于flash存储芯片的擦除次数是有限制的，文件系统对存储器使用时必须充分考虑这个特性，因此最好能均匀使用存储芯片的每个扇区，以延长存储器的使用寿命。</li>
+<li>垃圾回收：</li>
+</ul>
+<p><img src="https://gitee.com/chengshuyi/scripts/raw/master/img/20200421232912.png" alt=""></p>
+<h4 id="jffs23">jffs2<sup id="fnref:5"><a href="#fn:5" class="footnote-ref" role="doc-noteref">5</a></sup></h4>
+<p>jffs文件系统最早是由瑞典Axis Communications公司基于Linux2.0的内核为嵌入式系统开发的文件系统。jffs2是一个可读写的、压缩的、日志型文件系统，并提供了崩溃掉电安全保护，克服了jffs的一些缺点：使用了基于哈希表的日志节点结构,大大加快了对节点的操作速度；支持数据压缩；提供了“写平衡”支持；支持多种节点类型；提高了对flash存储器的利用率，降低了内存的消耗。它的缺点就是当文件系统己满或接近满时，运行会变慢，这主要是因为垃圾回收的问题。</p>
+<h5 id="数据压缩">数据压缩</h5>
+<p>jffs2提供了jffs所没有的数据压缩技术。数据在存放到flash之前会先被压缩，这个过程是由jffs2自动完成。因
+此，在使用jffs2时无需自己对数据进行压缩。各种类型的压缩算法皆可内嵌到系统中去，目前jffs2使用的是zlib算
+法。该算法比较适合ASCII文件，若压缩对象是二进制文件，压缩效果并不明显。</p>
+<h5 id="坏块管理">坏块管理</h5>
+<p>暂无</p>
+<h5 id="磨损均衡">磨损均衡</h5>
+<p>jffs并没有采用磨损均衡技术，到了jffs2才使用此技术。磨损均衡技术的引入提高了flash的使用寿命期限。jffs2改变了jfss没有块队列的状态，将flash各个块（block）分成三个队列：脏块队列（dirty_list）、干净块队列（clean_list）以及空闲块队列。脏块是指该块上至少有一个节点被标记为废弃（obsoleted）；干净块是指块上
+的数据皆有效。工作流程如下：</p>
+<ol>
+<li>当系统的空闲块数小于6时，GC进程会被唤醒；</li>
+<li>判断jiffies计数器的值，如果jiffies% 100非零，选中脏块队列。否则，将选中干净块队列。（很显然,如果存在脏块的话，选中后者的概率仅为1%。）</li>
+<li>如果选中的是脏块队列，则直接进行擦写操作，最后把它挂接到空闲块队列；</li>
+<li>如果选中的是干净块队列，则被选中的干净块中的所有数据要被全部移至其它空闲块中，接着对该块进行擦写操作，最后把它挂接到空闲块队列。</li>
+</ol>
+<h5 id="垃圾回收">垃圾回收</h5>
+<p>jffs2的垃圾收集技术的原理：当需要增添新内容时，就在节点链表的末端添加新的节点存储新的内容；若要修改文
+件的某部分，jffs2将该部分<strong>标记为废弃</strong>，并在节点<strong>链表末端添加修改后的内容</strong>。JFFS2如此不断地在flash上添加新的内容，当flash上的存储空间用完时,系统就回收标记为废弃的空间，该过程就称为垃圾收集。垃圾收集进程(简称GC进程)专门负责该项工作。下面是jffs2 GC进程的工作流程：</p>
+<ol>
+<li>当系统的空闲块数小于6时，GC进程会被唤醒；</li>
+<li>GC进程每次只回收一个空闲块；</li>
+<li>如果此时flash上的空闲块数仍小于6，那么GC进程必须再回收一个空闲块，直到总的空闲块数达到6为止。</li>
+</ol>
+<h4 id="yaffs27">yaffs2<sup id="fnref:6"><a href="#fn:6" class="footnote-ref" role="doc-noteref">6</a></sup></h4>
+<h5 id="数据压缩-1">数据压缩</h5>
+<p>暂无</p>
+<h5 id="坏块管理-1">坏块管理</h5>
+<p>暂无</p>
+<h5 id="磨损均衡-1">磨损均衡</h5>
+<p>yaffs2 并未实现真正的磨损均衡算法，而是通过<strong>顺序写策略和串行块分配策略</strong>将擦除次数尽可能均匀地分布在闪存空间上，测试结果表明其均衡效果较好，但忽略了静态数据和“冷”数据的影响，因此是一种局部的磨损均衡机制，有待进一步的改进。</p>
+<p>顺序写策略：</p>
+<p>串行块分配策略：</p>
+<h5 id="垃圾回收-1">垃圾回收</h5>
+<p>yaffs2垃圾回收操作一般在向文件写数据（函数 yaffs_wr_data_obj）、更新对象头（函数 yaffs_update_oh）和文件截短操作（函数 yaffs_resize_file）等过程中被调用，由函数yaffs_check_gc视当前闪存空间使用情况决定是否触发垃圾回收操作。YAFFS2 的垃圾回收操作分三步进行：</p>
+<ol>
+<li>查找到满足回收条件的目标回收块（由函数yaffs_find_gc_block 函数完成），若未找到，则退出；</li>
+<li>遍历块中所有页，若页中存放有效数据，则将数据复制到其它块中的空闲页中，然后删除该页，并修改内存中记录闪存空间使用信息的数据结构（如块信息结构 yaffs_block_info，页位图数组 chunk_bits 等）以体现
+闪存空间使用情况的变化（由函数 yaffs_gc_process_chunk 完成）；</li>
+<li>当块中所有 chunk 都被删除后，则擦除该块（由函数 yaffs_block_became_dirty 完成），使其可以被再次写入数据。</li>
+</ol>
+<h4 id="ubifs4">ubifs<sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup></h4>
+<p>ubifs文件系统主要包含ubifs和ubi模块，ubifs模块建立在ubi模块的基础上，ubi模块是建立在mtd模块基础上的。三个模块整体关系如下图<sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup>：</p>
+<p><img src="https://gitee.com/chengshuyi/scripts/raw/master/img/20200421234706.png" alt=""></p>
+<p>ubifs的设计主要是为了解决jffs2文件系统存在的启动时间长、系统扩展性差、内存消耗量大、损耗均衡处理能力差等问题。jffs2的挂载时间是与闪存大小成线性比的（扫描所有的块），ubifs克服了这一弱点（ubi子模块挂载时间还是与闪存大小成线性比的）。</p>
+<p>ubifs同jffs2的三个主要区别：</p>
+<ul>
+<li>jffs2将索引（inode）节点存储在内存上，ubifs将索引节点存储在闪存上 ；</li>
+<li>运行在MTD设备层之上，ubifs运行在ubi层之上；</li>
+<li>jffs2不支持回写（write-back），而ubifs支持回写技术。</li>
+</ul>
+<h5 id="坏块管理-2">坏块管理</h5>
+<p>ubi在两种情况下认为peb（physical erase block）已损耗：</p>
+<ul>
+<li>写peb失败，此时，ubi把这个peb的数据搬移到其他的peb，然后诊断该peb是否出现为坏块，如果是，标记为坏块；</li>
+<li>擦除操作出现I/O错误，在这种情况下，直接把peb标记为坏块。</li>
+</ul>
+<h5 id="磨损均衡-2">磨损均衡</h5>
+<p>暂无</p>
+<h5 id="垃圾回收-2">垃圾回收</h5>
+<p>暂无</p>
+<section class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1" role="doc-endnote">
+<p>周林. 通用嵌入式文件系统YAFFS的移植[D]. <a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:2" role="doc-endnote">
+<p>冯子陵. 闪存文件系统UBIFS的分析与优化[D]. 2013. <a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:3" role="doc-endnote">
+<p><a href="http://aturing.umcs.maine.edu/~meadow/courses/cos335/Toshiba%20NAND_vs_NOR_Flash_Memory_Technology_Overviewt.pdf">NAND vs. NOR Flash MemoryTechnology Overview</a> <a href="#fnref:3" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:4" role="doc-endnote">
+<p>孙健. 基于Flash存储器的嵌入式文件系统的研究与实现[D]. 西安电子科技大学. <a href="#fnref:4" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:5" role="doc-endnote">
+<p>李桂良, 刘发贵. JFFS2文件系统的关键技术及其在嵌入式系统的应用[J]. 计算机应用, 2003(07):137-139. <a href="#fnref:5" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:6" role="doc-endnote">
+<p>[优质文章]李恒恒. 基于YAFFS2文件系统的NAND Flash存储管理关键技术研究[D]. <a href="#fnref:6" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</section>
+]]></content>
+            
+            
+            
+            
+            
+                
+                    
+                        
+                            
+                            
+                            
+                                <category scheme="https://chengshuyi.github.io/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/" term="嵌入式文件系统" label="嵌入式文件系统" />
+                            
+                        
+                    
+                
+                    
+                        
+                            
+                            
+                            
+                                <category scheme="https://chengshuyi.github.io/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/" term="嵌入式文件系统" label="嵌入式文件系统" />
+                            
+                        
+                            
+                            
+                            
+                                <category scheme="https://chengshuyi.github.io/tags/flash/" term="flash" label="flash" />
+                            
+                        
+                            
+                            
+                            
+                                <category scheme="https://chengshuyi.github.io/tags/jffs2/" term="jffs2" label="jffs2" />
+                            
+                        
+                            
+                            
+                            
+                                <category scheme="https://chengshuyi.github.io/tags/yaffs2/" term="yaffs2" label="yaffs2" />
+                            
+                        
+                            
+                            
+                            
+                                <category scheme="https://chengshuyi.github.io/tags/ubifs/" term="ubifs" label="ubifs" />
+                            
+                        
+                    
+                
+            
+        </entry>
+    
+        <entry>
             <title type="text">多车编队 人工势场法</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E4%BA%BA%E5%B7%A5%E5%8A%BF%E5%9C%BA%E6%B3%95/" />
             <id>https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E4%BA%BA%E5%B7%A5%E5%8A%BF%E5%9C%BA%E6%B3%95/</id>
-            <updated>2020-04-06T05:53:42+00:00</updated>
+            <updated>2020-04-22T11:16:36+00:00</updated>
             <published>2020-04-04T10:02:06+08:00</published>
             <author>
                     <name>程书意</name>
@@ -32,6 +305,7 @@
     <summary type="html"><![CDATA[人工势场法，即Artificial Potential Field，最早于20世纪80年代中期，由Khatib和Krogh提出的一种虚拟力法，其基本思想是将机器人在环境中的运动视为一种虚拟……]]></summary>
             
                 <content type="html"><![CDATA[<p>人工势场法，即Artificial Potential Field，最早于20世纪80年代中期，由Khatib和Krogh提出的一种虚拟力法，其基本思想是将机器人在环境中的运动视为一种虚拟的人工受力场中的运动，其中障碍物对机器人产生斥力，而目标点对机器人产生引力，引力和斥力的合力作为机器人的加速力来控制机器人的运动方向和计算机器人的位置。</p>
+<p>人工势场法具有结构简单、易于理解、便于实现实时控制的优点。其缺点也非常明显，比较容易陷入局部极小值问题，即机器人受到的合力为零，机器人停止运动，但却没有到达目标位置，陷入局部极小值。对于编队机器人数量比较大或者编队处于复杂环境中时，极小值问题显得尤为突出。此外，应用人工势场法的主要工作在于势函数的设计，对于未知环境中无法得知障碍物的尺寸、形状，这使得很难选取合理的势场点，进而很难设计出良好的势函数。基于这个原因，目前人工势场法主要用于全局环境已知情况下的多机器人编队。</p>
 <p>下图中包括多机器人，障碍物和目标物，目标位置势场最低，即其虚拟重力势能是最小的,机器人的最初处于较高的位置因此具有较大的重力势能，环境中的障碍物可以看成为重力场中的凸点,因此机器人由于重力势能从初始位置运动到目标位置的过程可以看成<strong>从高处向低处</strong>运动的物体。环境中虚拟的势场用等势线的形式表现出来，即图中的密集分布的曲线上的势场都是相等的。因此容易得到如果机器人的运动模型是<strong>完整约束</strong>的，则机器人的理想运动曲线应该是<strong>垂直于所有的等势线</strong>的。然而因为机器人模型和障碍物形状的不规则，使得势场法在实际应用中存在一定的缺陷<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>。</p>
 <p><img src="https://gitee.com/chengshuyi/scripts/raw/master/img/20200405135443.png" alt=""></p>
 <p>机器人群集的基本特征：避障避碰、速度匹配和群集中心。相对的，在多机器人群集势场包含三个基本特征，因此可设$U_{obstacle}(q)$为障碍物产生的势场,$U_{neighbor}(q)$为群集中周围邻域的机器人产生的势场，$U_{centre}(q)$为群集中心产生的势场，另外群集运动目标产生的势场为$U_{goal}(q)$，其中q表示机器人的当前位置。进行势场叠加后可得：</p>
@@ -152,7 +426,7 @@ $$
             <title type="text">多车编队 基于图论的方法</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E5%9B%BE%E8%AE%BA%E7%9A%84%E6%96%B9%E6%B3%95/" />
             <id>https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E5%9B%BE%E8%AE%BA%E7%9A%84%E6%96%B9%E6%B3%95/</id>
-            <updated>2020-04-06T05:53:42+00:00</updated>
+            <updated>2020-04-22T11:16:36+00:00</updated>
             <published>2020-04-04T10:00:47+08:00</published>
             <author>
                     <name>程书意</name>
@@ -253,7 +527,7 @@ $$
             <title type="text">多车编队 基于行为的方法</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E8%A1%8C%E4%B8%BA%E7%9A%84%E6%96%B9%E6%B3%95/" />
             <id>https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E8%A1%8C%E4%B8%BA%E7%9A%84%E6%96%B9%E6%B3%95/</id>
-            <updated>2020-04-06T05:53:42+00:00</updated>
+            <updated>2020-04-22T11:16:36+00:00</updated>
             <published>2020-04-04T09:11:07+08:00</published>
             <author>
                     <name>程书意</name>
@@ -272,6 +546,7 @@ $$
 <li>加权平均法：首先对每个行为规定一个对应的权值，根据对应行为的重要程度设置对应的权值。这样当无人车需要同时执行多个行为时，无人车会计算所有行为的加权求和，得到的结果经过正则化后作为无人车的行为控制；</li>
 <li>模糊逻辑法：当无人车需要同时执行多个行为时，通过查看模糊规则表，执行相对的行为控制。</li>
 </ol>
+<p>基于行为的方法是一种分布式的控制方法，该方法具有柔性好的特点，能够在编队中动态的添加或者减少机器人的数量，同时该方法使得机器人表现出一定的智能性，类似于人或者其它高等动物的感官反应或者决策思维，更容易被人们所理解和认识。其缺点是难以设计出合适的运动行为以及难以对系统进行数据建模和系统稳定性分析，由于缺乏相关数学理论，对于设计的运动行为会对编队的稳定性造成什么影响目前仍然无法得知，只能通过实践证明，同时，在复杂环境下的机器人的输出行为是难以预见的，这使得该方法的灵活性不高。目前该方法主要运用于较大规模的编队队形、跟踪、空中多飞行器编队、包围入侵者、大面积区域搜索等。</p>
 <h3 id="基于位姿误差的机器人编队基本运动行为设计3">基于位姿误差的机器人编队基本运动行为设计<sup id="fnref:3"><a href="#fn:3" class="footnote-ref" role="doc-noteref">3</a></sup></h3>
 <h4 id="机器人运动学模型">机器人运动学模型</h4>
 <p>二维空间机器人位置和姿态表示为：</p>
@@ -335,7 +610,9 @@ $$
 \lim _{t \rightarrow t_{F i T j}^{T T}}\left|e_{F i T j}^{y}(t)\right|<\delta_{P}, \quad e_{F i T j}^{x} \geq \delta_{P}, i, j \in[2, n]
 $$
 </div>
-* 奔向目标
+<ul>
+<li>奔向目标</li>
+</ul>
 <p>当虚拟机器人$q_{Tj}$在跟随机器人$q_{Fi}$运动的正前方，即$|e^y_{FiTj}|&lt;\delta_p$时，机器人选择奔向目标的行为。奔向目标行为用于缩短虚拟机器人$q_{Tj}$与跟随机器人$q_{Fi}$之间的直线距离。该行为的触发条件：</p>
 <div>
 $$
@@ -363,7 +640,7 @@ $$
 |e^x_{FiTj}|<\delta_p, |e^y_{FiTj}|<\delta_p, \lim _{t \rightarrow t_{F i T j}^{T T}}|e^\theta_{FiTj}|(t)<\delta_o,i,j\in[2,n].
 $$
 </div>
-### 参考文献
+<h3 id="参考文献">参考文献</h3>
 <section class="footnotes" role="doc-endnotes">
 <hr>
 <ol>
@@ -418,7 +695,7 @@ $$
             <title type="text">c语言运算符</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/c/%E8%BF%90%E7%AE%97%E7%AC%A6/" />
             <id>https://chengshuyi.github.io/posts/c/%E8%BF%90%E7%AE%97%E7%AC%A6/</id>
-            <updated>2020-04-06T05:53:42+00:00</updated>
+            <updated>2020-04-22T11:16:36+00:00</updated>
             <published>2020-04-03T17:25:34+08:00</published>
             <author>
                     <name>程书意</name>
@@ -629,7 +906,7 @@ $$</p>
             <title type="text">伙伴系统</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/linux-kernel/%E4%BC%99%E4%BC%B4%E7%B3%BB%E7%BB%9F/" />
             <id>https://chengshuyi.github.io/posts/linux-kernel/%E4%BC%99%E4%BC%B4%E7%B3%BB%E7%BB%9F/</id>
-            <updated>2020-04-06T05:53:42+00:00</updated>
+            <updated>2020-04-22T11:16:36+00:00</updated>
             <published>2020-04-03T15:26:04+08:00</published>
             <author>
                     <name>程书意</name>
@@ -855,7 +1132,7 @@ $$</p>
             <title type="text">多车编队 领航跟随法</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E9%A2%86%E8%88%AA%E8%B7%9F%E9%9A%8F%E6%B3%95/" />
             <id>https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E9%A2%86%E8%88%AA%E8%B7%9F%E9%9A%8F%E6%B3%95/</id>
-            <updated>2020-04-06T05:53:42+00:00</updated>
+            <updated>2020-04-22T11:16:36+00:00</updated>
             <published>2020-04-03T11:27:11+08:00</published>
             <author>
                     <name>程书意</name>
@@ -868,6 +1145,7 @@ $$</p>
             
                 <content type="html"><![CDATA[<p>跟随者领航者法的基本思想是将编队控制问题转化为跟随者跟踪领航者的位置和方向的问题。在多机器人组成的群体中，某个机器人被指定为领航者，其余作为它的跟随者，跟随者以一定的距离间隔跟踪领航机器人的位置和方向。</p>
 <p>跟随者通过跟踪功能强大的领航者实现预期的目标，当领航者的位置等参量发生变化时，跟随者机器人通过比较这些参量的误差得到控制量并引导行为。对于跟随领航者法有两种控制器形式：$l-l$ 控制器和$l-\varphi$控制器。$l-\varphi$控制器的控制目标是使跟随者和领航者之间的距离和相对转角达到设定值。$l-l$控制器考虑的是三个机器人之间的相对位置问题。当跟随者和两个领航者之间的距离达到设定值的话，就可以认为整个队形稳定了<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>。</p>
+<p>这种方法的优点是比较容易实现编队控制。能够实现硬件资源的合理配置，减少了跟随机器人间的相互干扰，因为编队的所有轨迹均有领航者提供，同时跟随者只需跟随领航者运行，不需配置像领航者那样强大的传感器资源，只需配置满足任务需要的传感器即可。但是，这种方法采用的集中式控制使得编队的抗干扰能力较差，如果领航者受到破坏或者因为某种原因不能正常运行，整个编队的正常运行将不能得到保证，再者，所有跟随者都需要与领航者通信，使得领航者的通信负担重，使得这种方法不适用于跟随者较多的情形[^3]。</p>
 <h3 id="建立模型2">建立模型<sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup></h3>
 <p>领航跟随编队控制算法可以分为两个部分: 一是确定领航者及队形。二是跟随者跟随领航者。第一部分比较容易实现，可以根据实际情况确定。第二部分比较复杂，是算法的重点。在上面模型中领航跟随法的控制也就是控制领航者和跟随者之间的间距 $l$ 与角度 $\varphi$。这种编队控制的主要思想是: 控制间距 $l$ 和角度 $\varphi$，使之与期望的间距 $l_d$和期望的角度 $\varphi_d$相等。使跟随机器人以角度 $\varphi$ 和间距 $l$ 跟踪领航机器人，从而形成编队。领航者只需要沿着预定规划的路径行走，跟随者需要知道领航者的位置坐标$( x_1，y_1)$ 、角度 $\theta_1$、速度 $v_1$、角速度 $\omega_1$及自身的位置坐标$( x_2，y_2)$ 、角度 $\theta_2$，通过计算确定自身的前进速度 $v_2$、角速度 $\omega_2$来完成编队控制。</p>
 <p><img src="https://gitee.com/chengshuyi/scripts/raw/master/img/image-20200403130104645.png" alt=""></p>
@@ -891,20 +1169,12 @@ $$
 \left\{\begin{array}{l}
 \dot{l}=v_{2} \cos \gamma-v_{1} \cos \varphi+d \omega_{2} \sin \gamma \\
 \dot{\varphi}=\frac{1}{l}\left(v_{1} \sin \varphi-v_{2} \sin \gamma+d \omega_{2} \cos \gamma-l \omega_{1}\right) \\
-\dot{\theta}_{2}=\omega_{2} \tag{1}
+\dot{\theta}_{2}=\omega_{2} \tag{2}
 \end{array}\right.
 $$
 </div>
-其中 $γ = \varphi + \theta_1－ \theta_2$。
-<div>
-$$
-\left\{\begin{array}{l}
-\omega_{2}=\frac{\cos \gamma}{d}\left[\beta l\left(\varphi_{d}-\varphi\right)-v_{1} \sin \varphi+l \omega_{1}+p \sin \gamma\right] \\
-v_{2}=p-d \omega_{2} \tan \gamma \tag{2}
-\end{array}\right.
-$$
-</div>
-根据算法原理结合结构图的闭环特性可得:
+<p>其中 $γ = \varphi + \theta_1－ \theta_2$。</p>
+<p>根据算法原理结合结构图的闭环特性可得:</p>
 <div>
 $$
 \left\{\begin{array}{1}
@@ -927,6 +1197,7 @@ $$
 </div>
 其中$p=\frac{v_icos\varphi+\alpha(l_d-l)}{cos\gamma}$由( 4) 式得出跟随机器人的控制输入量$( v_2，\omega_2)$ 。根据上面结果输入跟随机器人的控制量来控制跟随机器人的前进速度与角速度，从而完成领航跟随编队控制算法的队形保持，实现编队控制。
 <h3 id="参考文献">参考文献</h3>
+<p>[] 陈传均. 多机器人领航—跟随型编队控制研究[D]. 杭州电子科技大学. ↩</p>
 <section class="footnotes" role="doc-endnotes">
 <hr>
 <ol>
@@ -978,7 +1249,7 @@ $$
             <title type="text">Slab分配器</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/linux-kernel/slab/" />
             <id>https://chengshuyi.github.io/posts/linux-kernel/slab/</id>
-            <updated>2020-04-06T05:53:42+00:00</updated>
+            <updated>2020-04-22T11:16:36+00:00</updated>
             <published>2020-04-02T16:24:50+08:00</published>
             <author>
                     <name>程书意</name>
@@ -1090,7 +1361,7 @@ $$
             <title type="text">作用域、链接、存储类型</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/c/%E4%BD%9C%E7%94%A8%E5%9F%9F%E9%93%BE%E6%8E%A5%E5%AD%98%E5%82%A8%E7%B1%BB%E5%9E%8B/" />
             <id>https://chengshuyi.github.io/posts/c/%E4%BD%9C%E7%94%A8%E5%9F%9F%E9%93%BE%E6%8E%A5%E5%AD%98%E5%82%A8%E7%B1%BB%E5%9E%8B/</id>
-            <updated>2020-04-06T05:53:42+00:00</updated>
+            <updated>2020-04-22T11:16:36+00:00</updated>
             <published>2020-04-02T13:41:27+08:00</published>
             <author>
                     <name>程书意</name>
