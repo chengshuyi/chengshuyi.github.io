@@ -23,10 +23,721 @@
         
             <copyright>[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh)</copyright>
         
-        <lastBuildDate>Wed, 22 Apr 2020 11:16:39 +0000</lastBuildDate>
+        <lastBuildDate>Sat, 25 Apr 2020 14:42:51 +0000</lastBuildDate>
         
             <atom:link rel="self" type="application/rss+xml" href="https://chengshuyi.github.io/rss.xml" />
         
+        
+            <item>
+                <title>Lab3 - 实验笔记</title>
+                <link>https://chengshuyi.github.io/posts/course/mit6828/lab3/</link>
+                <guid isPermaLink="true">https://chengshuyi.github.io/posts/course/mit6828/lab3/</guid>
+                <pubDate>Sat, 25 Apr 2020 13:34:13 +0800</pubDate>
+                
+                    <author>c15271843451@outlook.com (程书意)</author>
+                
+                <copyright>[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh)</copyright>
+                
+                    <description><![CDATA[<h3 id="user-environments-and-exception-handling">User Environments and Exception Handling</h3>
+<ul>
+<li><code>env_init</code>函数的实现类似于<code>page_init</code>函数，主要将空闲的<code>struct Env</code>插入到<code>env_free_list</code>链表上；</li>
+<li><code>env_setup_vm</code>函数为该进程分配一个页目录表，并将内核页目录表内容拷贝到该进程的页目录表；</li>
+<li><code>region_alloc</code>函数为进程分配内存，并将其映射到其地址空间；</li>
+<li><code>load_icode</code>函数解析elf文件头部信息，将其加载到指定的地址上；修改进程的eip值；为该进程创建用户栈；</li>
+<li><code>env_alloc</code>函数工作流程：调用<code>env_setup_vm</code>完成进程的页目录表的分配；分配一个id；设置该进程的寄存器的值，包括：ds、es、ss、esp、cs等；</li>
+<li><code>env_create</code>函数先后调用了<code>env_alloc</code>函数和<code>load_icode</code>函数；</li>
+<li><code>env_run</code>函数根据进程是否发生切换来决定是否更新cr3寄存器的值；</li>
+</ul>
+<p>中断流程如下：</p>
+<ol>
+<li>中断或者异常发生，cpu判断当前特权级来决定是否切换到内核栈；</li>
+<li>如下图所示，如果发生特权级切换需要特别保存ss和esp寄存器（中断嵌套的话只能发生在内核态）；</li>
+<li>保存剩余的寄存器到内核栈中（具体可以查看int指令执行的具体内容）；</li>
+<li>根据中段号跳转到IDT的相应entry；</li>
+<li>压入中断号；</li>
+<li>保存用户上下文；</li>
+<li>中断处理函数；</li>
+<li>恢复用户上下文；</li>
+<li>执行iret指令，从内核栈中pop出ss和esp寄存器；</li>
+</ol>
+<p><img src="https://gitee.com/chengshuyi/scripts/raw/master/img/20200425200239.png" alt=""></p>
+<h3 id="page-faults-breakpoints-exceptions-and-system-calls">Page Faults, Breakpoints Exceptions, and System Calls</h3>
+<p>page falults比较简单，不再叙述；</p>
+<p>breakpoints exceptions：貌似linux上的gdb调试程序就是通过这个异常来实现的；</p>
+<p>系统调用：这里需要注意的是当前不再通过栈传递参数，而是通过寄存器传递，系统调用号存在eax寄存器，剩余的五个参数分别对应着 %edx, %ecx, %ebx, edi, 和esi。返回值存放在eax寄存器；</p>
+<h4 id="user-mode-startup">User-mode startup</h4>
+<p>初始化该进程的环境变量，比如thisenv。</p>
+<h4 id="page-faults-and-memory-protection">Page faults and memory protection</h4>
+<p>用户进程传进来的指针一定要检查，首先检查该指针不能在内核地址空间，然后判断是否存在该虚拟地址，最后检查读写权限；</p>
+]]></description>
+                
+                
+                
+                
+                
+                    
+                        
+                            
+                                
+                                
+                                
+                                    <category domain="https://chengshuyi.github.io/categories/mit6828-os%E5%AE%9E%E9%AA%8C/">mit6828 OS实验</category>
+                                
+                            
+                        
+                    
+                        
+                            
+                                
+                                
+                                
+                                    <category domain="https://chengshuyi.github.io/tags/mit6828-os%E5%AE%9E%E9%AA%8C/">mit6828 OS实验</category>
+                                
+                            
+                        
+                    
+                
+            </item>
+        
+            <item>
+                <title>Lab2</title>
+                <link>https://chengshuyi.github.io/posts/course/mit6828/lab2/</link>
+                <guid isPermaLink="true">https://chengshuyi.github.io/posts/course/mit6828/lab2/</guid>
+                <pubDate>Sat, 25 Apr 2020 13:34:11 +0800</pubDate>
+                
+                    <author>c15271843451@outlook.com (程书意)</author>
+                
+                <copyright>[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh)</copyright>
+                
+                    <description><![CDATA[<p><a href="https://github.com/chengshuyi/jos-lab/commit/ca384c1373d3a34cfa82435fdd366965a3b4c071">lab2实验代码</a></p>
+<h3 id="physical-page-management">Physical Page Management</h3>
+<p>下面是内核物理内存管理的流程，特别需要注意到在没有初始化内存之前，内核如何为数据结构分配内存。</p>
+<ol>
+<li>
+<p>通过I/O端口获取物理内存的分布情况，分为两部分，base memory占用640KB，extended memory占用130432KB。可以知道base memory指的是<a href="">lab1</a>讲的low memory；</p>
+<blockquote>
+<p>Physical memory: 131072K available, base = 640K, extended = 130432K</p>
+</blockquote>
+</li>
+<li>
+<p>实现<code>boot_alloc</code>函数，该函数主要完成在没有建立页管理机制之前的内存分配工作。其工作流程是：1. 根据链接脚本的end参数获取内核所占内存的终止地址，并将其按页对齐；2. 为调用者分配内存，更新终止位置；</p>
+</li>
+<li>
+<p>调用<code>boot_alloc</code>函数为内核页目录表<code>kern_pgdir</code>分配内存，大小是PGSIZE；</p>
+</li>
+<li>
+<p>建立自映射，这个在lab4还会遇到；</p>
+</li>
+<li>
+<p>调用<code>boot_alloc</code>函数为管理页数据结构<code>struct PageInfo</code>分配内存，其内存大小是<code>sizeof(struct PageInfo)*npages</code>；</p>
+</li>
+<li>
+<p><code>page_init</code>函数初始化<code>struct PageInfo</code>，主要是将空闲页挂在空闲页链表<code>page_free_list</code>上，此时空闲页主要有两部分构成：1. low memory部分； 2. extended memory剩余部分；</p>
+</li>
+<li>
+<p><code>page_alloc</code>从空闲页链表上取出一页；</p>
+</li>
+<li>
+<p><code>page_free</code>将该页挂在空闲链表上；</p>
+</li>
+</ol>
+<h3 id="virtual-memory">Virtual Memory</h3>
+<p>在x86架构中，有三种地址术语，分别是：虚拟地址、线性地址和物理地址。虚拟地址通过分段机制转换得到线性地址，线性地址通过分页机制转换可以得到物理地址。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c">
+           <span class="n">Selector</span>  <span class="o">+--------------+</span>         <span class="o">+-----------+</span>
+          <span class="o">----------&gt;|</span>              <span class="o">|</span>         <span class="o">|</span>           <span class="o">|</span>
+                     <span class="o">|</span> <span class="n">Segmentation</span> <span class="o">|</span>         <span class="o">|</span>  <span class="n">Paging</span>   <span class="o">|</span>
+<span class="n">Software</span>             <span class="o">|</span>              <span class="o">|--------&gt;|</span>           <span class="o">|----------&gt;</span>  <span class="n">RAM</span>
+            <span class="n">Offset</span>   <span class="o">|</span>  <span class="n">Mechanism</span>   <span class="o">|</span>         <span class="o">|</span> <span class="n">Mechanism</span> <span class="o">|</span>
+          <span class="o">----------&gt;|</span>              <span class="o">|</span>         <span class="o">|</span>           <span class="o">|</span>
+                     <span class="o">+--------------+</span>         <span class="o">+-----------+</span>
+            <span class="n">Virtual</span>                   <span class="n">Linear</span>                <span class="n">Physical</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>关于分段机制，现在操作系统用的很少，大部分将段基地址设置成<code>0</code>，段的大小是<code>0xffffffff</code>，所以虚拟地址等于线性地址。</p>
+<blockquote>
+<p>分段机制目前用的比较多的是它的特权等级，jos中分为内核段和用户段；</p>
+</blockquote>
+<p>在lab1中只映射了4MB的物理内存，在qemu中运行<code>info pg</code>可以得到：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="n">VPN</span> <span class="n">range</span>     <span class="n">Entry</span>         <span class="n">Flags</span>        <span class="n">Physical</span> <span class="n">page</span>
+<span class="p">[</span><span class="mo">00000</span><span class="o">-</span><span class="mf">003ff</span><span class="p">]</span>  <span class="n">PDE</span><span class="p">[</span><span class="mo">000</span><span class="p">]</span>     <span class="o">----</span><span class="n">A</span><span class="o">----</span><span class="n">P</span>
+  <span class="p">[</span><span class="mo">00000</span><span class="o">-</span><span class="mo">000</span><span class="n">b7</span><span class="p">]</span>  <span class="n">PTE</span><span class="p">[</span><span class="mo">000</span><span class="o">-</span><span class="mi">0</span><span class="n">b7</span><span class="p">]</span> <span class="o">--------</span><span class="n">WP</span> <span class="mo">00000</span><span class="o">-</span><span class="mo">000</span><span class="n">b7</span>
+  <span class="p">...</span>
+  <span class="p">[</span><span class="mo">00114</span><span class="o">-</span><span class="mf">003ff</span><span class="p">]</span>  <span class="n">PTE</span><span class="p">[</span><span class="mi">114</span><span class="o">-</span><span class="mf">3ff</span><span class="p">]</span> <span class="o">--------</span><span class="n">WP</span> <span class="mo">00114</span><span class="o">-</span><span class="mf">003ff</span>
+<span class="p">[</span><span class="n">f0000</span><span class="o">-</span><span class="n">f03ff</span><span class="p">]</span>  <span class="n">PDE</span><span class="p">[</span><span class="mi">3</span><span class="n">c0</span><span class="p">]</span>     <span class="o">----</span><span class="n">A</span><span class="o">---</span><span class="n">WP</span>
+  <span class="p">[</span><span class="n">f0000</span><span class="o">-</span><span class="n">f00b7</span><span class="p">]</span>  <span class="n">PTE</span><span class="p">[</span><span class="mo">000</span><span class="o">-</span><span class="mi">0</span><span class="n">b7</span><span class="p">]</span> <span class="o">--------</span><span class="n">WP</span> <span class="mo">00000</span><span class="o">-</span><span class="mo">000</span><span class="n">b7</span>
+  <span class="p">...</span>
+  <span class="p">[</span><span class="n">f0114</span><span class="o">-</span><span class="n">f03ff</span><span class="p">]</span>  <span class="n">PTE</span><span class="p">[</span><span class="mi">114</span><span class="o">-</span><span class="mf">3ff</span><span class="p">]</span> <span class="o">--------</span><span class="n">WP</span> <span class="mo">00114</span><span class="o">-</span><span class="mf">003ff</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>从上面可以看到，物理内存[0,4MB)分别映射到虚拟内存[0,4MB)和[0xf0000000,0xf03ff000)。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="cm">/*
+</span><span class="cm"> * Virtual memory map:                                Permissions
+</span><span class="cm"> *                                                    kernel/user
+</span><span class="cm"> *
+</span><span class="cm"> *    4 Gig --------&gt;  +------------------------------+
+</span><span class="cm"> *                     |                              | RW/--
+</span><span class="cm"> *                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+</span><span class="cm"> *                     :              .               :
+</span><span class="cm"> *                     :              .               :
+</span><span class="cm"> *                     :              .               :
+</span><span class="cm"> *                     |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~| RW/--
+</span><span class="cm"> *                     |                              | RW/--
+</span><span class="cm"> *                     |   Remapped Physical Memory   | RW/--
+</span><span class="cm"> *                     |                              | RW/--
+</span><span class="cm"> *    KERNBASE, ----&gt;  +------------------------------+ 0xf0000000      --+
+</span><span class="cm"> *    KSTACKTOP        |     CPU0&#39;s Kernel Stack      | RW/--  KSTKSIZE   |
+</span><span class="cm"> *                     | - - - - - - - - - - - - - - -|                   |
+</span><span class="cm"> *                     |      Invalid Memory (*)      | --/--  KSTKGAP    |
+</span><span class="cm"> *                     +------------------------------+                   |
+</span><span class="cm"> *                     |     CPU1&#39;s Kernel Stack      | RW/--  KSTKSIZE   |
+</span><span class="cm"> *                     | - - - - - - - - - - - - - - -|                 PTSIZE
+</span><span class="cm"> *                     |      Invalid Memory (*)      | --/--  KSTKGAP    |
+</span><span class="cm"> *                     +------------------------------+                   |
+</span><span class="cm"> *                     :              .               :                   |
+</span><span class="cm"> *                     :              .               :                   |
+</span><span class="cm"> *    MMIOLIM ------&gt;  +------------------------------+ 0xefc00000      --+
+</span><span class="cm"> *                     |       Memory-mapped I/O      | RW/--  PTSIZE
+</span><span class="cm"> * ULIM, MMIOBASE --&gt;  +------------------------------+ 0xef800000
+</span><span class="cm"> *                     |  Cur. Page Table (User R-)   | R-/R-  PTSIZE
+</span><span class="cm"> *    UVPT      ----&gt;  +------------------------------+ 0xef400000
+</span><span class="cm"> *                     |          RO PAGES            | R-/R-  PTSIZE
+</span><span class="cm"> *    UPAGES    ----&gt;  +------------------------------+ 0xef000000
+</span><span class="cm"> *                     |           RO ENVS            | R-/R-  PTSIZE
+</span><span class="cm"> * UTOP,UENVS ------&gt;  +------------------------------+ 0xeec00000
+</span><span class="cm"> * UXSTACKTOP -/       |     User Exception Stack     | RW/RW  PGSIZE
+</span><span class="cm"> *                     +------------------------------+ 0xeebff000
+</span><span class="cm"> *                     |       Empty Memory (*)       | --/--  PGSIZE
+</span><span class="cm"> *    USTACKTOP  ---&gt;  +------------------------------+ 0xeebfe000
+</span><span class="cm"> *                     |      Normal User Stack       | RW/RW  PGSIZE
+</span><span class="cm"> *                     +------------------------------+ 0xeebfd000
+</span><span class="cm"> *                     |                              |
+</span><span class="cm"> *                     |                              |
+</span><span class="cm"> *                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+</span><span class="cm"> *                     .                              .
+</span><span class="cm"> *                     .                              .
+</span><span class="cm"> *                     .                              .
+</span><span class="cm"> *                     |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
+</span><span class="cm"> *                     |     Program Data &amp; Heap      |
+</span><span class="cm"> *    UTEXT --------&gt;  +------------------------------+ 0x00800000
+</span><span class="cm"> *    PFTEMP -------&gt;  |       Empty Memory (*)       |        PTSIZE
+</span><span class="cm"> *                     |                              |
+</span><span class="cm"> *    UTEMP --------&gt;  +------------------------------+ 0x00400000      --+
+</span><span class="cm"> *                     |       Empty Memory (*)       |                   |
+</span><span class="cm"> *                     | - - - - - - - - - - - - - - -|                   |
+</span><span class="cm"> *                     |  User STAB Data (optional)   |                 PTSIZE
+</span><span class="cm"> *    USTABDATA ----&gt;  +------------------------------+ 0x00200000        |
+</span><span class="cm"> *                     |       Empty Memory (*)       |                   |
+</span><span class="cm"> *    0 ------------&gt;  +------------------------------+                 --+
+</span></code></pre></td></tr></table>
+</div>
+</div><p>下面是虚拟内存地址空间分布的情况，下面是建立映射的大致过程：</p>
+<ol>
+<li>前面已经为页目录表<code>kern_pgdir</code>分配了内存，所以接下来的建立地址映射的过程就是在<code>kern_pgdir</code>插入页表项，以及分配页表；</li>
+<li>将前面分配的<code>sizeof(struct PageInfo) * npage</code>映射到UPAGES；</li>
+<li>将内核栈映射到KSTACKTOP；</li>
+<li>将整个物理内存映射内核虚拟地址空间；</li>
+<li>将<code>kern_pgdir</code>加载到cr3寄存器；</li>
+</ol>
+<p>下面是几个函数的实现原理，描述的比较简单，但实际上有很多的细节需要去考虑：</p>
+<ol>
+<li><code>pgdir_walk</code>函数查找虚拟地址所对应的页表项，也就是<code>&amp;kern_pgdir[PDX(va)][PTX(va)]</code>；</li>
+<li><code>page_lookup</code>函数查找到对应的物理地址，也就是<code>pa2page(kern_pgdir[PDX(va)][PTX(va)])</code>；</li>
+<li><code>page_remove</code>函数完成两个功能：1. 取消映射；2. 回收物理页。取消映射原理是<code>kern_pgdir[PDX(va)][PTX(va)] = 0</code>，回收物理页将该页插入到空闲页链表即可。</li>
+<li><code>page_insert</code>函数对该页建立映射，也就是<code>kern_pgdir[PDX(va)][PTX(va)]=PGNUM(va)</code>；</li>
+</ol>
+]]></description>
+                
+                
+                
+                
+                
+                    
+                        
+                            
+                                
+                                
+                                
+                                    <category domain="https://chengshuyi.github.io/categories/mit6828-os%E5%AE%9E%E9%AA%8C/">mit6828 OS实验</category>
+                                
+                            
+                        
+                    
+                        
+                            
+                                
+                                
+                                
+                                    <category domain="https://chengshuyi.github.io/tags/mit6828-os%E5%AE%9E%E9%AA%8C/">mit6828 OS实验</category>
+                                
+                            
+                        
+                    
+                
+            </item>
+        
+            <item>
+                <title>Lab1 - 实验笔记</title>
+                <link>https://chengshuyi.github.io/posts/course/mit6828/lab1/</link>
+                <guid isPermaLink="true">https://chengshuyi.github.io/posts/course/mit6828/lab1/</guid>
+                <pubDate>Fri, 24 Apr 2020 20:24:40 +0800</pubDate>
+                
+                    <author>c15271843451@outlook.com (程书意)</author>
+                
+                <copyright>[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh)</copyright>
+                
+                    <description><![CDATA[<p><a href="https://github.com/chengshuyi/jos-lab/commit/487630546efdc7ecc668ced4508cf6f164c56fd6">lab1的实验代码</a></p>
+<h3 id="getting-started-with-x86-assembly">Getting Started with x86 assembly</h3>
+<p>NASM uses the so-called <strong><em>Intel</em> syntax</strong> while GNU uses the <strong><em>AT&amp;T</em> syntax.</strong> <a href="http://www.delorie.com/djgpp/doc/brennan/brennan_att_inline_djgpp.html">Brennan's Guide to Inline Assembly</a></p>
+<h3 id="the-pcs-physical-address-space">The PC's Physical Address Space</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c">
+<span class="o">+------------------+</span>  <span class="o">&lt;-</span> <span class="mh">0xFFFFFFFF</span> <span class="p">(</span><span class="mi">4</span><span class="n">GB</span><span class="p">)</span>
+<span class="o">|</span>      <span class="mi">32</span><span class="o">-</span><span class="n">bit</span>      <span class="o">|</span>
+<span class="o">|</span>  <span class="n">memory</span> <span class="n">mapped</span>   <span class="o">|</span>
+<span class="o">|</span>     <span class="n">devices</span>      <span class="o">|</span>
+<span class="o">|</span>                  <span class="o">|</span>
+<span class="o">/</span><span class="err">\</span><span class="o">/</span><span class="err">\</span><span class="o">/</span><span class="err">\</span><span class="o">/</span><span class="err">\</span><span class="o">/</span><span class="err">\</span><span class="o">/</span><span class="err">\</span><span class="o">/</span><span class="err">\</span><span class="o">/</span><span class="err">\</span><span class="o">/</span><span class="err">\</span><span class="o">/</span>\
+
+<span class="o">/</span><span class="err">\</span><span class="o">/</span><span class="err">\</span><span class="o">/</span><span class="err">\</span><span class="o">/</span><span class="err">\</span><span class="o">/</span><span class="err">\</span><span class="o">/</span><span class="err">\</span><span class="o">/</span><span class="err">\</span><span class="o">/</span><span class="err">\</span><span class="o">/</span><span class="err">\</span><span class="o">/</span>\
+<span class="o">|</span>                  <span class="o">|</span>
+<span class="o">|</span>      <span class="n">Unused</span>      <span class="o">|</span>
+<span class="o">|</span>                  <span class="o">|</span>
+<span class="o">+------------------+</span>  <span class="o">&lt;-</span> <span class="n">depends</span> <span class="n">on</span> <span class="n">amount</span> <span class="n">of</span> <span class="n">RAM</span>
+<span class="o">|</span>                  <span class="o">|</span>
+<span class="o">|</span>                  <span class="o">|</span>
+<span class="o">|</span> <span class="n">Extended</span> <span class="n">Memory</span>  <span class="o">|</span>
+<span class="o">|</span>                  <span class="o">|</span>
+<span class="o">|</span>                  <span class="o">|</span>
+<span class="o">+------------------+</span>  <span class="o">&lt;-</span> <span class="mh">0x00100000</span> <span class="p">(</span><span class="mi">1</span><span class="n">MB</span><span class="p">)</span>
+<span class="o">|</span>     <span class="n">BIOS</span> <span class="n">ROM</span>     <span class="o">|</span>
+<span class="o">+------------------+</span>  <span class="o">&lt;-</span> <span class="mh">0x000F0000</span> <span class="p">(</span><span class="mi">960</span><span class="n">KB</span><span class="p">)</span>
+<span class="o">|</span>  <span class="mi">16</span><span class="o">-</span><span class="n">bit</span> <span class="n">devices</span><span class="p">,</span> <span class="o">|</span>
+<span class="o">|</span>  <span class="n">expansion</span> <span class="n">ROMs</span>  <span class="o">|</span>
+<span class="o">+------------------+</span>  <span class="o">&lt;-</span> <span class="mh">0x000C0000</span> <span class="p">(</span><span class="mi">768</span><span class="n">KB</span><span class="p">)</span>
+<span class="o">|</span>   <span class="n">VGA</span> <span class="n">Display</span>    <span class="o">|</span>
+<span class="o">+------------------+</span>  <span class="o">&lt;-</span> <span class="mh">0x000A0000</span> <span class="p">(</span><span class="mi">640</span><span class="n">KB</span><span class="p">)</span>
+<span class="o">|</span>                  <span class="o">|</span>
+<span class="o">|</span>    <span class="n">Low</span> <span class="n">Memory</span>    <span class="o">|</span>
+<span class="o">|</span>                  <span class="o">|</span>
+<span class="o">+------------------+</span>  <span class="o">&lt;-</span> <span class="mh">0x00000000</span>
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p>早期的16位的8088处理器能够访问1MB的地址空间，可以知道对应地址总线是20位，数据总线是16位，对应的寄存器也就是16位的，所以intel采用segment:offset来计算物理地址<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>。</p>
+</li>
+<li>
+<p>VGA(video display buffers)：视频显示用的，每隔一定的时间，对应的硬件就会从该区域读取要显示的图像。</p>
+</li>
+<li>
+<p>ROMs：存放固件。</p>
+</li>
+<li>
+<p>BIOS ROM：一般是nor flash，nor flash支持XIP(eXecute In Place)，可以将其数据映射到RAM地址空间。</p>
+</li>
+<li>
+<p>Extended Memory：高于1MB的剩余物理空间，最多到4GB。</p>
+</li>
+</ul>
+<blockquote>
+<p>JOS只能使用前256MB的物理内存？</p>
+</blockquote>
+<h3 id="bootloader系统启动">bootloader系统启动</h3>
+<p>下面是biod-&gt;bootloader-&gt;kernel entry的大致流程：</p>
+<ol>
+<li>
+<p>ROM BIOS开机自检，其第一个指令是<code>[f000:fff0] 0xffff0:	ljmp   $0xf000,$0xe05b</code>；</p>
+</li>
+<li>
+<p>ROM BIOS将我们的启动代码加载到物理地址<code>0000:7c00</code>，最后<code>jmp</code>指令跳转到我们的代码处执行；</p>
+</li>
+<li>
+<p>处理器启动时进入real模式，并设置<code>cs=0xf000</code>和<code>ip=0xfff0</code>。物理地址是：<code>physical address = 16 * segment + offset</code>；</p>
+</li>
+<li>
+<p>Enable A20<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>：80286（24根地址线）为了兼容8088（20根地址线）；</p>
+<blockquote>
+<p>8086所能访问的物理地址空间：0(0x0000:0x0000)到0x10FFEF(FFFF:FFFF)，多出来了第20位，因为8086地址线只有20根，所以没有影响；</p>
+<p>但是在80286中，Intel把地址线扩展成24根了，FFFF:FFFF真的就是0x10FFEF了，你让那些legacy software怎么活？！本来人家想读0xFFEF的，怎么成了0x10FFEF？不是人家不想好好工作，是你硬件设计的不让人家好好工作嘛。</p>
+<p>乃们看出来了没？A20 是 80286 时代照顾8088软件的产物。通常所说的32位保护模式是 80386 才出现的，**所以，A20跟保护模式毛关系都没有！**开不开都一样进，影响的只是第20位而已</p>
+</blockquote>
+</li>
+<li>
+<p>切换模式：从实模式切换到保护模式，保护模式使用gdt和ldt，可以访问到比实模式更多的物理地址空间；</p>
+</li>
+<li>
+<p>根据elf的信息将内核代码从硬盘加载到物理内存中；</p>
+<p>IO端口地址<sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup>：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="n">I</span><span class="o">/</span><span class="n">O</span> <span class="n">Address</span>	<span class="n">USE</span>
+<span class="mo">0010</span><span class="o">-</span><span class="mf">001F</span>	<span class="n">System</span>
+<span class="mf">01F</span><span class="mi">0</span><span class="o">-</span><span class="mf">01F</span><span class="mi">7</span>	<span class="n">IDE</span> <span class="n">interface</span> <span class="o">-</span> <span class="n">Primary</span> <span class="n">channel</span>
+</code></pre></td></tr></table>
+</div>
+</div></li>
+</ol>
+<p><strong>习题：</strong></p>
+<ul>
+<li>
+<p>At what point does the processor start executing 32-bit code? What exactly causes the switch from 16- to 32-bit mode?</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="n">orl</span>     <span class="err">$</span><span class="n">CR0_PE_ON</span><span class="p">,</span> <span class="o">%</span><span class="n">eax</span>
+<span class="n">movl</span>    <span class="o">%</span><span class="n">eax</span><span class="p">,</span> <span class="o">%</span><span class="n">cr0</span>
+<span class="n">ljmp</span>    <span class="err">$</span><span class="n">PROT_MODE_CSEG</span><span class="p">,</span> <span class="err">$</span><span class="n">protcseg</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>上面的代码使能保护模式，将cr0寄存器的第一位置1；第三行代码实在32bit模式下运行的。</p>
+</li>
+<li>
+<p>What is the <em>last</em> instruction of the boot loader executed, and what is the <em>first</em> instruction of the kernel it just loaded?</p>
+<p><code>((void (*)(void)) (ELFHDR-&gt;e_entry))();</code></p>
+<p>运行<code>readelf -h obj/kern/kernel</code>可以知道kernel的entry是0x1000c，所以第一条指令是：<code>f010000c:	66 c7 05 72 04 00 00 	movw   $0x1234,0x472</code>。</p>
+<blockquote>
+<p>这里的0xf010000c是虚拟地址（线性地址），0x1000c是物理地址；bootloader将内核加载到线性地址，这时还没有开启mmu，所以在开启mmu之前的代码必须是位置无关代码；如果要访问位置相关的代码，需要使用RELOC计算出线性地址对应的物理地址；</p>
+<pre><code>kernel.ld
+/* Link the kernel at this address: &quot;.&quot; means the current address */
+. = 0xF0100000;
+
+/* AT(...) gives the load address of this section, which tells
+   the boot loader where to load the kernel in physical memory */
+.text : AT(0x100000) {
+    *(.text .stub .text.* .gnu.linkonce.t.*)
+}
+</code></pre>
+</blockquote>
+</li>
+<li>
+<p><em>Where</em> is the first instruction of the kernel?</p>
+<p><code>0x1000c</code></p>
+</li>
+<li>
+<p>How does the boot loader decide how many sectors it must read in order to fetch the entire kernel from disk? Where does it find this information?</p>
+<p>kernel最终被编译成elf文件，elf头部信息包含代码的详细信息。</p>
+</li>
+</ul>
+<h3 id="内核启动流程">内核启动流程</h3>
+<p>下面是内核汇编代码的大致运行流程：</p>
+<ol>
+<li>
+<p>此时分页系统还未开启，内核访问位置相关的代码（比如数据），需要使用RELOC，手动将虚拟地址转换成物理地址；</p>
+</li>
+<li>
+<p>将页目录表基地址加载到cr3寄存器，再修改cr0寄存器，开启分页系统；</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="n">pde_t</span> <span class="n">entry_pgdir</span><span class="p">[</span><span class="n">NPDENTRIES</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+ <span class="c1">// Map VA&#39;s [0, 4MB) to PA&#39;s [0, 4MB)
+</span><span class="c1"></span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+     <span class="o">=</span> <span class="p">((</span><span class="n">uintptr_t</span><span class="p">)</span><span class="n">entry_pgtable</span> <span class="o">-</span> <span class="n">KERNBASE</span><span class="p">)</span> <span class="o">+</span> <span class="n">PTE_P</span><span class="p">,</span>
+ <span class="c1">// Map VA&#39;s [KERNBASE, KERNBASE+4MB) to PA&#39;s [0, 4MB)
+</span><span class="c1"></span> <span class="p">[</span><span class="n">KERNBASE</span><span class="o">&gt;&gt;</span><span class="n">PDXSHIFT</span><span class="p">]</span>
+     <span class="o">=</span> <span class="p">((</span><span class="n">uintptr_t</span><span class="p">)</span><span class="n">entry_pgtable</span> <span class="o">-</span> <span class="n">KERNBASE</span><span class="p">)</span> <span class="o">+</span> <span class="n">PTE_P</span> <span class="o">+</span> <span class="n">PTE_W</span>
+<span class="p">};</span>
+<span class="err">讲一下为什么要映射</span><span class="n">VA</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="n">MB</span><span class="p">)</span><span class="err">，因为当前的</span><span class="n">ip处于</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="n">MB</span><span class="p">)</span><span class="err">，所以开启分页系统之后</span><span class="n">ip仍然处于</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="n">MB</span><span class="p">)</span><span class="err">，如果没有</span><span class="n">VA</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="n">MB</span><span class="p">)</span><span class="err">的映射会出现</span><span class="n">page</span> <span class="n">fault</span><span class="err">。</span>                                                     
+</code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>修改ip的值到内核空间；</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"> <span class="n">mov</span>	<span class="err">$</span><span class="n">relocated</span><span class="p">,</span> <span class="o">%</span><span class="n">eax</span>
+ <span class="n">jmp</span>	<span class="o">*%</span><span class="n">eax</span>
+<span class="nl">relocated</span><span class="p">:</span>
+ <span class="p">...</span>
+<span class="err">编译的时候都是按虚拟地址来进行编译的，所以</span><span class="n">relocated保存的是虚拟地址</span><span class="err">。</span>
+</code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>进入c语言代码；</p>
+</li>
+</ol>
+<p><strong>习题：</strong></p>
+<ul>
+<li>
+<p>Explain the interface between <code>printf.c</code> and <code>console.c</code>. Specifically, what function does <code>console.c</code> export? How is this function used by <code>printf.c</code>?</p>
+<p>printf库解析传进来的参数转换成字符串，并一个个的传给console；</p>
+<p>console将字符串打印出来，包括串口和显示屏显示；</p>
+</li>
+<li>
+<p>For the following questions you might wish to consult the notes for Lecture 2. These notes cover GCC's calling convention on the x86.</p>
+<p>Trace the execution of the following code step-by-step:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="mi">4</span><span class="p">;</span>
+<span class="n">cprintf</span><span class="p">(</span><span class="s">&#34;x %d, y %x, z %d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">);</span>
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>In the call to <code>cprintf()</code>, to what does <code>fmt</code> point? To what does <code>ap</code> point?</li>
+<li>List (in order of execution) each call to <code>cons_putc</code>, <code>va_arg</code>, and <code>vcprintf</code>. For <code>cons_putc</code>, list its argument as well. For <code>va_arg</code>, list what <code>ap</code> points to before and after the call. For <code>vcprintf</code> list the values of its two arguments.</li>
+</ul>
+<blockquote>
+<p>我们知道再x86中参数都通过栈传递（现在一部分是通过通用寄存器传递的），而参数压栈的顺序是从右到左，所以fmt是指向上一个函数的栈顶，也就是<code>0x8(%ebp)</code>。ap指向fmt的前一个参数，也就是lea    0xc(%ebp),%eax。具体看下面的代码：</p>
+</blockquote>
+<pre><code class="language-assembly" data-lang="assembly">int
+cprintf(const char *fmt, ...)
+{
+f0100ad1:	55                   	push   %ebp
+f0100ad2:	89 e5                	mov    %esp,%ebp
+f0100ad4:	83 ec 10             	sub    $0x10,%esp
+  va_list ap;
+  int cnt;
+  
+  va_start(ap, fmt);
+f0100ad7:	8d 45 0c             	lea    0xc(%ebp),%eax   // 取参数（除了fmt参数）的首地址
+  cnt = vcprintf(fmt, ap);
+f0100ada:	50                   	push   %eax
+f0100adb:	ff 75 08             	pushl  0x8(%ebp)		// 取值，该值指向fmt的字符串首地址
+f0100ade:	e8 b7 ff ff ff       	call   f0100a9a &lt;vcprintf&gt;
+  va_end(ap);
+  
+  return cnt;
+}
+</code></pre></li>
+<li>
+<p>Let's say that GCC changed its calling convention so that it pushed arguments on the stack in declaration order, so that the last argument is pushed last. How would you have to change <code>cprintf</code> or its interface so that it would still be possible to pass it a variable number of arguments?</p>
+</li>
+</ul>
+<h3 id="the-stack">The Stack</h3>
+<p>下面是栈的大概分布情况：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c">		       <span class="o">+------------+</span>   <span class="o">|</span>
+		       <span class="o">|</span> <span class="n">arg</span> <span class="mi">2</span>      <span class="o">|</span>   \
+		       <span class="o">+------------+</span>    <span class="o">&gt;-</span> <span class="n">previous</span> <span class="n">function</span><span class="err">&#39;</span><span class="n">s</span> <span class="n">stack</span> <span class="n">frame</span>
+		       <span class="o">|</span> <span class="n">arg</span> <span class="mi">1</span>      <span class="o">|</span>   <span class="o">/</span>
+		       <span class="o">+------------+</span>   <span class="o">|</span>
+		       <span class="o">|</span> <span class="n">ret</span> <span class="o">%</span><span class="n">eip</span>   <span class="o">|</span>   <span class="o">/</span>
+		       <span class="o">+============+</span>   
+		       <span class="o">|</span> <span class="n">saved</span> <span class="o">%</span><span class="n">ebp</span> <span class="o">|</span>   \
+		<span class="o">%</span><span class="n">ebp</span><span class="o">-&gt;</span> <span class="o">+------------+</span>   <span class="o">|</span>
+		       <span class="o">|</span>            <span class="o">|</span>   <span class="o">|</span>
+		       <span class="o">|</span>   <span class="n">local</span>    <span class="o">|</span>   \
+		       <span class="o">|</span> <span class="n">variables</span><span class="p">,</span> <span class="o">|</span>    <span class="o">&gt;-</span> <span class="n">current</span> <span class="n">function</span><span class="err">&#39;</span><span class="n">s</span> <span class="n">stack</span> <span class="n">frame</span>
+		       <span class="o">|</span>    <span class="n">etc</span><span class="p">.</span>    <span class="o">|</span>   <span class="o">/</span>
+		       <span class="o">|</span>            <span class="o">|</span>   <span class="o">|</span>
+		       <span class="o">|</span>            <span class="o">|</span>   <span class="o">|</span>
+		<span class="o">%</span><span class="n">esp</span><span class="o">-&gt;</span> <span class="o">+------------+</span>   <span class="o">/</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>根据发生错误的ip输出backtrace：通过链接脚本，将程序的符号表加载到elf文件中，具体可以参看<a href="http://sourceware.org/gdb/onlinedocs/stabs.html">stabs</a>。</p>
+<h3 id="参考链接">参考链接</h3>
+<section class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1" role="doc-endnote">
+<p>OS boot 的时候为什么要 enable A20？ - 坂本鱼子酱的回答 - 知乎 <a href="https://www.zhihu.com/question/29375534/answer/44137152">https://www.zhihu.com/question/29375534/answer/44137152</a> <a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:2" role="doc-endnote">
+<p>IO端口地址分布, <a href="http://web.archive.org/web/20040304063834/http://members.iweb.net.au/~pstorr/pcbook/book2/ioassign.htm">http://web.archive.org/web/20040304063834/http://members.iweb.net.au/~pstorr/pcbook/book2/ioassign.htm</a> <a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</section>
+]]></description>
+                
+                
+                
+                
+                
+                    
+                        
+                            
+                                
+                                
+                                
+                                    <category domain="https://chengshuyi.github.io/categories/mit6828-os%E5%AE%9E%E9%AA%8C/">mit6828 OS实验</category>
+                                
+                            
+                        
+                    
+                        
+                            
+                                
+                                
+                                
+                                    <category domain="https://chengshuyi.github.io/tags/mit6828-os%E5%AE%9E%E9%AA%8C/">mit6828 OS实验</category>
+                                
+                            
+                        
+                    
+                
+            </item>
         
             <item>
                 <title>嵌入式文件系统</title>
