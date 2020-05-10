@@ -23,10 +23,903 @@
         
             <copyright>[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh)</copyright>
         
-        <lastBuildDate>Sat, 25 Apr 2020 14:42:51 +0000</lastBuildDate>
+        <lastBuildDate>Sun, 10 May 2020 08:32:38 +0000</lastBuildDate>
         
             <atom:link rel="self" type="application/rss+xml" href="https://chengshuyi.github.io/rss.xml" />
         
+        
+            <item>
+                <title>The BSD Packet Filter论文笔记及源码解析</title>
+                <link>https://chengshuyi.github.io/posts/linux-kernel/bpf-paper/</link>
+                <guid isPermaLink="true">https://chengshuyi.github.io/posts/linux-kernel/bpf-paper/</guid>
+                <pubDate>Sat, 09 May 2020 08:36:36 +0800</pubDate>
+                
+                    <author>c15271843451@outlook.com (程书意)</author>
+                
+                <copyright>[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh)</copyright>
+                
+                    <description><![CDATA[<p>本文主要介绍了bpf论文和bpf源码。</p>
+<h3 id="简介">简介</h3>
+<p>从下图可以看出，当网卡驱动接收到packet的时，一般情况下会直接传给协议栈。但是当bpf处于工作状态，驱动首先调用bpf程序，bpf程序会执行与其绑定的filter程序。如果该packet通过过滤条件，将该packet拷贝到对应进程的buffer中。由此，bpf程序主要由两部分构成：</p>
+<ol>
+<li>network tap：将网卡驱动收到的packet传给监听的应用程序；</li>
+<li>filter：过滤掉不需要的packet。</li>
+</ol>
+<p><img src="https://gitee.com/chengshuyi/scripts/raw/master/img/20200509083958.png" alt=""></p>
+<h3 id="network-tap">network tap</h3>
+<p>网卡驱动一旦收到/发出packet，会先调用<code>bpf_tap</code>函数，下面是<code>bpf_tap</code>函数的源码。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="nf">bpf_tap</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">pkt</span><span class="p">,</span> <span class="n">pktlen</span><span class="p">)</span>
+	<span class="n">caddr_t</span> <span class="n">arg</span><span class="p">;</span>
+	<span class="k">register</span> <span class="n">u_char</span> <span class="o">*</span><span class="n">pkt</span><span class="p">;</span>
+	<span class="k">register</span> <span class="n">u_int</span> <span class="n">pktlen</span><span class="p">;</span>
+<span class="p">{</span>
+	<span class="k">struct</span> <span class="n">bpf_if</span> <span class="o">*</span><span class="n">bp</span><span class="p">;</span>
+	<span class="k">register</span> <span class="k">struct</span> <span class="n">bpf_d</span> <span class="o">*</span><span class="n">d</span><span class="p">;</span>
+	<span class="k">register</span> <span class="n">u_int</span> <span class="n">slen</span><span class="p">;</span>
+	<span class="c1">// arg是和特定网卡绑定的bpf_if，类似于net_if
+</span><span class="c1"></span>	<span class="n">bp</span> <span class="o">=</span> <span class="p">(</span><span class="k">struct</span> <span class="n">bpf_if</span> <span class="o">*</span><span class="p">)</span><span class="n">arg</span><span class="p">;</span>
+	<span class="c1">// 遍历所有的监听描述符，该描述符对应着一个进程
+</span><span class="c1"></span>	<span class="k">for</span> <span class="p">(</span><span class="n">d</span> <span class="o">=</span> <span class="n">bp</span><span class="o">-&gt;</span><span class="n">bif_dlist</span><span class="p">;</span> <span class="n">d</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">d</span> <span class="o">=</span> <span class="n">d</span><span class="o">-&gt;</span><span class="n">bd_next</span><span class="p">)</span> <span class="p">{</span>
+		<span class="o">++</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">bd_rcount</span><span class="p">;</span>
+		<span class="c1">// 执行每个描述符的过滤程序
+</span><span class="c1"></span>		<span class="n">slen</span> <span class="o">=</span> <span class="n">bpf_filter</span><span class="p">(</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">bd_filter</span><span class="p">,</span> <span class="n">pkt</span><span class="p">,</span> <span class="n">pktlen</span><span class="p">,</span> <span class="n">pktlen</span><span class="p">);</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">slen</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+			<span class="c1">// 返回非0，将包传给该描述符，也就是拷贝到该描述符指定的buffer中；
+</span><span class="c1"></span>            <span class="c1">// 1. bpf可以设置immediate参数，每次都唤醒该描述符对应的进程
+</span><span class="c1"></span>            <span class="c1">// 2. 或者等缓冲区满的时候再唤醒该描述符对应的进程，该进程从缓冲区读取数据
+</span><span class="c1"></span>			<span class="n">catchpacket</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">pkt</span><span class="p">,</span> <span class="n">pktlen</span><span class="p">,</span> <span class="n">slen</span><span class="p">,</span> <span class="n">bcopy</span><span class="p">);</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="filter">filter</h3>
+<p>filter是bpf实现比较关键的部分，作者首先提出了布尔表达式树和控制流图的方式来计算是否需要该packet，并指出在大部分情况下，控制流图的方式所需要的操作要少一些。</p>
+<p>其次，作者自定义了一些伪机器码，该伪机器码同一般的机器码类似，但是不能够直接运行在真实的机器上，需要进行动态的翻译。</p>
+<p>filter程序对应的机器模型由两个寄存器，分别是accumulator（记作A）和index register（记作x），下面列举了filter程序的指令格式、指令集及取址模式：</p>
+<ul>
+<li>指令格式：16bit的操作码，jt是jump true，jf是jump false。</li>
+</ul>
+<p><img src="https://gitee.com/chengshuyi/scripts/raw/master/img/20200509095900.png" alt=""></p>
+<ul>
+<li>指令集：
+<ul>
+<li>ld类型指令：<code>ld,ldh,ldb</code>拷贝数值到寄存器<code>A</code>，<code>ldx</code>拷贝数值到寄存器<code>X</code>；下面是执行ld类型指令的流程；</li>
+<li>alu类型指令（<code>add,sub...</code>）：使用寄存器<code>A</code>、立即数k、和寄存器<code>x</code>做运算，并将运算结果存储到寄存器<code>A</code>；</li>
+<li>jump类型指令：比较寄存器<code>A</code>和操作数的值，根据是否相同做跳转；</li>
+<li>存储类型指令：<code>st</code>拷贝数值到寄存器<code>A</code>，<code>stx</code>拷贝数值到寄存器<code>X</code>；</li>
+<li>ret指令：表示结束，以及需要接收字节；</li>
+<li>tax和txa指令：将寄存器值传递给另外一个寄存器；</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://gitee.com/chengshuyi/scripts/raw/master/img/20200509095351.png" alt=""></p>
+<ul>
+<li>取址模式
+<ul>
+<li>带<code>#</code>的表示数值在指令格式的k字段上；</li>
+<li>M[k]：表示分配的临时内存中第k个字节；</li>
+<li>[k]：packet的偏移地址为k上的数据；</li>
+<li>L：当前指令所在的偏移地址；</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://gitee.com/chengshuyi/scripts/raw/master/img/20200509100321.png" alt=""></p>
+<p>实例分析：</p>
+<pre><code class="language-assembly" data-lang="assembly">	ldh [12]					# 加载packet偏移地址为12的半字到寄存器A，根据以太网包头部格式知道该半字表示以太网包中的数据类型
+	jeq #ETHERPROTO_IP, L1, L5	# 比较A和ETHERPROTO_IP的值，相等去L1，不等去L5
+L1: ldb [23]					# 加载packet偏移地址为23的字节到寄存器A
+	jeq #IPPROTO_TCP, L2, L5	# 比较A和IPPROTO_TCP的值，相等去L2，不等去L5
+L2: ldh [20]					# 加载packet偏移地址为20的半字到寄存器A
+	jset #0x1fff, L5, L3		# A&amp;0x1fff是否为真，真去L5，假去L3
+L3: ldx 4*([14]&amp;0xf)			# (packet[14]&amp;0xf)*4加载到寄存器X
+	ldh [x+16]					# 加载packet偏移地址为x+16的半字到寄存器A
+	jeq #N, L4, L5				# 比较port和N是否相等，相等去L4，不等去L5
+L4: ret #TRUE					# 返回长度k
+L5: ret #0						# 返回长度0
+</code></pre><p>下面是动态翻译的源码，只给了几个示例注释：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span><span class="lnt">101
+</span><span class="lnt">102
+</span><span class="lnt">103
+</span><span class="lnt">104
+</span><span class="lnt">105
+</span><span class="lnt">106
+</span><span class="lnt">107
+</span><span class="lnt">108
+</span><span class="lnt">109
+</span><span class="lnt">110
+</span><span class="lnt">111
+</span><span class="lnt">112
+</span><span class="lnt">113
+</span><span class="lnt">114
+</span><span class="lnt">115
+</span><span class="lnt">116
+</span><span class="lnt">117
+</span><span class="lnt">118
+</span><span class="lnt">119
+</span><span class="lnt">120
+</span><span class="lnt">121
+</span><span class="lnt">122
+</span><span class="lnt">123
+</span><span class="lnt">124
+</span><span class="lnt">125
+</span><span class="lnt">126
+</span><span class="lnt">127
+</span><span class="lnt">128
+</span><span class="lnt">129
+</span><span class="lnt">130
+</span><span class="lnt">131
+</span><span class="lnt">132
+</span><span class="lnt">133
+</span><span class="lnt">134
+</span><span class="lnt">135
+</span><span class="lnt">136
+</span><span class="lnt">137
+</span><span class="lnt">138
+</span><span class="lnt">139
+</span><span class="lnt">140
+</span><span class="lnt">141
+</span><span class="lnt">142
+</span><span class="lnt">143
+</span><span class="lnt">144
+</span><span class="lnt">145
+</span><span class="lnt">146
+</span><span class="lnt">147
+</span><span class="lnt">148
+</span><span class="lnt">149
+</span><span class="lnt">150
+</span><span class="lnt">151
+</span><span class="lnt">152
+</span><span class="lnt">153
+</span><span class="lnt">154
+</span><span class="lnt">155
+</span><span class="lnt">156
+</span><span class="lnt">157
+</span><span class="lnt">158
+</span><span class="lnt">159
+</span><span class="lnt">160
+</span><span class="lnt">161
+</span><span class="lnt">162
+</span><span class="lnt">163
+</span><span class="lnt">164
+</span><span class="lnt">165
+</span><span class="lnt">166
+</span><span class="lnt">167
+</span><span class="lnt">168
+</span><span class="lnt">169
+</span><span class="lnt">170
+</span><span class="lnt">171
+</span><span class="lnt">172
+</span><span class="lnt">173
+</span><span class="lnt">174
+</span><span class="lnt">175
+</span><span class="lnt">176
+</span><span class="lnt">177
+</span><span class="lnt">178
+</span><span class="lnt">179
+</span><span class="lnt">180
+</span><span class="lnt">181
+</span><span class="lnt">182
+</span><span class="lnt">183
+</span><span class="lnt">184
+</span><span class="lnt">185
+</span><span class="lnt">186
+</span><span class="lnt">187
+</span><span class="lnt">188
+</span><span class="lnt">189
+</span><span class="lnt">190
+</span><span class="lnt">191
+</span><span class="lnt">192
+</span><span class="lnt">193
+</span><span class="lnt">194
+</span><span class="lnt">195
+</span><span class="lnt">196
+</span><span class="lnt">197
+</span><span class="lnt">198
+</span><span class="lnt">199
+</span><span class="lnt">200
+</span><span class="lnt">201
+</span><span class="lnt">202
+</span><span class="lnt">203
+</span><span class="lnt">204
+</span><span class="lnt">205
+</span><span class="lnt">206
+</span><span class="lnt">207
+</span><span class="lnt">208
+</span><span class="lnt">209
+</span><span class="lnt">210
+</span><span class="lnt">211
+</span><span class="lnt">212
+</span><span class="lnt">213
+</span><span class="lnt">214
+</span><span class="lnt">215
+</span><span class="lnt">216
+</span><span class="lnt">217
+</span><span class="lnt">218
+</span><span class="lnt">219
+</span><span class="lnt">220
+</span><span class="lnt">221
+</span><span class="lnt">222
+</span><span class="lnt">223
+</span><span class="lnt">224
+</span><span class="lnt">225
+</span><span class="lnt">226
+</span><span class="lnt">227
+</span><span class="lnt">228
+</span><span class="lnt">229
+</span><span class="lnt">230
+</span><span class="lnt">231
+</span><span class="lnt">232
+</span><span class="lnt">233
+</span><span class="lnt">234
+</span><span class="lnt">235
+</span><span class="lnt">236
+</span><span class="lnt">237
+</span><span class="lnt">238
+</span><span class="lnt">239
+</span><span class="lnt">240
+</span><span class="lnt">241
+</span><span class="lnt">242
+</span><span class="lnt">243
+</span><span class="lnt">244
+</span><span class="lnt">245
+</span><span class="lnt">246
+</span><span class="lnt">247
+</span><span class="lnt">248
+</span><span class="lnt">249
+</span><span class="lnt">250
+</span><span class="lnt">251
+</span><span class="lnt">252
+</span><span class="lnt">253
+</span><span class="lnt">254
+</span><span class="lnt">255
+</span><span class="lnt">256
+</span><span class="lnt">257
+</span><span class="lnt">258
+</span><span class="lnt">259
+</span><span class="lnt">260
+</span><span class="lnt">261
+</span><span class="lnt">262
+</span><span class="lnt">263
+</span><span class="lnt">264
+</span><span class="lnt">265
+</span><span class="lnt">266
+</span><span class="lnt">267
+</span><span class="lnt">268
+</span><span class="lnt">269
+</span><span class="lnt">270
+</span><span class="lnt">271
+</span><span class="lnt">272
+</span><span class="lnt">273
+</span><span class="lnt">274
+</span><span class="lnt">275
+</span><span class="lnt">276
+</span><span class="lnt">277
+</span><span class="lnt">278
+</span><span class="lnt">279
+</span><span class="lnt">280
+</span><span class="lnt">281
+</span><span class="lnt">282
+</span><span class="lnt">283
+</span><span class="lnt">284
+</span><span class="lnt">285
+</span><span class="lnt">286
+</span><span class="lnt">287
+</span><span class="lnt">288
+</span><span class="lnt">289
+</span><span class="lnt">290
+</span><span class="lnt">291
+</span><span class="lnt">292
+</span><span class="lnt">293
+</span><span class="lnt">294
+</span><span class="lnt">295
+</span><span class="lnt">296
+</span><span class="lnt">297
+</span><span class="lnt">298
+</span><span class="lnt">299
+</span><span class="lnt">300
+</span><span class="lnt">301
+</span><span class="lnt">302
+</span><span class="lnt">303
+</span><span class="lnt">304
+</span><span class="lnt">305
+</span><span class="lnt">306
+</span><span class="lnt">307
+</span><span class="lnt">308
+</span><span class="lnt">309
+</span><span class="lnt">310
+</span><span class="lnt">311
+</span><span class="lnt">312
+</span><span class="lnt">313
+</span><span class="lnt">314
+</span><span class="lnt">315
+</span><span class="lnt">316
+</span><span class="lnt">317
+</span><span class="lnt">318
+</span><span class="lnt">319
+</span><span class="lnt">320
+</span><span class="lnt">321
+</span><span class="lnt">322
+</span><span class="lnt">323
+</span><span class="lnt">324
+</span><span class="lnt">325
+</span><span class="lnt">326
+</span><span class="lnt">327
+</span><span class="lnt">328
+</span><span class="lnt">329
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="k">struct</span> <span class="n">bpf_insn</span> <span class="p">{</span>
+	<span class="n">u_short</span>	<span class="n">code</span><span class="p">;</span>	<span class="c1">// 操作码
+</span><span class="c1"></span>	<span class="n">u_char</span> 	<span class="n">jt</span><span class="p">;</span>		<span class="c1">// jump ture 时对应的offset
+</span><span class="c1"></span>	<span class="n">u_char</span> 	<span class="n">jf</span><span class="p">;</span>		<span class="c1">// jump false时对应的offset
+</span><span class="c1"></span>	<span class="n">bpf_int32</span> <span class="n">k</span><span class="p">;</span>	<span class="c1">// 立即数
+</span><span class="c1"></span><span class="p">};</span>
+
+<span class="n">u_int</span>
+<span class="nf">bpf_filter</span><span class="p">(</span><span class="n">pc</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">wirelen</span><span class="p">,</span> <span class="n">buflen</span><span class="p">)</span>
+	<span class="k">register</span> <span class="k">struct</span> <span class="n">bpf_insn</span> <span class="o">*</span><span class="n">pc</span><span class="p">;</span>
+	<span class="k">register</span> <span class="n">u_char</span> <span class="o">*</span><span class="n">p</span><span class="p">;</span>
+	<span class="n">u_int</span> <span class="n">wirelen</span><span class="p">;</span>
+	<span class="k">register</span> <span class="n">u_int</span> <span class="n">buflen</span><span class="p">;</span>
+<span class="p">{</span>
+    <span class="c1">// 寄存器A,X
+</span><span class="c1"></span>	<span class="k">register</span> <span class="n">u_int32</span> <span class="n">A</span><span class="p">,</span> <span class="n">X</span><span class="p">;</span>
+	<span class="k">register</span> <span class="kt">int</span> <span class="n">k</span><span class="p">;</span>
+    <span class="c1">// scratch memory：临时内存空间
+</span><span class="c1"></span>	<span class="n">int32</span> <span class="n">mem</span><span class="p">[</span><span class="n">BPF_MEMWORDS</span><span class="p">];</span>
+
+	<span class="k">if</span> <span class="p">(</span><span class="n">pc</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+		<span class="cm">/*
+</span><span class="cm">		 * No filter means accept all.
+</span><span class="cm">		 */</span>
+		<span class="k">return</span> <span class="p">(</span><span class="n">u_int</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+	<span class="n">A</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="n">X</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="o">--</span><span class="n">pc</span><span class="p">;</span>
+    <span class="c1">// 遍历所有的伪指令
+</span><span class="c1"></span>	<span class="k">while</span> <span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+		<span class="o">++</span><span class="n">pc</span><span class="p">;</span>
+        <span class="c1">// 判断操作码类别
+</span><span class="c1"></span>		<span class="k">switch</span> <span class="p">(</span><span class="n">pc</span><span class="o">-&gt;</span><span class="n">code</span><span class="p">)</span> <span class="p">{</span>
+
+		<span class="k">default</span><span class="o">:</span>
+<span class="cp">#ifdef KERNEL
+</span><span class="cp"></span>			<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="cp">#else
+</span><span class="cp"></span>			<span class="n">abort</span><span class="p">();</span>
+<span class="cp">#endif
+</span><span class="cp"></span>        <span class="c1">// ret指令且指令k字段有效
+</span><span class="c1"></span>		<span class="k">case</span> <span class="n">BPF_RET</span><span class="o">|</span><span class="nl">BPF_K</span><span class="p">:</span>
+			<span class="k">return</span> <span class="p">(</span><span class="n">u_int</span><span class="p">)</span><span class="n">pc</span><span class="o">-&gt;</span><span class="n">k</span><span class="p">;</span>
+		<span class="c1">// ret指令且寄存器A有效
+</span><span class="c1"></span>		<span class="k">case</span> <span class="n">BPF_RET</span><span class="o">|</span><span class="nl">BPF_A</span><span class="p">:</span>
+			<span class="k">return</span> <span class="p">(</span><span class="n">u_int</span><span class="p">)</span><span class="n">A</span><span class="p">;</span>
+
+		<span class="k">case</span> <span class="n">BPF_LD</span><span class="o">|</span><span class="n">BPF_W</span><span class="o">|</span><span class="nl">BPF_ABS</span><span class="p">:</span>
+			<span class="n">k</span> <span class="o">=</span> <span class="n">pc</span><span class="o">-&gt;</span><span class="n">k</span><span class="p">;</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">k</span> <span class="o">+</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">int32</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">buflen</span><span class="p">)</span> <span class="p">{</span>
+<span class="cp">#ifdef KERNEL
+</span><span class="cp"></span>				<span class="kt">int</span> <span class="n">merr</span><span class="p">;</span>
+
+				<span class="k">if</span> <span class="p">(</span><span class="n">buflen</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+					<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+				<span class="n">A</span> <span class="o">=</span> <span class="n">m_xword</span><span class="p">((</span><span class="k">struct</span> <span class="n">mbuf</span> <span class="o">*</span><span class="p">)</span><span class="n">p</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">merr</span><span class="p">);</span>
+				<span class="k">if</span> <span class="p">(</span><span class="n">merr</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+					<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+				<span class="k">continue</span><span class="p">;</span>
+<span class="cp">#else
+</span><span class="cp"></span>				<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="cp">#endif
+</span><span class="cp"></span>			<span class="p">}</span>
+			<span class="n">A</span> <span class="o">=</span> <span class="n">EXTRACT_LONG</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="p">[</span><span class="n">k</span><span class="p">]);</span>
+			<span class="k">continue</span><span class="p">;</span>
+
+		<span class="k">case</span> <span class="n">BPF_LD</span><span class="o">|</span><span class="n">BPF_H</span><span class="o">|</span><span class="nl">BPF_ABS</span><span class="p">:</span>
+			<span class="n">k</span> <span class="o">=</span> <span class="n">pc</span><span class="o">-&gt;</span><span class="n">k</span><span class="p">;</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">k</span> <span class="o">+</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">short</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">buflen</span><span class="p">)</span> <span class="p">{</span>
+<span class="cp">#ifdef KERNEL
+</span><span class="cp"></span>				<span class="kt">int</span> <span class="n">merr</span><span class="p">;</span>
+
+				<span class="k">if</span> <span class="p">(</span><span class="n">buflen</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+					<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+				<span class="n">A</span> <span class="o">=</span> <span class="n">m_xhalf</span><span class="p">((</span><span class="k">struct</span> <span class="n">mbuf</span> <span class="o">*</span><span class="p">)</span><span class="n">p</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">merr</span><span class="p">);</span>
+				<span class="k">continue</span><span class="p">;</span>
+<span class="cp">#else
+</span><span class="cp"></span>				<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="cp">#endif
+</span><span class="cp"></span>			<span class="p">}</span>
+			<span class="n">A</span> <span class="o">=</span> <span class="n">EXTRACT_SHORT</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="p">[</span><span class="n">k</span><span class="p">]);</span>
+			<span class="k">continue</span><span class="p">;</span>
+
+		<span class="k">case</span> <span class="n">BPF_LD</span><span class="o">|</span><span class="n">BPF_B</span><span class="o">|</span><span class="nl">BPF_ABS</span><span class="p">:</span>
+			<span class="n">k</span> <span class="o">=</span> <span class="n">pc</span><span class="o">-&gt;</span><span class="n">k</span><span class="p">;</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">k</span> <span class="o">&gt;=</span> <span class="n">buflen</span><span class="p">)</span> <span class="p">{</span>
+<span class="cp">#ifdef KERNEL
+</span><span class="cp"></span>				<span class="k">register</span> <span class="k">struct</span> <span class="n">mbuf</span> <span class="o">*</span><span class="n">m</span><span class="p">;</span>
+				<span class="k">register</span> <span class="kt">int</span> <span class="n">len</span><span class="p">;</span>
+
+				<span class="k">if</span> <span class="p">(</span><span class="n">buflen</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+					<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+				<span class="n">m</span> <span class="o">=</span> <span class="p">(</span><span class="k">struct</span> <span class="n">mbuf</span> <span class="o">*</span><span class="p">)</span><span class="n">p</span><span class="p">;</span>
+				<span class="n">MINDEX</span><span class="p">(</span><span class="n">len</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">k</span><span class="p">);</span>
+				<span class="n">A</span> <span class="o">=</span> <span class="n">mtod</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">u_char</span> <span class="o">*</span><span class="p">)[</span><span class="n">k</span><span class="p">];</span>
+				<span class="k">continue</span><span class="p">;</span>
+<span class="cp">#else
+</span><span class="cp"></span>				<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="cp">#endif
+</span><span class="cp"></span>			<span class="p">}</span>
+			<span class="n">A</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="n">k</span><span class="p">];</span>
+			<span class="k">continue</span><span class="p">;</span>
+
+		<span class="k">case</span> <span class="n">BPF_LD</span><span class="o">|</span><span class="n">BPF_W</span><span class="o">|</span><span class="nl">BPF_LEN</span><span class="p">:</span>
+			<span class="n">A</span> <span class="o">=</span> <span class="n">wirelen</span><span class="p">;</span>
+			<span class="k">continue</span><span class="p">;</span>
+
+		<span class="k">case</span> <span class="n">BPF_LDX</span><span class="o">|</span><span class="n">BPF_W</span><span class="o">|</span><span class="nl">BPF_LEN</span><span class="p">:</span>
+			<span class="n">X</span> <span class="o">=</span> <span class="n">wirelen</span><span class="p">;</span>
+			<span class="k">continue</span><span class="p">;</span>
+
+		<span class="k">case</span> <span class="n">BPF_LD</span><span class="o">|</span><span class="n">BPF_W</span><span class="o">|</span><span class="nl">BPF_IND</span><span class="p">:</span>
+			<span class="n">k</span> <span class="o">=</span> <span class="n">X</span> <span class="o">+</span> <span class="n">pc</span><span class="o">-&gt;</span><span class="n">k</span><span class="p">;</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">k</span> <span class="o">+</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">int32</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">buflen</span><span class="p">)</span> <span class="p">{</span>
+<span class="cp">#ifdef KERNEL
+</span><span class="cp"></span>				<span class="kt">int</span> <span class="n">merr</span><span class="p">;</span>
+
+				<span class="k">if</span> <span class="p">(</span><span class="n">buflen</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+					<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+				<span class="n">A</span> <span class="o">=</span> <span class="n">m_xword</span><span class="p">((</span><span class="k">struct</span> <span class="n">mbuf</span> <span class="o">*</span><span class="p">)</span><span class="n">p</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">merr</span><span class="p">);</span>
+				<span class="k">if</span> <span class="p">(</span><span class="n">merr</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+					<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+				<span class="k">continue</span><span class="p">;</span>
+<span class="cp">#else
+</span><span class="cp"></span>				<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="cp">#endif
+</span><span class="cp"></span>			<span class="p">}</span>
+			<span class="n">A</span> <span class="o">=</span> <span class="n">EXTRACT_LONG</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="p">[</span><span class="n">k</span><span class="p">]);</span>
+			<span class="k">continue</span><span class="p">;</span>
+
+		<span class="k">case</span> <span class="n">BPF_LD</span><span class="o">|</span><span class="n">BPF_H</span><span class="o">|</span><span class="nl">BPF_IND</span><span class="p">:</span>
+			<span class="n">k</span> <span class="o">=</span> <span class="n">X</span> <span class="o">+</span> <span class="n">pc</span><span class="o">-&gt;</span><span class="n">k</span><span class="p">;</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">k</span> <span class="o">+</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">short</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">buflen</span><span class="p">)</span> <span class="p">{</span>
+<span class="cp">#ifdef KERNEL
+</span><span class="cp"></span>				<span class="kt">int</span> <span class="n">merr</span><span class="p">;</span>
+
+				<span class="k">if</span> <span class="p">(</span><span class="n">buflen</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+					<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+				<span class="n">A</span> <span class="o">=</span> <span class="n">m_xhalf</span><span class="p">((</span><span class="k">struct</span> <span class="n">mbuf</span> <span class="o">*</span><span class="p">)</span><span class="n">p</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">merr</span><span class="p">);</span>
+				<span class="k">if</span> <span class="p">(</span><span class="n">merr</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+					<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+				<span class="k">continue</span><span class="p">;</span>
+<span class="cp">#else
+</span><span class="cp"></span>				<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="cp">#endif
+</span><span class="cp"></span>			<span class="p">}</span>
+			<span class="n">A</span> <span class="o">=</span> <span class="n">EXTRACT_SHORT</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="p">[</span><span class="n">k</span><span class="p">]);</span>
+			<span class="k">continue</span><span class="p">;</span>
+
+		<span class="k">case</span> <span class="n">BPF_LD</span><span class="o">|</span><span class="n">BPF_B</span><span class="o">|</span><span class="nl">BPF_IND</span><span class="p">:</span>
+			<span class="n">k</span> <span class="o">=</span> <span class="n">X</span> <span class="o">+</span> <span class="n">pc</span><span class="o">-&gt;</span><span class="n">k</span><span class="p">;</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">k</span> <span class="o">&gt;=</span> <span class="n">buflen</span><span class="p">)</span> <span class="p">{</span>
+<span class="cp">#ifdef KERNEL
+</span><span class="cp"></span>				<span class="k">register</span> <span class="k">struct</span> <span class="n">mbuf</span> <span class="o">*</span><span class="n">m</span><span class="p">;</span>
+				<span class="k">register</span> <span class="kt">int</span> <span class="n">len</span><span class="p">;</span>
+
+				<span class="k">if</span> <span class="p">(</span><span class="n">buflen</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+					<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+				<span class="n">m</span> <span class="o">=</span> <span class="p">(</span><span class="k">struct</span> <span class="n">mbuf</span> <span class="o">*</span><span class="p">)</span><span class="n">p</span><span class="p">;</span>
+				<span class="n">MINDEX</span><span class="p">(</span><span class="n">len</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">k</span><span class="p">);</span>
+				<span class="n">A</span> <span class="o">=</span> <span class="n">mtod</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">u_char</span> <span class="o">*</span><span class="p">)[</span><span class="n">k</span><span class="p">];</span>
+				<span class="k">continue</span><span class="p">;</span>
+<span class="cp">#else
+</span><span class="cp"></span>				<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="cp">#endif
+</span><span class="cp"></span>			<span class="p">}</span>
+			<span class="n">A</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="n">k</span><span class="p">];</span>
+			<span class="k">continue</span><span class="p">;</span>
+
+		<span class="k">case</span> <span class="n">BPF_LDX</span><span class="o">|</span><span class="n">BPF_MSH</span><span class="o">|</span><span class="nl">BPF_B</span><span class="p">:</span>
+			<span class="n">k</span> <span class="o">=</span> <span class="n">pc</span><span class="o">-&gt;</span><span class="n">k</span><span class="p">;</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">k</span> <span class="o">&gt;=</span> <span class="n">buflen</span><span class="p">)</span> <span class="p">{</span>
+<span class="cp">#ifdef KERNEL
+</span><span class="cp"></span>				<span class="k">register</span> <span class="k">struct</span> <span class="n">mbuf</span> <span class="o">*</span><span class="n">m</span><span class="p">;</span>
+				<span class="k">register</span> <span class="kt">int</span> <span class="n">len</span><span class="p">;</span>
+
+				<span class="k">if</span> <span class="p">(</span><span class="n">buflen</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+					<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+				<span class="n">m</span> <span class="o">=</span> <span class="p">(</span><span class="k">struct</span> <span class="n">mbuf</span> <span class="o">*</span><span class="p">)</span><span class="n">p</span><span class="p">;</span>
+				<span class="n">MINDEX</span><span class="p">(</span><span class="n">len</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">k</span><span class="p">);</span>
+				<span class="n">X</span> <span class="o">=</span> <span class="p">(</span><span class="n">mtod</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="p">)[</span><span class="n">k</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mh">0xf</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="mi">2</span><span class="p">;</span>
+				<span class="k">continue</span><span class="p">;</span>
+<span class="cp">#else
+</span><span class="cp"></span>				<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="cp">#endif
+</span><span class="cp"></span>			<span class="p">}</span>
+			<span class="n">X</span> <span class="o">=</span> <span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="n">pc</span><span class="o">-&gt;</span><span class="n">k</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mh">0xf</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="mi">2</span><span class="p">;</span>
+			<span class="k">continue</span><span class="p">;</span>
+
+		<span class="k">case</span> <span class="n">BPF_LD</span><span class="o">|</span><span class="nl">BPF_IMM</span><span class="p">:</span>
+			<span class="n">A</span> <span class="o">=</span> <span class="n">pc</span><span class="o">-&gt;</span><span class="n">k</span><span class="p">;</span>
+			<span class="k">continue</span><span class="p">;</span>
+
+		<span class="k">case</span> <span class="n">BPF_LDX</span><span class="o">|</span><span class="nl">BPF_IMM</span><span class="p">:</span>
+			<span class="n">X</span> <span class="o">=</span> <span class="n">pc</span><span class="o">-&gt;</span><span class="n">k</span><span class="p">;</span>
+			<span class="k">continue</span><span class="p">;</span>
+
+		<span class="k">case</span> <span class="n">BPF_LD</span><span class="o">|</span><span class="nl">BPF_MEM</span><span class="p">:</span>
+			<span class="n">A</span> <span class="o">=</span> <span class="n">mem</span><span class="p">[</span><span class="n">pc</span><span class="o">-&gt;</span><span class="n">k</span><span class="p">];</span>
+			<span class="k">continue</span><span class="p">;</span>
+			
+		<span class="k">case</span> <span class="n">BPF_LDX</span><span class="o">|</span><span class="nl">BPF_MEM</span><span class="p">:</span>
+			<span class="n">X</span> <span class="o">=</span> <span class="n">mem</span><span class="p">[</span><span class="n">pc</span><span class="o">-&gt;</span><span class="n">k</span><span class="p">];</span>
+			<span class="k">continue</span><span class="p">;</span>
+
+		<span class="k">case</span> <span class="nl">BPF_ST</span><span class="p">:</span>
+			<span class="n">mem</span><span class="p">[</span><span class="n">pc</span><span class="o">-&gt;</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">A</span><span class="p">;</span>
+			<span class="k">continue</span><span class="p">;</span>
+
+		<span class="k">case</span> <span class="nl">BPF_STX</span><span class="p">:</span>
+			<span class="n">mem</span><span class="p">[</span><span class="n">pc</span><span class="o">-&gt;</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">X</span><span class="p">;</span>
+			<span class="k">continue</span><span class="p">;</span>
+
+		<span class="k">case</span> <span class="n">BPF_JMP</span><span class="o">|</span><span class="nl">BPF_JA</span><span class="p">:</span>
+			<span class="n">pc</span> <span class="o">+=</span> <span class="n">pc</span><span class="o">-&gt;</span><span class="n">k</span><span class="p">;</span>
+			<span class="k">continue</span><span class="p">;</span>
+
+		<span class="k">case</span> <span class="n">BPF_JMP</span><span class="o">|</span><span class="n">BPF_JGT</span><span class="o">|</span><span class="nl">BPF_K</span><span class="p">:</span>
+			<span class="n">pc</span> <span class="o">+=</span> <span class="p">(</span><span class="n">A</span> <span class="o">&gt;</span> <span class="n">pc</span><span class="o">-&gt;</span><span class="n">k</span><span class="p">)</span> <span class="o">?</span> <span class="n">pc</span><span class="o">-&gt;</span><span class="nl">jt</span> <span class="p">:</span> <span class="n">pc</span><span class="o">-&gt;</span><span class="n">jf</span><span class="p">;</span>
+			<span class="k">continue</span><span class="p">;</span>
+
+		<span class="k">case</span> <span class="n">BPF_JMP</span><span class="o">|</span><span class="n">BPF_JGE</span><span class="o">|</span><span class="nl">BPF_K</span><span class="p">:</span>
+			<span class="n">pc</span> <span class="o">+=</span> <span class="p">(</span><span class="n">A</span> <span class="o">&gt;=</span> <span class="n">pc</span><span class="o">-&gt;</span><span class="n">k</span><span class="p">)</span> <span class="o">?</span> <span class="n">pc</span><span class="o">-&gt;</span><span class="nl">jt</span> <span class="p">:</span> <span class="n">pc</span><span class="o">-&gt;</span><span class="n">jf</span><span class="p">;</span>
+			<span class="k">continue</span><span class="p">;</span>
+
+		<span class="k">case</span> <span class="n">BPF_JMP</span><span class="o">|</span><span class="n">BPF_JEQ</span><span class="o">|</span><span class="nl">BPF_K</span><span class="p">:</span>
+			<span class="n">pc</span> <span class="o">+=</span> <span class="p">(</span><span class="n">A</span> <span class="o">==</span> <span class="n">pc</span><span class="o">-&gt;</span><span class="n">k</span><span class="p">)</span> <span class="o">?</span> <span class="n">pc</span><span class="o">-&gt;</span><span class="nl">jt</span> <span class="p">:</span> <span class="n">pc</span><span class="o">-&gt;</span><span class="n">jf</span><span class="p">;</span>
+			<span class="k">continue</span><span class="p">;</span>
+
+		<span class="k">case</span> <span class="n">BPF_JMP</span><span class="o">|</span><span class="n">BPF_JSET</span><span class="o">|</span><span class="nl">BPF_K</span><span class="p">:</span>
+			<span class="n">pc</span> <span class="o">+=</span> <span class="p">(</span><span class="n">A</span> <span class="o">&amp;</span> <span class="n">pc</span><span class="o">-&gt;</span><span class="n">k</span><span class="p">)</span> <span class="o">?</span> <span class="n">pc</span><span class="o">-&gt;</span><span class="nl">jt</span> <span class="p">:</span> <span class="n">pc</span><span class="o">-&gt;</span><span class="n">jf</span><span class="p">;</span>
+			<span class="k">continue</span><span class="p">;</span>
+
+		<span class="k">case</span> <span class="n">BPF_JMP</span><span class="o">|</span><span class="n">BPF_JGT</span><span class="o">|</span><span class="nl">BPF_X</span><span class="p">:</span>
+			<span class="n">pc</span> <span class="o">+=</span> <span class="p">(</span><span class="n">A</span> <span class="o">&gt;</span> <span class="n">X</span><span class="p">)</span> <span class="o">?</span> <span class="n">pc</span><span class="o">-&gt;</span><span class="nl">jt</span> <span class="p">:</span> <span class="n">pc</span><span class="o">-&gt;</span><span class="n">jf</span><span class="p">;</span>
+			<span class="k">continue</span><span class="p">;</span>
+
+		<span class="k">case</span> <span class="n">BPF_JMP</span><span class="o">|</span><span class="n">BPF_JGE</span><span class="o">|</span><span class="nl">BPF_X</span><span class="p">:</span>
+			<span class="n">pc</span> <span class="o">+=</span> <span class="p">(</span><span class="n">A</span> <span class="o">&gt;=</span> <span class="n">X</span><span class="p">)</span> <span class="o">?</span> <span class="n">pc</span><span class="o">-&gt;</span><span class="nl">jt</span> <span class="p">:</span> <span class="n">pc</span><span class="o">-&gt;</span><span class="n">jf</span><span class="p">;</span>
+			<span class="k">continue</span><span class="p">;</span>
+
+		<span class="k">case</span> <span class="n">BPF_JMP</span><span class="o">|</span><span class="n">BPF_JEQ</span><span class="o">|</span><span class="nl">BPF_X</span><span class="p">:</span>
+			<span class="n">pc</span> <span class="o">+=</span> <span class="p">(</span><span class="n">A</span> <span class="o">==</span> <span class="n">X</span><span class="p">)</span> <span class="o">?</span> <span class="n">pc</span><span class="o">-&gt;</span><span class="nl">jt</span> <span class="p">:</span> <span class="n">pc</span><span class="o">-&gt;</span><span class="n">jf</span><span class="p">;</span>
+			<span class="k">continue</span><span class="p">;</span>
+
+		<span class="k">case</span> <span class="n">BPF_JMP</span><span class="o">|</span><span class="n">BPF_JSET</span><span class="o">|</span><span class="nl">BPF_X</span><span class="p">:</span>
+			<span class="n">pc</span> <span class="o">+=</span> <span class="p">(</span><span class="n">A</span> <span class="o">&amp;</span> <span class="n">X</span><span class="p">)</span> <span class="o">?</span> <span class="n">pc</span><span class="o">-&gt;</span><span class="nl">jt</span> <span class="p">:</span> <span class="n">pc</span><span class="o">-&gt;</span><span class="n">jf</span><span class="p">;</span>
+			<span class="k">continue</span><span class="p">;</span>
+
+		<span class="k">case</span> <span class="n">BPF_ALU</span><span class="o">|</span><span class="n">BPF_ADD</span><span class="o">|</span><span class="nl">BPF_X</span><span class="p">:</span>
+			<span class="n">A</span> <span class="o">+=</span> <span class="n">X</span><span class="p">;</span>
+			<span class="k">continue</span><span class="p">;</span>
+			
+		<span class="k">case</span> <span class="n">BPF_ALU</span><span class="o">|</span><span class="n">BPF_SUB</span><span class="o">|</span><span class="nl">BPF_X</span><span class="p">:</span>
+			<span class="n">A</span> <span class="o">-=</span> <span class="n">X</span><span class="p">;</span>
+			<span class="k">continue</span><span class="p">;</span>
+			
+		<span class="k">case</span> <span class="n">BPF_ALU</span><span class="o">|</span><span class="n">BPF_MUL</span><span class="o">|</span><span class="nl">BPF_X</span><span class="p">:</span>
+			<span class="n">A</span> <span class="o">*=</span> <span class="n">X</span><span class="p">;</span>
+			<span class="k">continue</span><span class="p">;</span>
+			
+		<span class="k">case</span> <span class="n">BPF_ALU</span><span class="o">|</span><span class="n">BPF_DIV</span><span class="o">|</span><span class="nl">BPF_X</span><span class="p">:</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">X</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+				<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+			<span class="n">A</span> <span class="o">/=</span> <span class="n">X</span><span class="p">;</span>
+			<span class="k">continue</span><span class="p">;</span>
+			
+		<span class="k">case</span> <span class="n">BPF_ALU</span><span class="o">|</span><span class="n">BPF_AND</span><span class="o">|</span><span class="nl">BPF_X</span><span class="p">:</span>
+			<span class="n">A</span> <span class="o">&amp;=</span> <span class="n">X</span><span class="p">;</span>
+			<span class="k">continue</span><span class="p">;</span>
+			
+		<span class="k">case</span> <span class="n">BPF_ALU</span><span class="o">|</span><span class="n">BPF_OR</span><span class="o">|</span><span class="nl">BPF_X</span><span class="p">:</span>
+			<span class="n">A</span> <span class="o">|=</span> <span class="n">X</span><span class="p">;</span>
+			<span class="k">continue</span><span class="p">;</span>
+
+		<span class="k">case</span> <span class="n">BPF_ALU</span><span class="o">|</span><span class="n">BPF_LSH</span><span class="o">|</span><span class="nl">BPF_X</span><span class="p">:</span>
+			<span class="n">A</span> <span class="o">&lt;&lt;=</span> <span class="n">X</span><span class="p">;</span>
+			<span class="k">continue</span><span class="p">;</span>
+
+		<span class="k">case</span> <span class="n">BPF_ALU</span><span class="o">|</span><span class="n">BPF_RSH</span><span class="o">|</span><span class="nl">BPF_X</span><span class="p">:</span>
+			<span class="n">A</span> <span class="o">&gt;&gt;=</span> <span class="n">X</span><span class="p">;</span>
+			<span class="k">continue</span><span class="p">;</span>
+
+		<span class="k">case</span> <span class="n">BPF_ALU</span><span class="o">|</span><span class="n">BPF_ADD</span><span class="o">|</span><span class="nl">BPF_K</span><span class="p">:</span>
+			<span class="n">A</span> <span class="o">+=</span> <span class="n">pc</span><span class="o">-&gt;</span><span class="n">k</span><span class="p">;</span>
+			<span class="k">continue</span><span class="p">;</span>
+			
+		<span class="k">case</span> <span class="n">BPF_ALU</span><span class="o">|</span><span class="n">BPF_SUB</span><span class="o">|</span><span class="nl">BPF_K</span><span class="p">:</span>
+			<span class="n">A</span> <span class="o">-=</span> <span class="n">pc</span><span class="o">-&gt;</span><span class="n">k</span><span class="p">;</span>
+			<span class="k">continue</span><span class="p">;</span>
+			
+		<span class="k">case</span> <span class="n">BPF_ALU</span><span class="o">|</span><span class="n">BPF_MUL</span><span class="o">|</span><span class="nl">BPF_K</span><span class="p">:</span>
+			<span class="n">A</span> <span class="o">*=</span> <span class="n">pc</span><span class="o">-&gt;</span><span class="n">k</span><span class="p">;</span>
+			<span class="k">continue</span><span class="p">;</span>
+			
+		<span class="k">case</span> <span class="n">BPF_ALU</span><span class="o">|</span><span class="n">BPF_DIV</span><span class="o">|</span><span class="nl">BPF_K</span><span class="p">:</span>
+			<span class="n">A</span> <span class="o">/=</span> <span class="n">pc</span><span class="o">-&gt;</span><span class="n">k</span><span class="p">;</span>
+			<span class="k">continue</span><span class="p">;</span>
+			
+		<span class="k">case</span> <span class="n">BPF_ALU</span><span class="o">|</span><span class="n">BPF_AND</span><span class="o">|</span><span class="nl">BPF_K</span><span class="p">:</span>
+			<span class="n">A</span> <span class="o">&amp;=</span> <span class="n">pc</span><span class="o">-&gt;</span><span class="n">k</span><span class="p">;</span>
+			<span class="k">continue</span><span class="p">;</span>
+			
+		<span class="k">case</span> <span class="n">BPF_ALU</span><span class="o">|</span><span class="n">BPF_OR</span><span class="o">|</span><span class="nl">BPF_K</span><span class="p">:</span>
+			<span class="n">A</span> <span class="o">|=</span> <span class="n">pc</span><span class="o">-&gt;</span><span class="n">k</span><span class="p">;</span>
+			<span class="k">continue</span><span class="p">;</span>
+
+		<span class="k">case</span> <span class="n">BPF_ALU</span><span class="o">|</span><span class="n">BPF_LSH</span><span class="o">|</span><span class="nl">BPF_K</span><span class="p">:</span>
+			<span class="n">A</span> <span class="o">&lt;&lt;=</span> <span class="n">pc</span><span class="o">-&gt;</span><span class="n">k</span><span class="p">;</span>
+			<span class="k">continue</span><span class="p">;</span>
+
+		<span class="k">case</span> <span class="n">BPF_ALU</span><span class="o">|</span><span class="n">BPF_RSH</span><span class="o">|</span><span class="nl">BPF_K</span><span class="p">:</span>
+			<span class="n">A</span> <span class="o">&gt;&gt;=</span> <span class="n">pc</span><span class="o">-&gt;</span><span class="n">k</span><span class="p">;</span>
+			<span class="k">continue</span><span class="p">;</span>
+
+		<span class="k">case</span> <span class="n">BPF_ALU</span><span class="o">|</span><span class="nl">BPF_NEG</span><span class="p">:</span>
+			<span class="n">A</span> <span class="o">=</span> <span class="o">-</span><span class="n">A</span><span class="p">;</span>
+			<span class="k">continue</span><span class="p">;</span>
+
+		<span class="k">case</span> <span class="n">BPF_MISC</span><span class="o">|</span><span class="nl">BPF_TAX</span><span class="p">:</span>
+			<span class="n">X</span> <span class="o">=</span> <span class="n">A</span><span class="p">;</span>
+			<span class="k">continue</span><span class="p">;</span>
+
+		<span class="k">case</span> <span class="n">BPF_MISC</span><span class="o">|</span><span class="nl">BPF_TXA</span><span class="p">:</span>
+			<span class="n">A</span> <span class="o">=</span> <span class="n">X</span><span class="p">;</span>
+			<span class="k">continue</span><span class="p">;</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="参考阅读">参考阅读</h3>
+<p>[1]. Mccanne S , Jacobson V . The BSD Packet Filter: A New Architecture for User-level Packet Capture[C]// Proceedings of the USENIX Winter 1993 Conference Proceedings on USENIX Winter 1993 Conference Proceedings. USENIX Association, 1993.</p>
+]]></description>
+                
+                
+                
+                
+                
+                    
+                        
+                            
+                                
+                                
+                                
+                                    <category domain="https://chengshuyi.github.io/categories/linux%E5%86%85%E6%A0%B8/">linux内核</category>
+                                
+                            
+                        
+                    
+                        
+                            
+                                
+                                
+                                
+                                    <category domain="https://chengshuyi.github.io/tags/linux%E5%86%85%E6%A0%B8/">linux内核</category>
+                                
+                            
+                                
+                                
+                                
+                                    <category domain="https://chengshuyi.github.io/tags/bpf/">bpf</category>
+                                
+                            
+                        
+                    
+                
+            </item>
+        
+            <item>
+                <title>Lab4 - 实验笔记</title>
+                <link>https://chengshuyi.github.io/posts/course/mit6828/lab4/</link>
+                <guid isPermaLink="true">https://chengshuyi.github.io/posts/course/mit6828/lab4/</guid>
+                <pubDate>Sat, 25 Apr 2020 13:34:16 +0800</pubDate>
+                
+                    <author>c15271843451@outlook.com (程书意)</author>
+                
+                <copyright>[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh)</copyright>
+                
+                    <description><![CDATA[<p><a href="https://github.com/chengshuyi/jos-lab/commit/287d90ad016d0dbb6d1d275336c4007cc5c14931">lab4 实验代码：不过最后primes案例没过</a></p>
+<p><a href="https://github.com/chengshuyi/jos-lab/commit/d108ac413223571d2417293fe5ce66bda8ca3920">lab4实验代码patch1：通过primes案例</a></p>
+<p><a href="https://github.com/chengshuyi/jos-lab/commit/77e886ae1aeb99c42b604ec0b40bd9e05eb291a0">lab4实验代码patch2：小bug</a></p>
+<h3 id="multiprocessor-support-and-cooperative-multitasking">Multiprocessor Support and Cooperative Multitasking</h3>
+<ol>
+<li>将设备物理地址映射到内核虚拟地址空间（参考lab3的虚拟地址空间分布图）；</li>
+<li>通过核间终端启动其它的CPU，并告诉该CPU第一条指令的首地址；</li>
+<li>设置相关<code>per-cpu</code>变量，包括：Per-CPU kernel stack、Per-CPU TSS and TSS descriptor、Per-CPU current environment pointer和Per-CPU system registers（每个cpu独有的寄存器）；</li>
+<li>实现大内核锁；</li>
+<li>实现Round-Robin Scheduling；</li>
+<li>利用系统调用实现在用户态创建一个新的进程，也就是<code>fork</code>的方式，jos有两种实现方式，一种是dump_fork实现的，即在fork时为新进程分配内存；另外一种是基于copy-on-write的方式，即将父进程和子进程的页表项置为COW，在修改该页表项对应的物理页时会触发page fault异常，有该异常处理函数分配具体内存；</li>
+</ol>
+<h3 id="copy-on-write-fork">Copy-on-Write Fork</h3>
+<p>下面是用户空间出现页异常处理流程：</p>
+<ol>
+<li>通过系统调用注册进程自己的处理函数（在fork的时候配置的）；</li>
+<li>当页异常触发时，首先由内核异常处理函数处理，判断该错误地址是否发生在用户地址空间。如果是的话则将进程的esp指向进程异常栈；将错误信息保存在进程异常栈（在fork的时候分配的内存）里；将返回值指向进程异常处理函数；</li>
+<li>返回用户空间运行。</li>
+</ol>
+<p>下面是fork的流程：</p>
+<ol>
+<li>通过系统调用注册进程自己的处理函数；</li>
+<li>通过系统调用创建子进程；</li>
+<li>利用自映射机制可以快速遍历页表项，查看每个页表项的属性（低12位），如果该页存在的话，则将其映射到子进程的地址空间，并将其页表项型属性置为COW；然后修改自身的页表项的属性；（因为子进程和父进程都不能直接修改该页表项对应的物理页（原物理页），只能新建物理页并元物理页的内容拷贝进去。）</li>
+<li>为子进程分配进程异常栈；</li>
+<li>为子进程注册进程异常处理函数；（因为子进程运行的时候大部分的页属性是COW，也就是不可能自己通过系统调用注册进程异常处理函数）；</li>
+<li>修改子进程运行状态-》可运行状态。</li>
+</ol>
+<h3 id="preemptive-multitasking-and-inter-process-communication-ipc">Preemptive Multitasking and Inter-Process communication (IPC)</h3>
+<p>实现时钟中断，利用时钟中断完成任务的抢占；</p>
+<p>实现ipc，其ipc有如下机制：</p>
+<ol>
+<li>ipc是基于系统调用实现的，可以传递一个整数或者传递一个虚拟地址（对应着一个物理页）；</li>
+<li>ipc的发送方处于polling状态；</li>
+<li>ipc的接收方处于进程不可运行态，由ipc的发送方不断的尝试发送数据，发送成功后由发送方修改接收方的进程运行状态；</li>
+</ol>
+]]></description>
+                
+                
+                
+                
+                
+                    
+                        
+                            
+                                
+                                
+                                
+                                    <category domain="https://chengshuyi.github.io/categories/mit6828-os%E5%AE%9E%E9%AA%8C/">mit6828 OS实验</category>
+                                
+                            
+                        
+                    
+                        
+                            
+                                
+                                
+                                
+                                    <category domain="https://chengshuyi.github.io/tags/mit6828-os%E5%AE%9E%E9%AA%8C/">mit6828 OS实验</category>
+                                
+                            
+                        
+                    
+                
+            </item>
         
             <item>
                 <title>Lab3 - 实验笔记</title>
@@ -100,7 +993,7 @@
             </item>
         
             <item>
-                <title>Lab2</title>
+                <title>Lab2 - 实验笔记</title>
                 <link>https://chengshuyi.github.io/posts/course/mit6828/lab2/</link>
                 <guid isPermaLink="true">https://chengshuyi.github.io/posts/course/mit6828/lab2/</guid>
                 <pubDate>Sat, 25 Apr 2020 13:34:11 +0800</pubDate>
@@ -800,27 +1693,27 @@ f0100ade:	e8 b7 ff ff ff       	call   f0100a9a &lt;vcprintf&gt;
 <tr>
 <td align="center">读写方式</td>
 <td align="center">线形时间按字节随机读写</td>
-<td align="center">以页面为单位读写类似磁盘</td>
+<td align="center">以页面为单位读写，类似磁盘</td>
 </tr>
 <tr>
 <td align="center">读写速度</td>
 <td align="center">读取快，写入慢</td>
-<td align="center">快，2ms-5ms/块</td>
+<td align="center">读取慢，写入快</td>
 </tr>
 <tr>
 <td align="center">擦除时间</td>
 <td align="center">慢，2s-5s/块</td>
-<td align="center">高，出场可能有坏道</td>
+<td align="center">快，2ms-5ms/块</td>
 </tr>
 <tr>
 <td align="center">坏块比例</td>
 <td align="center">低，出厂一般没有坏道</td>
-<td align="center">高存储密度，尺寸小，价格低</td>
+<td align="center">高，出场可能有坏道</td>
 </tr>
 <tr>
 <td align="center">价格</td>
 <td align="center">低存储密度，尺寸大，价格高</td>
-<td align="center">接串行总线，I/O接口</td>
+<td align="center">高存储密度，尺寸小，价格低</td>
 </tr>
 <tr>
 <td align="center">接口形式</td>
@@ -835,7 +1728,7 @@ f0100ade:	e8 b7 ff ff ff       	call   f0100a9a &lt;vcprintf&gt;
 <tr>
 <td align="center">可靠性</td>
 <td align="center">高，位交换几率低</td>
-<td align="center">低，位交换几率高，必须采用错误探测/错误更 正（EDC/ECC）算法</td>
+<td align="center">低，位交换几率高，必须采用错误探测/错误更正（EDC/ECC）算法</td>
 </tr>
 <tr>
 <td align="center">XIP</td>
@@ -855,12 +1748,12 @@ f0100ade:	e8 b7 ff ff ff       	call   f0100a9a &lt;vcprintf&gt;
 <tr>
 <td align="center">编程方式</td>
 <td align="center">允许逐字节编程</td>
-<td align="center">页面编程，且每个页面的编程次数有限制</td>
+<td align="center">页面编程，且每个页面的编程次数有限制i</td>
 </tr>
 </tbody>
 </table>
 <h3 id="基于flash的文件系统">基于flash的文件系统</h3>
-<p>flash存储器的擦除次数是有限的，一般是$10^6$次。当某块执行过度的擦除操作后，这一块的存储空间将会变为“只读”状态，不能再写入数据。根据以上特点，为了避免某些块的过度操作，而导致存储卡使用寿命降低，设计专门针对flash存储器的文件系统是必要的。嵌入式文件系统要考虑得特性<sup id="fnref:4"><a href="#fn:4" class="footnote-ref" role="doc-noteref">4</a></sup>：</p>
+<p>flash存储器的擦除次数是有限的，一般是$10^6$次。当某块执行过度的擦除操作后，这一块的存储空间将会变为“只读”状态，不能再写入数据。根据以上特点，为了避免某些块的过度操作，而导致存储卡使用寿命降低，设计专门针对flash存储器的文件系统是必要的。嵌入式文件系统要考虑的特性<sup id="fnref:4"><a href="#fn:4" class="footnote-ref" role="doc-noteref">4</a></sup>：</p>
 <ul>
 <li>数据压缩：通过压缩算法不仅可以降低数据的容量，而且间接的加速了I/O；</li>
 <li>坏块管理：坏块通常使用带外区域中的特定标记来标识；</li>
@@ -887,12 +1780,14 @@ f0100ade:	e8 b7 ff ff ff       	call   f0100a9a &lt;vcprintf&gt;
 </ol>
 <h5 id="垃圾回收">垃圾回收</h5>
 <p>jffs2的垃圾收集技术的原理：当需要增添新内容时，就在节点链表的末端添加新的节点存储新的内容；若要修改文
-件的某部分，jffs2将该部分<strong>标记为废弃</strong>，并在节点<strong>链表末端添加修改后的内容</strong>。JFFS2如此不断地在flash上添加新的内容，当flash上的存储空间用完时,系统就回收标记为废弃的空间，该过程就称为垃圾收集。垃圾收集进程(简称GC进程)专门负责该项工作。下面是jffs2 GC进程的工作流程：</p>
+件的某部分，jffs2将该部分<strong>标记为废弃</strong>，并在节点<strong>链表末端添加修改后的内容</strong>。jffs2如此不断地在flash上添加新的内容，当flash上的存储空间用完时,系统就回收标记为废弃的空间，该过程就称为垃圾收集。垃圾收集进程(简称GC进程)专门负责该项工作。下面是jffs2 GC进程的工作流程：</p>
 <ol>
 <li>当系统的空闲块数小于6时，GC进程会被唤醒；</li>
 <li>GC进程每次只回收一个空闲块；</li>
 <li>如果此时flash上的空闲块数仍小于6，那么GC进程必须再回收一个空闲块，直到总的空闲块数达到6为止。</li>
 </ol>
+<h5 id="断电保护">断电保护</h5>
+<p>断电保护技术的实现依赖于jffs2的日志式存储结构。当系统遭受不正常断电后重新启动时，jffs2自动将系统恢复到断电前最后一个稳定状态。</p>
 <h4 id="yaffs27">yaffs2<sup id="fnref:6"><a href="#fn:6" class="footnote-ref" role="doc-noteref">6</a></sup></h4>
 <h5 id="数据压缩-1">数据压缩</h5>
 <p>暂无</p>
@@ -917,7 +1812,7 @@ f0100ade:	e8 b7 ff ff ff       	call   f0100a9a &lt;vcprintf&gt;
 <p>ubifs同jffs2的三个主要区别：</p>
 <ul>
 <li>jffs2将索引（inode）节点存储在内存上，ubifs将索引节点存储在闪存上 ；</li>
-<li>运行在MTD设备层之上，ubifs运行在ubi层之上；</li>
+<li>jffs2运行在MTD设备层之上，ubifs运行在ubi层之上；</li>
 <li>jffs2不支持回写（write-back），而ubifs支持回写技术。</li>
 </ul>
 <h5 id="坏块管理-2">坏块管理</h5>
@@ -1000,6 +1895,97 @@ f0100ade:	e8 b7 ff ff ff       	call   f0100a9a &lt;vcprintf&gt;
                                 
                                 
                                     <category domain="https://chengshuyi.github.io/tags/ubifs/">ubifs</category>
+                                
+                            
+                        
+                    
+                
+            </item>
+        
+            <item>
+                <title>进程虚拟地址空间</title>
+                <link>https://chengshuyi.github.io/posts/linux-kernel/%E8%BF%9B%E7%A8%8B%E8%99%9A%E6%8B%9F%E5%9C%B0%E5%9D%80%E7%A9%BA%E9%97%B4/</link>
+                <guid isPermaLink="true">https://chengshuyi.github.io/posts/linux-kernel/%E8%BF%9B%E7%A8%8B%E8%99%9A%E6%8B%9F%E5%9C%B0%E5%9D%80%E7%A9%BA%E9%97%B4/</guid>
+                <pubDate>Sat, 04 Apr 2020 19:31:04 +0800</pubDate>
+                
+                    <author>c15271843451@outlook.com (程书意)</author>
+                
+                <copyright>[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh)</copyright>
+                
+                    <description><![CDATA[<h3 id="进程地址空间布局">进程地址空间布局</h3>
+<p>下图是虚拟地址空间分布<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>。</p>
+<p><img src="https://gitee.com/chengshuyi/scripts/raw/master/img/p803C.png" alt="虚拟地址空间内存分布"></p>
+<p>我们的运行文件是elf格式的，在我们运行程序时，linux通过<code>load_elf_binary</code>函数建立上图的地址空间。</p>
+<h3 id="内存描述符mm_struct">内存描述符mm_struct</h3>
+<p>内核使用内存描述符结构体表示进程的地址空间，该结构包含了和进程地址空间有关的全部信息。内存描述符由<code>struct mm_struct</code>结构体表示。下面给出内存描述符的结构和各个域的描述：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="k">struct</span> <span class="n">mm_struct</span> <span class="p">{</span> 
+    <span class="k">struct</span> <span class="n">vm_area_struct</span> <span class="o">*</span> <span class="n">mmap</span><span class="p">;</span> 		<span class="cm">/* 虚拟内存区域列表 */</span> 
+    <span class="k">struct</span> <span class="n">rb_root</span> <span class="n">mm_rb</span><span class="p">;</span> 
+    <span class="k">struct</span> <span class="n">vm_area_struct</span> <span class="o">*</span> <span class="n">mmap_cache</span><span class="p">;</span> <span class="cm">/* 上一次find_vma的结果 */</span> 
+	<span class="p">...</span> 
+    <span class="c1">// 地址空间的各种段：栈段、mmap、堆...
+</span><span class="c1"></span><span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><code>mmap</code>成员使用单独链表连接所有的内存区域对象，所有的区域按地址增长的方向排序，mmap域指向链表中第一个内存区域。<code>mm_rb</code>域使用红一黑树连接所有的内存区域对象。mm域指向红一黑树的根节点。</p>
+<p><img src="https://gitee.com/chengshuyi/scripts/raw/master/img/image-20200329094122782.png" alt=""></p>
+<h3 id="虚拟内存区域vm_area_struct">虚拟内存区域vm_area_struct</h3>
+<p><code>struct vm_area_struct</code>结构体描述了指定地址空间内连续区间上的一个独立内存范围。内核将每个内存区域作为一个单独的内存对象管理，每个内存区域都拥有一致的属性，比如访问权限等，另外，相应的操作也都一致。按照这样的方式，每一个VMA就可以代表不同类型的内存区域~~（比如内存映射文件或者进程用户空间栈）~~，下面给出该结构定义和各个域的描述；</p>
+<p><img src="https://gitee.com/chengshuyi/scripts/raw/master/img/20200406175943.png" alt=""></p>
+<h4 id="查找vma">查找VMA</h4>
+<ol>
+<li><code>find_vma</code>函数：该函数在指定的地址空间中搜索第一个<code>vm_end</code>大于addr的内存区域。换句话说，该函数寻找第一个包含addr或首地址大于addr的内存区域，如果没有发现这样的区域，该函数返回NULL。否则返回指向匹配的内存区域的<code>vm_area_struct</code>结构体指针。注意，由于返回的VMA首地址可能大于addr，所以指定的地址并不一定就包含在返回的VMA中。因为很有可能在对某个VMA执行操作后，还有其他更多的操作会对该VMA接着进行操作，所以<code>find_vma()</code>函数返回的结果被缓存在内存描述符的<code>mmap_cache</code>域中。</li>
+<li><code>find_vma_prev</code>函数：返回第一个首地址小于addr的VMA。</li>
+<li><code>find_vma_intersection</code>函数：返回第一个和指定地址区间相交的VMA。</li>
+</ol>
+<h4 id="创建vma">创建VMA</h4>
+<p>内核使用<code>do_mmap()</code>函数创建一个新的线性地址区间。但是说该函数创建了一个新VMA并不非常准确，因为如果创建的地址区间和一个已经存在的地址区间相邻，并且它们具有相同的访问权限的话，两个区间将合并为一个。如果不能合并，就确实需要创建一个新的VMA了。</p>
+<h4 id="删除vma">删除VMA</h4>
+<p>undone</p>
+<h3 id="堆的管理">堆的管理</h3>
+<h3 id="参考链接">参考链接</h3>
+<section class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1" role="doc-endnote">
+<p><a href="https://stackoverflow.com/questions/32746996/how-linux-process-address-space-is-stored">How “linux process address space” is stored?</a> <a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</section>
+]]></description>
+                
+                
+                
+                
+                
+                    
+                        
+                            
+                                
+                                
+                                
+                                    <category domain="https://chengshuyi.github.io/categories/linux%E5%86%85%E6%A0%B8/">linux内核</category>
+                                
+                            
+                        
+                    
+                        
+                            
+                                
+                                
+                                
+                                    <category domain="https://chengshuyi.github.io/tags/linux%E5%86%85%E6%A0%B8/">linux内核</category>
                                 
                             
                         
@@ -2307,6 +3293,278 @@ $$
                                     <category domain="https://chengshuyi.github.io/tags/c%E8%AF%AD%E8%A8%80c%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/">c语言、c语言基础概念</category>
                                 
                             
+                        
+                    
+                
+            </item>
+        
+            <item>
+                <title></title>
+                <link>https://chengshuyi.github.io/posts/computer-network/untitled/</link>
+                <guid isPermaLink="true">https://chengshuyi.github.io/posts/computer-network/untitled/</guid>
+                <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+                
+                    <author>c15271843451@outlook.com (程书意)</author>
+                
+                <copyright>[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh)</copyright>
+                
+                    <description><![CDATA[<p>Two key network-core functions</p>
+<p>​	routing</p>
+<p>​	forwarding</p>
+<p>Alternative core: circuit switching</p>
+<p><img src="https://gitee.com/chengshuyi/scripts/raw/master/img/20200429211649.png" alt=""></p>
+<p>four sources of packet delay</p>
+<p><img src="https://gitee.com/chengshuyi/scripts/raw/master/img/20200429211926.png" alt=""></p>
+<p>securty</p>
+<p>​	packet sniffing:broadcast media</p>
+<p>​	ip spoofing: send packet with false source address</p>
+<p>Application architectures</p>
+<p>​	client-server
+​	peer-to-peer (P2P)</p>
+<p>​	TCP service:
+reliable transport between sending and receiving process
+flow control: sender won’t overwhelm receiver
+congestion control: throttle sender when network overloaded
+does not provide: timing, minimum throughput guarantee, security
+connection-oriented: setup required between client and server processes</p>
+<p>UDP service:
+unreliable data transfer between sending and receiving process
+does not provide: reliability, flow control, congestion control, timing, throughput guarantee, security, or connection setup,</p>
+<p>Q: why bother?  Why is there a UDP?</p>
+<p>securing tcp</p>
+<p>web and http</p>
+<p>​	non-persistent HTTP</p>
+<p>​	persistent HTTP</p>
+<hr>
+<h3 id="国立清华大学">国立清华大学</h3>
+<p>domain name(domain name server) -&gt; ip address :  about 6 message to find ip address</p>
+<p>3 message for connection establishment of tcp</p>
+<p>4</p>
+<p>4</p>
+<p>point-to-point  multiple access</p>
+<p>peer-to-peer</p>
+<p>spanning tree：任何两个结点之间只有一条路径</p>
+<p>封包最大值 每个网路不一样</p>
+<p>statistical multiplexing:fifo rr priorities</p>
+<p>bandwidth</p>
+<p>latency</p>
+]]></description>
+                
+                
+                
+                
+                
+                    
+                        
+                    
+                        
+                    
+                
+            </item>
+        
+            <item>
+                <title></title>
+                <link>https://chengshuyi.github.io/posts/cse/</link>
+                <guid isPermaLink="true">https://chengshuyi.github.io/posts/cse/</guid>
+                <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+                
+                    <author>c15271843451@outlook.com (程书意)</author>
+                
+                <copyright>[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh)</copyright>
+                
+                    <description><![CDATA[<p>01
+Coping with complexity<br>
+Modularity
+Abstraction
+Layering
+Hierarchy
+Start with a small group of modules
+Assemble them into a stable, self-contained subsystem with well defined interface Assemble a group of subsystems to a larger subsystem</p>
+<p>02
+<img src="https://gitee.com/chengshuyi/scripts/raw/master/img/20200427112323.png" alt=""></p>
+<p>L1: Block Layer
+Mapping: block number -&gt; block data
+Super Block
+the size of block
+which block is free
+Kernel reads superblock when mount the FS
+L2: File Layer
+inode (index node)
+A container for metadata about the file
+block, indrect block, double indirect block, triple indirect block</p>
+<p>L3: inode Number Layer
+Mapping: inode number -&gt; inode</p>
+<pre><code>![](https://gitee.com/chengshuyi/scripts/raw/master/img/20200427113436.png)
+inode number is enough to operate a file 
+</code></pre>
+<p>L4: File Name Layer
+L5: Path Name Layer
+link
+unlink
+rename
+L6: Absolute Path Name Layer
+L7: Symbolic LinkLayer
+mount
+Record the device and the root inode number of the file system in memory
+Record in the in-memory version of the inode for &quot;/dev/fd1&quot; its parent’s inode
+link</p>
+<p>FAT (File Allocation Table) File System
+File is collection of disk blocks
+In FAT: file attributes are kept in directory</p>
+<p>03
+Directly Dump a Directory
+Two Types of Links
+Hard link
+Soft link
+Soft link can create cycle by SYMLINK(&quot;a&quot;, &quot;a&quot;)
+<img src="https://gitee.com/chengshuyi/scripts/raw/master/img/20200427133254.png" alt="">
+--</p>
+]]></description>
+                
+                
+                
+                
+                
+                    
+                        
+                    
+                        
+                    
+                
+            </item>
+        
+            <item>
+                <title></title>
+                <link>https://chengshuyi.github.io/posts/leet/</link>
+                <guid isPermaLink="true">https://chengshuyi.github.io/posts/leet/</guid>
+                <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+                
+                    <author>c15271843451@outlook.com (程书意)</author>
+                
+                <copyright>[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh)</copyright>
+                
+                    <description><![CDATA[<p>notes1</p>
+<p>A relation is an unordered set that contains the relationship of attributes that represent entities. Since the
+relationships are unordered, the DBMS can store them in any way it wants, allowing for optimization.</p>
+<p>A tuple is a set of attribute values (also known as its domain) in the relation. Originally, values had to be
+atomic or scalar, but now values can also be lists or nested data structures. Every attribute can be a special
+value, NULL, which means for a given tuple the attribute is undefined.</p>
+<p>A relation with n attributes is called an n-ary relation.</p>
+<p>Data Manipulation Languages (DMLs)
+Relational Algebra</p>
+<p>select type,primary_title,runtime_minutes from titles where runtime_minutes in (select runtime_minutes from titles order by runtime_minutes desc limit 1) order by type asc, primary_title asc;</p>
+<p>select type, count(<em>) FROM titles GROUP BY type ORDER BY count(</em>) ASC</p>
+<p>select cast(premiered/10<em>10 as varchar)||'s',count(</em>) from titles where premiered NOT NULL group by premiered/10;</p>
+<p>select cast(premiered/10<em>10 as varchar)||'s',round(count(</em>)<em>100.0/(select count(</em>) from titles),4) from titles where premiered NOT NULL group by premiered/10;</p>
+<p>select primary_title,b.num from titles as a, (select title_id,count(<em>) as num from akas group by title_id order by count(</em>) desc limit 10) as b where a.title_id = b.title_id;</p>
+]]></description>
+                
+                
+                
+                
+                
+                    
+                        
+                    
+                        
+                    
+                
+            </item>
+        
+            <item>
+                <title></title>
+                <link>https://chengshuyi.github.io/posts/linux-kernel/untitled/</link>
+                <guid isPermaLink="true">https://chengshuyi.github.io/posts/linux-kernel/untitled/</guid>
+                <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+                
+                    <author>c15271843451@outlook.com (程书意)</author>
+                
+                <copyright>[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh)</copyright>
+                
+                    <description><![CDATA[<p>SYSCALL_DEFINE3(read, unsigned int, fd, char __user *, buf, size_t, count)</p>
+<p>call ksys_read</p>
+<p>​	call fdget_pos // convert long fd to struct fd</p>
+<p>​	call vfs_read</p>
+<p>​		call rw_verify_area</p>
+<p>​		call __vfs_read</p>
+<p>​			call file-&gt;f_op-&gt;read(file, buf, count, pos);</p>
+<p>假设我们使用的ext4文件系统</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="k">const</span> <span class="k">struct</span> <span class="n">file_operations</span> <span class="n">ext4_file_operations</span> <span class="o">=</span> <span class="p">{</span>
+	<span class="p">.</span><span class="n">llseek</span>		<span class="o">=</span> <span class="n">ext4_llseek</span><span class="p">,</span>
+	<span class="p">.</span><span class="n">read_iter</span>	<span class="o">=</span> <span class="n">ext4_file_read_iter</span><span class="p">,</span>
+	<span class="p">.</span><span class="n">write_iter</span>	<span class="o">=</span> <span class="n">ext4_file_write_iter</span><span class="p">,</span>
+	<span class="p">.</span><span class="n">unlocked_ioctl</span> <span class="o">=</span> <span class="n">ext4_ioctl</span><span class="p">,</span>
+<span class="cp">#ifdef CONFIG_COMPAT
+</span><span class="cp"></span>	<span class="p">.</span><span class="n">compat_ioctl</span>	<span class="o">=</span> <span class="n">ext4_compat_ioctl</span><span class="p">,</span>
+<span class="cp">#endif
+</span><span class="cp"></span>	<span class="p">.</span><span class="n">mmap</span>		<span class="o">=</span> <span class="n">ext4_file_mmap</span><span class="p">,</span>
+	<span class="p">.</span><span class="n">mmap_supported_flags</span> <span class="o">=</span> <span class="n">MAP_SYNC</span><span class="p">,</span>
+	<span class="p">.</span><span class="n">open</span>		<span class="o">=</span> <span class="n">ext4_file_open</span><span class="p">,</span>
+	<span class="p">.</span><span class="n">release</span>	<span class="o">=</span> <span class="n">ext4_release_file</span><span class="p">,</span>
+	<span class="p">.</span><span class="n">fsync</span>		<span class="o">=</span> <span class="n">ext4_sync_file</span><span class="p">,</span>
+	<span class="p">.</span><span class="n">get_unmapped_area</span> <span class="o">=</span> <span class="n">thp_get_unmapped_area</span><span class="p">,</span>
+	<span class="p">.</span><span class="n">splice_read</span>	<span class="o">=</span> <span class="n">generic_file_splice_read</span><span class="p">,</span>
+	<span class="p">.</span><span class="n">splice_write</span>	<span class="o">=</span> <span class="n">iter_file_splice_write</span><span class="p">,</span>
+	<span class="p">.</span><span class="n">fallocate</span>	<span class="o">=</span> <span class="n">ext4_fallocate</span><span class="p">,</span>
+<span class="p">};</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>call ext4_file_read_iter</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c">	<span class="k">if</span> <span class="p">(</span><span class="n">iocb</span><span class="o">-&gt;</span><span class="n">ki_flags</span> <span class="o">&amp;</span> <span class="n">IOCB_DIRECT</span><span class="p">)</span>
+		<span class="k">return</span> <span class="n">ext4_dio_read_iter</span><span class="p">(</span><span class="n">iocb</span><span class="p">,</span> <span class="n">to</span><span class="p">);</span>
+
+	<span class="k">return</span> <span class="nf">generic_file_read_iter</span><span class="p">(</span><span class="n">iocb</span><span class="p">,</span> <span class="n">to</span><span class="p">);</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>call generic_file_read_iter</p>
+<p>call generic_file_buffered_read</p>
+<p>check page cache</p>
+<p>call error = mapping-&gt;a_ops-&gt;readpage(filp, page);</p>
+<p>(1) 页缓存（page cache）针对以页为单位的所有操作，并考虑了特定体系结构上的页长度。一个</p>
+<p>主要的例子是许多章讨论过的内存映射技术。因为其他类型的文件访问也是基于内核中的这一技术实</p>
+<p>现的，所以页缓存实际上负责了块设备的大部分缓存工作。</p>
+<p>(2) 块缓存（buffer cache）以块为操作单位。在进行I/O操作时，存取的单位是设备的各个块，而</p>
+<p>不是整个内存页。尽管页长度对所有文件系统都是相同的，但块长度取决于特定的文件系统或其设置。</p>
+<p>因而，块缓存必须能够处理不同长度的块。</p>
+]]></description>
+                
+                
+                
+                
+                
+                    
+                        
+                    
                         
                     
                 
