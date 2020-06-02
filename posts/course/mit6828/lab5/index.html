@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+    <head prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article#">
+    <meta charset="UTF-8" />
+
+    <meta name="generator" content="Hugo 0.68.3" /><meta name="theme-color" content="#fff" />
+        <script>
+            const userPrefers = localStorage.getItem('theme');
+            const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+            const lightModeMediaQuery = window.matchMedia('(prefers-color-scheme: light)');
+            if (userPrefers === 'dark') {
+                changeModeMeta('dark');
+            } else if (userPrefers === 'light') {
+                changeModeMeta('light');
+            } else if (darkModeMediaQuery.matches) {
+                changeModeMeta('dark');
+            } else if (lightModeMediaQuery.matches) {
+                changeModeMeta('light');
+            }
+            function changeModeMeta(theme) {
+                document.documentElement.setAttribute('data-theme', theme);
+                if (theme === 'dark') {
+                    changeThemeColor('#282a36');
+                } else {
+                    changeThemeColor('#fff');
+                }
+            }
+            function changeThemeColor(themeColor) {
+                document.querySelector('meta[name="theme-color"]').setAttribute('content', themeColor);
+            }
+        </script>
+
+    
+
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes" />
+    
+    <meta name="format-detection" content="telephone=no, date=no, address=no, email=no" />
+    
+    <meta http-equiv="Cache-Control" content="no-transform" />
+    
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+
+    <title>Lab5 - 实验笔记 | 程书意</title>
+
+    <link rel="stylesheet" href="/css/meme.min.7017b47455e4b6bed857c02833f6d06f858f9a254053e88aca9d919df7fa0b9c.css" integrity="sha256-cBe0dFXktr7YV8AoM/bQb4WPmiVAU+iKyp2Rnff6C5w=" />
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB&#43;Garamond:ital,wght@0,400;0,500;0,700;1,400;1,700&amp;family=Noto&#43;Serif&#43;SC:wght@400;500;700&amp;family=Source&#43;Code&#43;Pro:ital,wght@0,400;0,700;1,400;1,700&amp;display=swap" media="print" onload="this.media='all'" />
+        <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB&#43;Garamond:ital,wght@0,400;0,500;0,700;1,400;1,700&amp;family=Noto&#43;Serif&#43;SC:wght@400;500;700&amp;family=Source&#43;Code&#43;Pro:ital,wght@0,400;0,700;1,400;1,700&amp;display=swap" /></noscript>
+
+    <meta name="author" content="程书意" />
+    
+    
+    <meta name="description" content="文件系统架构 在init.c通过ENV_CREATE(fs_fs, ENV_TYPE_FS);创建一个专用于文件系统的进程，该进程提供了文件系统的管理，包括读取文件、写入文……" />
+
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="mask-icon" href="/icons/safari-pinned-tab.svg" color="#2a6df4" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="程书意" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="application-name" content="程书意" />
+    <meta name="msapplication-starturl" content="../../../../" />
+    <meta name="msapplication-TileColor" content="#fff" />
+    <meta name="msapplication-TileImage" content="../../../../icons/mstile-150x150.png" />
+    <link rel="manifest" href="/manifest.json" />
+
+    
+    
+
+    
+    <link rel="canonical" href="https://chengshuyi.github.io/posts/course/mit6828/lab5/" />
+
+
+
+<script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "datePublished": "2020-04-25T13:34:18+08:00",
+        "dateModified": "2020-06-02T14:44:30+00:00",
+        "url": "https://chengshuyi.github.io/posts/course/mit6828/lab5/",
+        "headline": "Lab5 - 实验笔记",
+        "description": "文件系统架构 在init.c通过ENV_CREATE(fs_fs, ENV_TYPE_FS);创建一个专用于文件系统的进程，该进程提供了文件系统的管理，包括读取文件、写入文……",
+        "inLanguage" : "zh-CN",
+        "articleSection": "posts",
+        "wordCount":  2982 ,
+        "image": "https://chengshuyi.github.io/icons/apple-touch-icon.png",
+        "author": {
+            "@type": "Person",
+            "description": "技术宅",
+            "email": "c15271843451@outlook.com",
+            "image": "https://chengshuyi.github.io/icons/apple-touch-icon.png",
+            "url": "https://chengshuyi.github.io",
+            "name": "程书意"
+        },
+        "license": "[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh)",
+        "publisher": {
+            "@type": "Organization",
+            "name": "程书意",
+            "logo": {
+                "@type": "ImageObject",
+                "url": "https://chengshuyi.github.io/icons/apple-touch-icon.png"
+            },
+            "url": "https://chengshuyi.github.io/"
+        },
+        "mainEntityOfPage": {
+            "@type": "WebSite",
+            "@id": "https://chengshuyi.github.io/"
+        }
+    }
+</script>
+
+    
+
+
+
+<meta name="twitter:card" content="summary" />
+
+<meta name="twitter:site" content="@reuixiy" />
+<meta name="twitter:creator" content="@无" />
+
+    
+
+
+
+
+
+<meta property="og:title" content="Lab5 - 实验笔记" />
+<meta property="og:description" content="文件系统架构 在init.c通过ENV_CREATE(fs_fs, ENV_TYPE_FS);创建一个专用于文件系统的进程，该进程提供了文件系统的管理，包括读取文件、写入文……" />
+<meta property="og:url" content="https://chengshuyi.github.io/posts/course/mit6828/lab5/" />
+<meta property="og:site_name" content="程书意" />
+<meta property="og:locale" content="zh" /><meta property="og:image" content="https://chengshuyi.github.io/icons/apple-touch-icon.png" />
+    <meta property="og:type" content="article" />
+    <meta property="article:published_time" content="2020-04-25T13:34:18+08:00" />
+    <meta property="article:modified_time" content="2020-06-02T14:44:30+00:00" />
+    
+    <meta property="article:section" content="posts" />
+
+
+
+    
+</head>
+
+    <body>
+        <div class="container">
+            
+    <header class="header" data-scroll-header>
+        
+            <div class="header-wrapper">
+                <div class="header-inner">
+                    
+    <div class="site-brand">
+        
+            <a href="/" class="brand">程书意</a>
+        
+    </div>
+
+                    <nav class="nav">
+    <ul class="menu" id="menu">
+        
+            
+        
+        
+        
+        
+            
+                <li class="menu-item"><a href="/posts/"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon "><path d="M32 448c0 17.7 14.3 32 32 32h384c17.7 0 32-14.3 32-32V160H32v288zm160-212c0-6.6 5.4-12 12-12h104c6.6 0 12 5.4 12 12v8c0 6.6-5.4 12-12 12H204c-6.6 0-12-5.4-12-12v-8zM480 32H32C14.3 32 0 46.3 0 64v48c0 8.8 7.2 16 16 16h480c8.8 0 16-7.2 16-16V64c0-17.7-14.3-32-32-32z"/></svg><span class="menu-item-name">文章</span></a>
+                </li>
+            
+        
+            
+                <li class="menu-item"><a href="/categories/"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon "><path d="M149.333 56v80c0 13.255-10.745 24-24 24H24c-13.255 0-24-10.745-24-24V56c0-13.255 10.745-24 24-24h101.333c13.255 0 24 10.745 24 24zm181.334 240v-80c0-13.255-10.745-24-24-24H205.333c-13.255 0-24 10.745-24 24v80c0 13.255 10.745 24 24 24h101.333c13.256 0 24.001-10.745 24.001-24zm32-240v80c0 13.255 10.745 24 24 24H488c13.255 0 24-10.745 24-24V56c0-13.255-10.745-24-24-24H386.667c-13.255 0-24 10.745-24 24zm-32 80V56c0-13.255-10.745-24-24-24H205.333c-13.255 0-24 10.745-24 24v80c0 13.255 10.745 24 24 24h101.333c13.256 0 24.001-10.745 24.001-24zm-205.334 56H24c-13.255 0-24 10.745-24 24v80c0 13.255 10.745 24 24 24h101.333c13.255 0 24-10.745 24-24v-80c0-13.255-10.745-24-24-24zM0 376v80c0 13.255 10.745 24 24 24h101.333c13.255 0 24-10.745 24-24v-80c0-13.255-10.745-24-24-24H24c-13.255 0-24 10.745-24 24zm386.667-56H488c13.255 0 24-10.745 24-24v-80c0-13.255-10.745-24-24-24H386.667c-13.255 0-24 10.745-24 24v80c0 13.255 10.745 24 24 24zm0 160H488c13.255 0 24-10.745 24-24v-80c0-13.255-10.745-24-24-24H386.667c-13.255 0-24 10.745-24 24v80c0 13.255 10.745 24 24 24zM181.333 376v80c0 13.255 10.745 24 24 24h101.333c13.255 0 24-10.745 24-24v-80c0-13.255-10.745-24-24-24H205.333c-13.255 0-24 10.745-24 24z"/></svg><span class="menu-item-name">分类</span></a>
+                </li>
+            
+        
+            
+                <li class="menu-item"><a href="/tags/"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" class="icon "><path d="M497.941 225.941L286.059 14.059A48 48 0 0 0 252.118 0H48C21.49 0 0 21.49 0 48v204.118a48 48 0 0 0 14.059 33.941l211.882 211.882c18.744 18.745 49.136 18.746 67.882 0l204.118-204.118c18.745-18.745 18.745-49.137 0-67.882zM112 160c-26.51 0-48-21.49-48-48s21.49-48 48-48 48 21.49 48 48-21.49 48-48 48zm513.941 133.823L421.823 497.941c-18.745 18.745-49.137 18.745-67.882 0l-.36-.36L527.64 323.522c16.999-16.999 26.36-39.6 26.36-63.64s-9.362-46.641-26.36-63.64L331.397 0h48.721a48 48 0 0 1 33.941 14.059l211.882 211.882c18.745 18.745 18.745 49.137 0 67.882z"/></svg><span class="menu-item-name">标签</span></a>
+                </li>
+            
+        
+            
+                <li class="menu-item"><a href="/about/"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512" class="icon "><path d="M248 8C111 8 0 119 0 256s111 248 248 248 248-111 248-248S385 8 248 8zm0 96c48.6 0 88 39.4 88 88s-39.4 88-88 88-88-39.4-88-88 39.4-88 88-88zm0 344c-58.7 0-111.3-26.6-146.5-68.2 18.8-35.4 55.6-59.8 98.5-59.8 2.4 0 4.8.4 7.1 1.1 13 4.2 26.6 6.9 40.9 6.9 14.3 0 28-2.7 40.9-6.9 2.3-.7 4.7-1.1 7.1-1.1 42.9 0 79.7 24.4 98.5 59.8C359.3 421.4 306.7 448 248 448z"/></svg><span class="menu-item-name">关于</span></a>
+                </li>
+            
+        
+            
+                
+                    <li class="menu-item">
+                        
+    
+        
+            
+        
+        <div id="theme-switcher">🌞</div>
+    
+
+
+                    </li>
+                
+            
+        
+            
+                
+            
+        
+    </ul>
+</nav>
+
+                </div>
+            </div>
+            
+    <input type="checkbox" id="nav-toggle" aria-hidden="true" />
+    <label for="nav-toggle" class="nav-toggle"></label>
+    <label for="nav-toggle" class="nav-curtain"></label>
+
+
+        
+    </header>
+
+
+
+
+            
+            
+    <main class="main single" id="main">
+    <div class="main-inner">
+
+        <article class="content post" data-align="justify" data-type="posts" data-toc-num="true">
+
+            <h1 class="post-title">Lab5 - 实验笔记</h1>
+
+            
+
+            
+                
+            
+
+            
+                
+
+<div class="post-meta">
+    
+        
+        <time datetime="2020-04-25T13:34:18+08:00" class="post-meta-item published"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="icon post-meta-icon"><path d="M148 288h-40c-6.6 0-12-5.4-12-12v-40c0-6.6 5.4-12 12-12h40c6.6 0 12 5.4 12 12v40c0 6.6-5.4 12-12 12zm108-12v-40c0-6.6-5.4-12-12-12h-40c-6.6 0-12 5.4-12 12v40c0 6.6 5.4 12 12 12h40c6.6 0 12-5.4 12-12zm96 0v-40c0-6.6-5.4-12-12-12h-40c-6.6 0-12 5.4-12 12v40c0 6.6 5.4 12 12 12h40c6.6 0 12-5.4 12-12zm-96 96v-40c0-6.6-5.4-12-12-12h-40c-6.6 0-12 5.4-12 12v40c0 6.6 5.4 12 12 12h40c6.6 0 12-5.4 12-12zm-96 0v-40c0-6.6-5.4-12-12-12h-40c-6.6 0-12 5.4-12 12v40c0 6.6 5.4 12 12 12h40c6.6 0 12-5.4 12-12zm192 0v-40c0-6.6-5.4-12-12-12h-40c-6.6 0-12 5.4-12 12v40c0 6.6 5.4 12 12 12h40c6.6 0 12-5.4 12-12zm96-260v352c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V112c0-26.5 21.5-48 48-48h48V12c0-6.6 5.4-12 12-12h40c6.6 0 12 5.4 12 12v52h128V12c0-6.6 5.4-12 12-12h40c6.6 0 12 5.4 12 12v52h48c26.5 0 48 21.5 48 48zm-48 346V160H48v298c0 3.3 2.7 6 6 6h340c3.3 0 6-2.7 6-6z"/></svg>&nbsp;2020.4.25</time>
+    
+    
+        
+        <time datetime="2020-06-02T14:44:30+00:00" class="post-meta-item modified"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="icon post-meta-icon"><path d="M400 64h-48V12c0-6.627-5.373-12-12-12h-40c-6.627 0-12 5.373-12 12v52H160V12c0-6.627-5.373-12-12-12h-40c-6.627 0-12 5.373-12 12v52H48C21.49 64 0 85.49 0 112v352c0 26.51 21.49 48 48 48h352c26.51 0 48-21.49 48-48V112c0-26.51-21.49-48-48-48zm-6 400H54a6 6 0 0 1-6-6V160h352v298a6 6 0 0 1-6 6zm-52.849-200.65L198.842 404.519c-4.705 4.667-12.303 4.637-16.971-.068l-75.091-75.699c-4.667-4.705-4.637-12.303.068-16.971l22.719-22.536c4.705-4.667 12.303-4.637 16.97.069l44.104 44.461 111.072-110.181c4.705-4.667 12.303-4.637 16.971.068l22.536 22.718c4.667 4.705 4.636 12.303-.069 16.97z"/></svg>&nbsp;2020.6.2</time>
+    
+    
+    
+        
+        
+        
+            
+                
+                <span class="post-meta-item category"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon post-meta-icon"><path d="M464 128H272l-54.63-54.63c-6-6-14.14-9.37-22.63-9.37H48C21.49 64 0 85.49 0 112v288c0 26.51 21.49 48 48 48h416c26.51 0 48-21.49 48-48V176c0-26.51-21.49-48-48-48zm0 272H48V112h140.12l54.63 54.63c6 6 14.14 9.37 22.63 9.37H464v224z"/></svg>&nbsp;<a href="/categories/mit6828-os%E5%AE%9E%E9%AA%8C/" class="category-link">mit6828 OS实验</a></span>
+            
+        
+    
+    
+        
+        <span class="post-meta-item wordcount"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon post-meta-icon"><path d="M497.9 142.1l-46.1 46.1c-4.7 4.7-12.3 4.7-17 0l-111-111c-4.7-4.7-4.7-12.3 0-17l46.1-46.1c18.7-18.7 49.1-18.7 67.9 0l60.1 60.1c18.8 18.7 18.8 49.1 0 67.9zM284.2 99.8L21.6 362.4.4 483.9c-2.9 16.4 11.4 30.6 27.8 27.8l121.5-21.3 262.6-262.6c4.7-4.7 4.7-12.3 0-17l-111-111c-4.8-4.7-12.4-4.7-17.1 0zM124.1 339.9c-5.5-5.5-5.5-14.3 0-19.8l154-154c5.5-5.5 14.3-5.5 19.8 0s5.5 14.3 0 19.8l-154 154c-5.5 5.5-14.3 5.5-19.8 0zM88 424h48v36.3l-64.5 11.3-31.1-31.1L51.7 376H88v48z"/></svg>&nbsp;2982</span>
+    
+    
+        
+        <span class="post-meta-item reading-time"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon post-meta-icon"><path d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm0 448c-110.5 0-200-89.5-200-200S145.5 56 256 56s200 89.5 200 200-89.5 200-200 200zm61.8-104.4l-84.9-61.7c-3.1-2.3-4.9-5.9-4.9-9.7V116c0-6.6 5.4-12 12-12h32c6.6 0 12 5.4 12 12v141.7l66.8 48.6c5.4 3.9 6.5 11.4 2.6 16.8L334.6 349c-3.9 5.3-11.4 6.5-16.8 2.6z"/></svg>&nbsp;6&nbsp;分钟</span>
+    
+    
+</div>
+            
+
+            <div class="post-body"><h3 id="文件系统架构"><a href="#文件系统架构" class="anchor-link"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon anchor-icon"><path d="M326.612 185.391c59.747 59.809 58.927 155.698.36 214.59-.11.12-.24.25-.36.37l-67.2 67.2c-59.27 59.27-155.699 59.262-214.96 0-59.27-59.26-59.27-155.7 0-214.96l37.106-37.106c9.84-9.84 26.786-3.3 27.294 10.606.648 17.722 3.826 35.527 9.69 52.721 1.986 5.822.567 12.262-3.783 16.612l-13.087 13.087c-28.026 28.026-28.905 73.66-1.155 101.96 28.024 28.579 74.086 28.749 102.325.51l67.2-67.19c28.191-28.191 28.073-73.757 0-101.83-3.701-3.694-7.429-6.564-10.341-8.569a16.037 16.037 0 0 1-6.947-12.606c-.396-10.567 3.348-21.456 11.698-29.806l21.054-21.055c5.521-5.521 14.182-6.199 20.584-1.731a152.482 152.482 0 0 1 20.522 17.197zM467.547 44.449c-59.261-59.262-155.69-59.27-214.96 0l-67.2 67.2c-.12.12-.25.25-.36.37-58.566 58.892-59.387 154.781.36 214.59a152.454 152.454 0 0 0 20.521 17.196c6.402 4.468 15.064 3.789 20.584-1.731l21.054-21.055c8.35-8.35 12.094-19.239 11.698-29.806a16.037 16.037 0 0 0-6.947-12.606c-2.912-2.005-6.64-4.875-10.341-8.569-28.073-28.073-28.191-73.639 0-101.83l67.2-67.19c28.239-28.239 74.3-28.069 102.325.51 27.75 28.3 26.872 73.934-1.155 101.96l-13.087 13.087c-4.35 4.35-5.769 10.79-3.783 16.612 5.864 17.194 9.042 34.999 9.69 52.721.509 13.906 17.454 20.446 27.294 10.606l37.106-37.106c59.271-59.259 59.271-155.699.001-214.959z"/></svg></a>文件系统架构</h3>
+<p>在<code>init.c</code>通过<code>ENV_CREATE(fs_fs, ENV_TYPE_FS);</code>创建一个专用于文件系统的进程，该进程提供了文件系统的管理，包括读取文件、写入文件等等；</p>
+<p>假设有其他的进程需要进行文件读取，则需要通过ipc（inter process call）的方式将读取文件的元信息传递文件系统进程；</p>
+<p>以打开文件为例，具体代码流程如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">// 库提供的open函数
+</span><span class="c1"></span><span class="kt">int</span> <span class="nf">open</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">path</span><span class="p">,</span> <span class="kt">int</span> <span class="n">mode</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="kt">int</span> <span class="n">r</span><span class="p">;</span>
+	<span class="k">struct</span> <span class="n">Fd</span> <span class="o">*</span><span class="n">fd</span><span class="p">;</span>
+	<span class="c1">// fd_alloc利用之前的自映射快速找到用户进程空间未使用的struct Fd空间。（通过判断虚拟地址对应的表项是否存在）
+</span><span class="c1"></span>	<span class="k">if</span> <span class="p">((</span><span class="n">r</span> <span class="o">=</span> <span class="n">fd_alloc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">fd</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
+		<span class="k">return</span> <span class="n">r</span><span class="p">;</span>
+	<span class="c1">// ipc参数
+</span><span class="c1"></span>	<span class="n">strcpy</span><span class="p">(</span><span class="n">fsipcbuf</span><span class="p">.</span><span class="n">open</span><span class="p">.</span><span class="n">req_path</span><span class="p">,</span> <span class="n">path</span><span class="p">);</span>
+	<span class="n">fsipcbuf</span><span class="p">.</span><span class="n">open</span><span class="p">.</span><span class="n">req_omode</span> <span class="o">=</span> <span class="n">mode</span><span class="p">;</span>
+	<span class="c1">// fsipc的信息传递，具体看下面
+</span><span class="c1"></span>	<span class="k">if</span> <span class="p">((</span><span class="n">r</span> <span class="o">=</span> <span class="n">fsipc</span><span class="p">(</span><span class="n">FSREQ_OPEN</span><span class="p">,</span> <span class="n">fd</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">fd_close</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+		<span class="k">return</span> <span class="n">r</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">fd2num</span><span class="p">(</span><span class="n">fd</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">// file system对jos提供的ipc机制的封装，主要是传递的参数格式化
+</span><span class="c1">// type是操作类型，比如FSREQ_OPEN
+</span><span class="c1">// dstva是struct Fd的虚拟地址
+</span><span class="c1"></span><span class="k">static</span> <span class="kt">int</span> <span class="nf">fsipc</span><span class="p">(</span><span class="kt">unsigned</span> <span class="n">type</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span><span class="n">dstva</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">static</span> <span class="n">envid_t</span> <span class="n">fsenv</span><span class="p">;</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">fsenv</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="c1">// 利用子映射快速遍历所有的env，找到文件系统对应的env（ipc通信需要的参数）
+</span><span class="c1"></span>		<span class="n">fsenv</span> <span class="o">=</span> <span class="n">ipc_find_env</span><span class="p">(</span><span class="n">ENV_TYPE_FS</span><span class="p">);</span>
+    <span class="c1">// ipc
+</span><span class="c1"></span>	<span class="n">ipc_send</span><span class="p">(</span><span class="n">fsenv</span><span class="p">,</span> <span class="n">type</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">fsipcbuf</span><span class="p">,</span> <span class="n">PTE_P</span> <span class="o">|</span> <span class="n">PTE_W</span> <span class="o">|</span> <span class="n">PTE_U</span><span class="p">);</span>
+	<span class="k">return</span> <span class="n">ipc_recv</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="n">dstva</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c">      <span class="n">Regular</span> <span class="n">env</span>           <span class="n">FS</span> <span class="n">env</span>
+   <span class="o">+---------------+</span>   <span class="o">+---------------+</span>
+   <span class="o">|</span>      <span class="n">read</span>     <span class="o">|</span>   <span class="o">|</span>   <span class="n">file_read</span>   <span class="o">|</span>
+   <span class="o">|</span>   <span class="p">(</span><span class="n">lib</span><span class="o">/</span><span class="n">fd</span><span class="p">.</span><span class="n">c</span><span class="p">)</span>  <span class="o">|</span>   <span class="o">|</span>   <span class="p">(</span><span class="n">fs</span><span class="o">/</span><span class="n">fs</span><span class="p">.</span><span class="n">c</span><span class="p">)</span>   <span class="o">|</span>
+<span class="p">...</span><span class="o">|</span><span class="p">.......</span><span class="o">|</span><span class="p">.......</span><span class="o">|</span><span class="p">...</span><span class="o">|</span><span class="p">.......</span><span class="o">^</span><span class="p">.......</span><span class="o">|</span><span class="p">...............</span>
+   <span class="o">|</span>       <span class="n">v</span>       <span class="o">|</span>   <span class="o">|</span>       <span class="o">|</span>       <span class="o">|</span> <span class="n">RPC</span> <span class="n">mechanism</span>
+   <span class="o">|</span>  <span class="n">devfile_read</span> <span class="o">|</span>   <span class="o">|</span>  <span class="n">serve_read</span>   <span class="o">|</span>
+   <span class="o">|</span>  <span class="p">(</span><span class="n">lib</span><span class="o">/</span><span class="n">file</span><span class="p">.</span><span class="n">c</span><span class="p">)</span> <span class="o">|</span>   <span class="o">|</span>  <span class="p">(</span><span class="n">fs</span><span class="o">/</span><span class="n">serv</span><span class="p">.</span><span class="n">c</span><span class="p">)</span>  <span class="o">|</span>
+   <span class="o">|</span>       <span class="o">|</span>       <span class="o">|</span>   <span class="o">|</span>       <span class="o">^</span>       <span class="o">|</span>
+   <span class="o">|</span>       <span class="n">v</span>       <span class="o">|</span>   <span class="o">|</span>       <span class="o">|</span>       <span class="o">|</span>
+   <span class="o">|</span>     <span class="n">fsipc</span>     <span class="o">|</span>   <span class="o">|</span>     <span class="n">serve</span>     <span class="o">|</span>
+   <span class="o">|</span>  <span class="p">(</span><span class="n">lib</span><span class="o">/</span><span class="n">file</span><span class="p">.</span><span class="n">c</span><span class="p">)</span> <span class="o">|</span>   <span class="o">|</span>  <span class="p">(</span><span class="n">fs</span><span class="o">/</span><span class="n">serv</span><span class="p">.</span><span class="n">c</span><span class="p">)</span>  <span class="o">|</span>
+   <span class="o">|</span>       <span class="o">|</span>       <span class="o">|</span>   <span class="o">|</span>       <span class="o">^</span>       <span class="o">|</span>
+   <span class="o">|</span>       <span class="n">v</span>       <span class="o">|</span>   <span class="o">|</span>       <span class="o">|</span>       <span class="o">|</span>
+   <span class="o">|</span>   <span class="n">ipc_send</span>    <span class="o">|</span>   <span class="o">|</span>   <span class="n">ipc_recv</span>    <span class="o">|</span>
+   <span class="o">|</span>       <span class="o">|</span>       <span class="o">|</span>   <span class="o">|</span>       <span class="o">^</span>       <span class="o">|</span>
+   <span class="o">+-------|-------+</span>   <span class="o">+-------|-------+</span>
+           <span class="o">|</span>                   <span class="o">|</span>
+           <span class="o">+-------------------+</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="spawn"><a href="#spawn" class="anchor-link"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon anchor-icon"><path d="M326.612 185.391c59.747 59.809 58.927 155.698.36 214.59-.11.12-.24.25-.36.37l-67.2 67.2c-59.27 59.27-155.699 59.262-214.96 0-59.27-59.26-59.27-155.7 0-214.96l37.106-37.106c9.84-9.84 26.786-3.3 27.294 10.606.648 17.722 3.826 35.527 9.69 52.721 1.986 5.822.567 12.262-3.783 16.612l-13.087 13.087c-28.026 28.026-28.905 73.66-1.155 101.96 28.024 28.579 74.086 28.749 102.325.51l67.2-67.19c28.191-28.191 28.073-73.757 0-101.83-3.701-3.694-7.429-6.564-10.341-8.569a16.037 16.037 0 0 1-6.947-12.606c-.396-10.567 3.348-21.456 11.698-29.806l21.054-21.055c5.521-5.521 14.182-6.199 20.584-1.731a152.482 152.482 0 0 1 20.522 17.197zM467.547 44.449c-59.261-59.262-155.69-59.27-214.96 0l-67.2 67.2c-.12.12-.25.25-.36.37-58.566 58.892-59.387 154.781.36 214.59a152.454 152.454 0 0 0 20.521 17.196c6.402 4.468 15.064 3.789 20.584-1.731l21.054-21.055c8.35-8.35 12.094-19.239 11.698-29.806a16.037 16.037 0 0 0-6.947-12.606c-2.912-2.005-6.64-4.875-10.341-8.569-28.073-28.073-28.191-73.639 0-101.83l67.2-67.19c28.239-28.239 74.3-28.069 102.325.51 27.75 28.3 26.872 73.934-1.155 101.96l-13.087 13.087c-4.35 4.35-5.769 10.79-3.783 16.612 5.864 17.194 9.042 34.999 9.69 52.721.509 13.906 17.454 20.446 27.294 10.606l37.106-37.106c59.271-59.259 59.271-155.699.001-214.959z"/></svg></a>spawn</h3>
+<p>spawn是创建进程的另外一种方式，它不同于fork。fork的话是创建和自身一样的运行环境，程序代码也是当前运行的程序代码。而spawn则是从文件系统加载一段新的程序代码去运行。spwan的具体流程如下：</p>
+<ol>
+<li>加载程序代码到内存中（从文件系统读取程序代码）；</li>
+<li>创建子进程；</li>
+</ol>
+<h3 id="shell"><a href="#shell" class="anchor-link"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon anchor-icon"><path d="M326.612 185.391c59.747 59.809 58.927 155.698.36 214.59-.11.12-.24.25-.36.37l-67.2 67.2c-59.27 59.27-155.699 59.262-214.96 0-59.27-59.26-59.27-155.7 0-214.96l37.106-37.106c9.84-9.84 26.786-3.3 27.294 10.606.648 17.722 3.826 35.527 9.69 52.721 1.986 5.822.567 12.262-3.783 16.612l-13.087 13.087c-28.026 28.026-28.905 73.66-1.155 101.96 28.024 28.579 74.086 28.749 102.325.51l67.2-67.19c28.191-28.191 28.073-73.757 0-101.83-3.701-3.694-7.429-6.564-10.341-8.569a16.037 16.037 0 0 1-6.947-12.606c-.396-10.567 3.348-21.456 11.698-29.806l21.054-21.055c5.521-5.521 14.182-6.199 20.584-1.731a152.482 152.482 0 0 1 20.522 17.197zM467.547 44.449c-59.261-59.262-155.69-59.27-214.96 0l-67.2 67.2c-.12.12-.25.25-.36.37-58.566 58.892-59.387 154.781.36 214.59a152.454 152.454 0 0 0 20.521 17.196c6.402 4.468 15.064 3.789 20.584-1.731l21.054-21.055c8.35-8.35 12.094-19.239 11.698-29.806a16.037 16.037 0 0 0-6.947-12.606c-2.912-2.005-6.64-4.875-10.341-8.569-28.073-28.073-28.191-73.639 0-101.83l67.2-67.19c28.239-28.239 74.3-28.069 102.325.51 27.75 28.3 26.872 73.934-1.155 101.96l-13.087 13.087c-4.35 4.35-5.769 10.79-3.783 16.612 5.864 17.194 9.042 34.999 9.69 52.721.509 13.906 17.454 20.446 27.294 10.606l37.106-37.106c59.271-59.259 59.271-155.699.001-214.959z"/></svg></a>shell</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="k">struct</span> <span class="n">Pipe</span> <span class="p">{</span>
+	<span class="n">off_t</span> <span class="n">p_rpos</span><span class="p">;</span>		<span class="c1">// read position
+</span><span class="c1"></span>	<span class="n">off_t</span> <span class="n">p_wpos</span><span class="p">;</span>		<span class="c1">// write position
+</span><span class="c1"></span>	<span class="n">uint8_t</span> <span class="n">p_buf</span><span class="p">[</span><span class="n">PIPEBUFSIZ</span><span class="p">];</span>	<span class="c1">// data buffer
+</span><span class="c1"></span><span class="p">};</span>
+
+<span class="k">struct</span> <span class="n">Dev</span> <span class="n">devpipe</span> <span class="o">=</span>
+<span class="p">{</span>
+	<span class="p">.</span><span class="n">dev_id</span> <span class="o">=</span>	<span class="sc">&#39;p&#39;</span><span class="p">,</span>
+	<span class="p">.</span><span class="n">dev_name</span> <span class="o">=</span>	<span class="s">&#34;pipe&#34;</span><span class="p">,</span>
+	<span class="p">.</span><span class="n">dev_read</span> <span class="o">=</span>	<span class="n">devpipe_read</span><span class="p">,</span>
+	<span class="p">.</span><span class="n">dev_write</span> <span class="o">=</span>	<span class="n">devpipe_write</span><span class="p">,</span>
+	<span class="p">.</span><span class="n">dev_close</span> <span class="o">=</span>	<span class="n">devpipe_close</span><span class="p">,</span>
+	<span class="p">.</span><span class="n">dev_stat</span> <span class="o">=</span>	<span class="n">devpipe_stat</span><span class="p">,</span>
+<span class="p">};</span>
+
+<span class="c1">// 分开的命令分别进行spawn出新的进程去处理
+</span><span class="c1"></span>		<span class="k">case</span> <span class="sc">&#39;|&#39;</span><span class="o">:</span>	
+			<span class="c1">// 分配出两个fd,绑定的文件是devpipe
+</span><span class="c1"></span>			<span class="k">if</span> <span class="p">((</span><span class="n">r</span> <span class="o">=</span> <span class="n">pipe</span><span class="p">(</span><span class="n">p</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+				<span class="n">cprintf</span><span class="p">(</span><span class="s">&#34;pipe: %e&#34;</span><span class="p">,</span> <span class="n">r</span><span class="p">);</span>
+				<span class="n">exit</span><span class="p">();</span>
+			<span class="p">}</span>
+			<span class="c1">// 创建子进程
+</span><span class="c1"></span>			<span class="k">if</span> <span class="p">((</span><span class="n">r</span> <span class="o">=</span> <span class="n">fork</span><span class="p">())</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+				<span class="n">cprintf</span><span class="p">(</span><span class="s">&#34;fork: %e&#34;</span><span class="p">,</span> <span class="n">r</span><span class="p">);</span>
+				<span class="n">exit</span><span class="p">();</span>
+			<span class="p">}</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">r</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+                <span class="c1">// 子进程
+</span><span class="c1"></span>				<span class="k">if</span> <span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="c1">// 0是stdin，将pipe的第一个fd变成子进程的stdin
+</span><span class="c1"></span>					<span class="n">dup</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">);</span>
+                    <span class="c1">// 释放pipe的fd
+</span><span class="c1"></span>					<span class="n">close</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+				<span class="p">}</span>
+                <span class="c1">// 释放pipe的fd
+</span><span class="c1"></span>				<span class="n">close</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+				<span class="k">goto</span> <span class="n">again</span><span class="p">;</span>
+			<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                <span class="c1">// 当前进程
+</span><span class="c1"></span>				<span class="n">pipe_child</span> <span class="o">=</span> <span class="n">r</span><span class="p">;</span>
+				<span class="k">if</span> <span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="c1">// 将pipe的第二个fd变成当前进程的stdout
+</span><span class="c1"></span>					<span class="n">dup</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">);</span>
+					<span class="n">close</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+				<span class="p">}</span>
+				<span class="n">close</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+				<span class="k">goto</span> <span class="n">runit</span><span class="p">;</span>
+			<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><blockquote>
+<p><strong>Exercise 1.</strong> <code>i386_init</code> identifies the file system environment by passing the type <code>ENV_TYPE_FS</code> to your environment creation function, <code>env_create</code>. Modify <code>env_create</code> in <code>env.c</code>, so that it gives the file system environment I/O privilege, but never gives that privilege to any other environment.</p>
+</blockquote>
+<p>标记不同env的类型，文件系统的env类型是<code>ENV_TYPE_FS</code>。修改flags让用户模式的程序可以使用io特权指令。</p>
+<!-- The x86 processor uses the IOPL bits in the EFLAGS register **to determine whether protected-mode code is allowed to perform special device I/O instructions such as the IN and OUT instructions.** Since all of the IDE disk registers we need to access are located in the x86's I/O space rather than being memory-mapped, **giving "I/O privilege" to the file system environment is the only thing we need to do in order to allow the file system to access these registers**. In effect, the IOPL bits in the EFLAGS register provides the kernel with a simple "all-or-nothing" method of controlling whether user-mode code can access I/O space. In our case, we want the file system environment to be able to access I/O space, but we do not want any other environments to be able to access I/O space at all. -->
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="nf">env_create</span><span class="p">(</span><span class="n">uint8_t</span> <span class="o">*</span><span class="n">binary</span><span class="p">,</span> <span class="k">enum</span> <span class="n">EnvType</span> <span class="n">type</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">// lab3
+</span><span class="c1"></span>	<span class="k">struct</span> <span class="n">Env</span> <span class="o">*</span><span class="n">env</span><span class="p">;</span>
+	<span class="n">env_alloc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">env</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+	<span class="n">env</span><span class="o">-&gt;</span><span class="n">env_type</span> <span class="o">=</span> <span class="n">type</span><span class="p">;</span>
+	<span class="n">load_icode</span><span class="p">(</span><span class="n">env</span><span class="p">,</span><span class="n">binary</span><span class="p">);</span>
+    <span class="c1">// lab5
+</span><span class="c1"></span>	<span class="k">if</span><span class="p">(</span><span class="n">type</span> <span class="o">==</span> <span class="n">ENV_TYPE_FS</span><span class="p">){</span>
+		<span class="n">env</span><span class="o">-&gt;</span><span class="n">env_type</span> <span class="o">=</span> <span class="n">ENV_TYPE_FS</span><span class="p">;</span>
+		<span class="n">env</span><span class="o">-&gt;</span><span class="n">env_tf</span><span class="p">.</span><span class="n">tf_eflags</span> <span class="o">|=</span> <span class="n">FL_IOPL_MASK</span><span class="p">;</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><blockquote>
+<p><strong>Exercise 2.</strong> Implement the <code>bc_pgfault</code> and <code>flush_block</code> functions in <code>fs/bc.c</code>. <code>bc_pgfault</code> is a page fault handler, just like the one your wrote in the previous lab for copy-on-write fork, except that its job is to load pages in from the disk in response to a page fault. When writing this, keep in mind that (1) <code>addr</code> may not be aligned to a block boundary and (2) <code>ide_read</code> operates in sectors, not blocks.</p>
+</blockquote>
+<p>硬盘的数据在内存中叫block cache，jos分配了固定的虚拟地址空间存放硬盘数据，当我们需要读写的时候，如果该数据在内存中不存在，则会触发异常，该异常由内核传递给用户程序处理，即<code>bc_pgfault</code>函数。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">// static void bc_pgfault(struct UTrapframe *utf)
+</span><span class="c1"></span>	<span class="c1">// 地址对齐
+</span><span class="c1"></span>	<span class="n">addr</span> <span class="o">=</span> <span class="n">ROUNDDOWN</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span><span class="n">BLKSIZE</span><span class="p">);</span>
+	<span class="c1">// 分配一个page的物理内存
+</span><span class="c1"></span>	<span class="k">if</span><span class="p">((</span><span class="n">r</span> <span class="o">=</span> <span class="n">sys_page_alloc</span><span class="p">(</span><span class="mi">0</span><span class="p">,(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span><span class="n">addr</span><span class="p">,</span><span class="n">PTE_SYSCALL</span><span class="p">))</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">)</span>
+		<span class="n">panic</span><span class="p">(</span><span class="s">&#34;in bc_pgfault, sys_page_alloc: %e&#34;</span><span class="p">,</span><span class="n">r</span><span class="p">);</span>
+	<span class="c1">// 读取磁盘数据到内存中
+</span><span class="c1"></span>	<span class="k">if</span><span class="p">((</span><span class="n">r</span> <span class="o">=</span> <span class="n">ide_read</span><span class="p">(((</span><span class="n">uintptr_t</span><span class="p">)</span><span class="n">addr</span><span class="o">-</span><span class="n">DISKMAP</span><span class="p">)</span><span class="o">/</span><span class="n">BLKSIZE</span><span class="o">*</span><span class="n">BLKSECTS</span><span class="p">,</span><span class="n">addr</span><span class="p">,</span><span class="n">BLKSECTS</span><span class="p">))</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">)</span>
+		<span class="n">panic</span><span class="p">(</span><span class="s">&#34;in bc_pgfault, ide_read: %e&#34;</span><span class="p">,</span><span class="n">r</span><span class="p">);</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><code>flush_block</code>主要是维持内存和硬盘中的数据同步。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">// void flush_block(void *addr)	
+</span><span class="c1"></span>	<span class="kt">int</span> <span class="n">r</span><span class="p">;</span>
+	<span class="n">addr</span> <span class="o">=</span> <span class="n">ROUNDDOWN</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span><span class="n">BLKSIZE</span><span class="p">);</span>
+	<span class="c1">// 该地址对应的block存在内存中，并且有修改过（没有修改的话就不用flush）。
+</span><span class="c1"></span>	<span class="k">if</span><span class="p">(</span><span class="n">va_is_mapped</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="n">va_is_dirty</span><span class="p">(</span><span class="n">addr</span><span class="p">)){</span>
+		<span class="k">if</span><span class="p">((</span><span class="n">r</span> <span class="o">=</span> <span class="n">ide_write</span><span class="p">(</span><span class="n">blockno</span><span class="o">*</span><span class="n">BLKSECTS</span><span class="p">,</span><span class="n">addr</span><span class="p">,</span><span class="n">BLKSECTS</span><span class="p">))</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">)</span>
+			<span class="n">panic</span><span class="p">(</span><span class="s">&#34;in flush_block, ide_write %e&#34;</span><span class="p">,</span><span class="n">r</span><span class="p">);</span>
+        <span class="c1">// 清除dirty位
+</span><span class="c1"></span>		<span class="k">if</span> <span class="p">((</span><span class="n">r</span> <span class="o">=</span> <span class="n">sys_page_map</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">addr</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">addr</span><span class="p">,</span> <span class="n">uvpt</span><span class="p">[</span><span class="n">PGNUM</span><span class="p">(</span><span class="n">addr</span><span class="p">)]</span> <span class="o">&amp;</span> <span class="n">PTE_SYSCALL</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
+			<span class="n">panic</span><span class="p">(</span><span class="s">&#34;in flush_block, sys_page_map: %e&#34;</span><span class="p">,</span> <span class="n">r</span><span class="p">);</span>
+	<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><blockquote>
+<p><strong>Exercise 3.</strong> Use <code>free_block</code> as a model to implement <code>alloc_block</code> in <code>fs/fs.c</code>, which should find a free disk block in the bitmap, mark it used, and return the number of that block. When you allocate a block, you should immediately flush the changed bitmap block to disk with <code>flush_block</code>, to help file system consistency.</p>
+</blockquote>
+<p>从硬盘空闲块中分配一块，返回块号。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">//int alloc_block(void)
+</span><span class="c1"></span>	<span class="n">uint32_t</span> <span class="n">i</span><span class="p">;</span>
+	<span class="k">for</span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">super</span><span class="o">-&gt;</span><span class="n">s_nblocks</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">){</span>
+		<span class="k">if</span><span class="p">(</span><span class="n">block_is_free</span><span class="p">(</span><span class="n">i</span><span class="p">)){</span>
+			<span class="n">bitmap</span><span class="p">[</span><span class="n">i</span><span class="o">/</span><span class="mi">32</span><span class="p">]</span> <span class="o">&amp;=</span> <span class="o">~</span><span class="p">(</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="p">(</span><span class="n">i</span><span class="o">%</span><span class="mi">32</span><span class="p">));</span>
+            <span class="c1">// 将bitmap数据flush到硬盘，防止断电等意外发生，造成数据的丢失
+</span><span class="c1"></span>			<span class="n">flush_block</span><span class="p">((</span><span class="kt">void</span> <span class="o">*</span><span class="p">)((</span><span class="mi">2</span><span class="o">+</span><span class="n">i</span><span class="o">/</span><span class="n">BLKBITSIZE</span><span class="p">)</span><span class="o">*</span><span class="n">BLKSIZE</span><span class="o">+</span><span class="n">DISKMAP</span><span class="p">));</span>
+			<span class="k">return</span> <span class="n">i</span><span class="p">;</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><blockquote>
+<p><strong>Exercise 4.</strong> Implement <code>file_block_walk</code> and <code>file_get_block</code>. <code>file_block_walk</code> maps from a block offset within a file to the pointer for that block in the <code>struct File</code> or the indirect block, very much like what <code>pgdir_walk</code> did for page tables. <code>file_get_block</code> goes one step further and maps to the actual disk block, allocating a new one if necessary.</p>
+</blockquote>
+<p>jos文件系统采用类似于inode的方式，每个文件数据对应的物理存储块编号采用直接方式和间接方式。直接索引就是将该存储块编号存放在inode的数组中，间接索引是将该存储块编号存放在block中。<code>file_block_walk</code>函数将文件的逻辑地址转换成对应的硬盘上的物理地址。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">//static int file_block_walk(struct File *f, uint32_t filebno, uint32_t **ppdiskbno, bool alloc)
+</span><span class="c1"></span>	<span class="n">uintptr_t</span> <span class="o">*</span><span class="n">addr</span><span class="p">;</span>
+	<span class="c1">// 逻辑块号小于NDIRECT
+</span><span class="c1"></span>	<span class="k">if</span><span class="p">(</span><span class="n">filebno</span> <span class="o">&lt;</span> <span class="n">NDIRECT</span><span class="p">){</span>
+		<span class="o">*</span><span class="n">ppdiskbno</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">f</span><span class="o">-&gt;</span><span class="n">f_direct</span><span class="p">[</span><span class="n">filebno</span><span class="p">];</span>
+		<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="p">}</span><span class="k">else</span><span class="p">{</span>
+        <span class="c1">// 超过文件最大限制
+</span><span class="c1"></span>		<span class="k">if</span><span class="p">(</span><span class="n">filebno</span> <span class="o">&gt;=</span> <span class="n">NDIRECT</span> <span class="o">+</span> <span class="n">NINDIRECT</span><span class="p">)</span>
+			<span class="k">return</span> <span class="o">-</span><span class="n">E_INVAL</span><span class="p">;</span>
+        <span class="c1">// 间接存储的block还未分配
+</span><span class="c1"></span>		<span class="k">if</span><span class="p">(</span><span class="n">f</span><span class="o">-&gt;</span><span class="n">f_indirect</span><span class="o">==</span> <span class="mi">0</span> <span class="o">||</span> <span class="n">block_is_free</span><span class="p">(</span><span class="n">f</span><span class="o">-&gt;</span><span class="n">f_indirect</span><span class="p">)){</span>
+			<span class="k">if</span><span class="p">(</span><span class="n">alloc</span><span class="p">){</span>
+                <span class="c1">// 分配一个block用于存储物理存储块编号
+</span><span class="c1"></span>				<span class="n">f</span><span class="o">-&gt;</span><span class="n">f_indirect</span> <span class="o">=</span> <span class="n">alloc_block</span><span class="p">();</span>
+				<span class="k">if</span><span class="p">(</span><span class="n">f</span><span class="o">-&gt;</span><span class="n">f_indirect</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">){</span>
+					<span class="n">f</span><span class="o">-&gt;</span><span class="n">f_indirect</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+					<span class="k">return</span> <span class="o">-</span><span class="n">E_NO_DISK</span><span class="p">;</span>
+				<span class="p">}</span>
+			<span class="p">}</span><span class="k">else</span><span class="p">{</span>
+				<span class="k">return</span> <span class="o">-</span><span class="n">E_NOT_FOUND</span><span class="p">;</span>
+			<span class="p">}</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+	<span class="c1">// 获取间接索引的物理存储块（一般会触发上面的bc_pgfault）
+</span><span class="c1"></span>	<span class="n">addr</span> <span class="o">=</span> <span class="p">(</span><span class="n">uintptr_t</span> <span class="o">*</span><span class="p">)(</span><span class="n">f</span><span class="o">-&gt;</span><span class="n">f_indirect</span><span class="o">*</span><span class="n">BLKSIZE</span><span class="o">+</span><span class="n">DISKMAP</span><span class="p">);</span>
+	<span class="c1">// 物理块号
+</span><span class="c1"></span>	<span class="o">*</span><span class="n">ppdiskbno</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">addr</span><span class="p">[</span><span class="n">filebno</span><span class="o">-</span><span class="n">NDIRECT</span><span class="p">];</span>
+	<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">// int file_get_block(struct File *f, uint32_t filebno, char **blk)
+</span><span class="c1"></span>	<span class="c1">// LAB 5: Your code here.
+</span><span class="c1"></span>	<span class="kt">int</span> <span class="n">r</span><span class="p">;</span>
+	<span class="n">uint32_t</span> <span class="o">*</span><span class="n">ppdiskbno</span><span class="p">;</span>
+	<span class="c1">// 找到逻辑块号对应的物理块号
+</span><span class="c1"></span>	<span class="k">if</span><span class="p">((</span><span class="n">r</span> <span class="o">=</span> <span class="n">file_block_walk</span><span class="p">(</span><span class="n">f</span><span class="p">,</span><span class="n">filebno</span><span class="p">,</span><span class="o">&amp;</span><span class="n">ppdiskbno</span><span class="p">,</span><span class="mi">0</span><span class="p">))</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">){</span>
+		<span class="k">return</span> <span class="n">r</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="c1">// 物理块不存在，需要分配一个物理块给当前文件
+</span><span class="c1"></span>	<span class="k">if</span><span class="p">(</span><span class="o">*</span><span class="n">ppdiskbno</span> <span class="o">==</span> <span class="mi">0</span><span class="p">){</span>
+		<span class="o">*</span><span class="n">ppdiskbno</span> <span class="o">=</span> <span class="n">alloc_block</span><span class="p">();</span>
+		<span class="k">if</span><span class="p">(</span><span class="o">*</span><span class="n">ppdiskbno</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">){</span>
+			<span class="k">return</span> <span class="o">-</span><span class="n">E_NO_DISK</span><span class="p">;</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+	<span class="c1">// 返回该物理块映射的虚拟地址
+</span><span class="c1"></span>	<span class="o">*</span><span class="n">blk</span> <span class="o">=</span> <span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="p">)</span><span class="n">diskaddr</span><span class="p">(</span><span class="o">*</span><span class="n">ppdiskbno</span><span class="p">);</span>
+	<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><blockquote>
+<p><strong>Exercise 5.</strong> Implement <code>serve_read</code> in <code>fs/serv.c</code>.</p>
+<p><code>serve_read</code>'s heavy lifting will be done by the already-implemented <code>file_read</code> in <code>fs/fs.c</code> (which, in turn, is just a bunch of calls to <code>file_get_block</code>). <code>serve_read</code> just has to provide the RPC interface for file reading. Look at the comments and code in <code>serve_set_size</code> to get a general idea of how the server functions should be structured.</p>
+</blockquote>
+<p>前面几个函数是涉及到文件系统到硬盘的管理，下面的则是完成用户的请求。<code>serve_read</code>函数接收用户进程的Fsipc</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">//int serve_read(envid_t envid, union Fsipc *ipc)
+</span><span class="c1"></span>	<span class="kt">int</span> <span class="n">r</span><span class="p">;</span>
+	<span class="k">struct</span> <span class="n">OpenFile</span> <span class="o">*</span><span class="n">o</span><span class="p">;</span>
+	<span class="c1">// 检查该进程的打开文件列表是否存在该文件
+</span><span class="c1"></span>	<span class="k">if</span><span class="p">((</span><span class="n">r</span><span class="o">=</span><span class="n">openfile_lookup</span><span class="p">(</span><span class="n">envid</span><span class="p">,</span><span class="n">req</span><span class="o">-&gt;</span><span class="n">req_fileid</span><span class="p">,</span><span class="o">&amp;</span><span class="n">o</span><span class="p">))</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">){</span>
+		<span class="k">return</span> <span class="n">r</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="c1">// 读取文件数据（通过bc_pgfault的方式实现）
+</span><span class="c1"></span>	<span class="n">r</span> <span class="o">=</span> <span class="n">file_read</span><span class="p">(</span><span class="n">o</span><span class="o">-&gt;</span><span class="n">o_file</span><span class="p">,</span><span class="n">ret</span><span class="o">-&gt;</span><span class="n">ret_buf</span><span class="p">,</span><span class="n">req</span><span class="o">-&gt;</span><span class="n">req_n</span><span class="p">,</span><span class="n">o</span><span class="o">-&gt;</span><span class="n">o_fd</span><span class="o">-&gt;</span><span class="n">fd_offset</span><span class="p">);</span>
+	<span class="c1">// 修改seek位置
+</span><span class="c1"></span>	<span class="k">if</span><span class="p">(</span><span class="n">r</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span> <span class="n">o</span><span class="o">-&gt;</span><span class="n">o_fd</span><span class="o">-&gt;</span><span class="n">fd_offset</span> <span class="o">+=</span> <span class="n">r</span><span class="p">;</span>
+	<span class="k">return</span> <span class="n">r</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><blockquote>
+<p><strong>Exercise 6.</strong> Implement <code>serve_write</code> in <code>fs/serv.c</code> and <code>devfile_write</code> in <code>lib/file.c</code>.</p>
+</blockquote>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">// int serve_write(envid_t envid, struct Fsreq_write *req)
+</span><span class="c1"></span>	<span class="kt">int</span> <span class="n">r</span><span class="p">;</span>
+	<span class="k">struct</span> <span class="n">OpenFile</span> <span class="o">*</span><span class="n">o</span><span class="p">;</span>
+	<span class="c1">// 检查该进程的打开文件列表是否存在该文件
+</span><span class="c1"></span>	<span class="k">if</span><span class="p">((</span><span class="n">r</span><span class="o">=</span><span class="n">openfile_lookup</span><span class="p">(</span><span class="n">envid</span><span class="p">,</span><span class="n">req</span><span class="o">-&gt;</span><span class="n">req_fileid</span><span class="p">,</span><span class="o">&amp;</span><span class="n">o</span><span class="p">))</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">){</span>
+		<span class="k">return</span> <span class="n">r</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="n">r</span> <span class="o">=</span> <span class="n">file_write</span><span class="p">(</span><span class="n">o</span><span class="o">-&gt;</span><span class="n">o_file</span><span class="p">,</span><span class="n">req</span><span class="o">-&gt;</span><span class="n">req_buf</span><span class="p">,</span><span class="n">req</span><span class="o">-&gt;</span><span class="n">req_n</span> <span class="o">&gt;</span> <span class="n">PGSIZE</span><span class="o">?</span> <span class="nl">PGSIZE</span><span class="p">:</span><span class="n">req</span><span class="o">-&gt;</span><span class="n">req_n</span><span class="p">,</span><span class="n">o</span><span class="o">-&gt;</span><span class="n">o_fd</span><span class="o">-&gt;</span><span class="n">fd_offset</span><span class="p">);</span>
+	<span class="k">if</span><span class="p">(</span><span class="n">r</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="n">o</span><span class="o">-&gt;</span><span class="n">o_fd</span><span class="o">-&gt;</span><span class="n">fd_offset</span> <span class="o">+=</span> <span class="n">r</span><span class="p">;</span>
+	<span class="k">return</span> <span class="n">r</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">// static ssize_t devfile_read(struct Fd *fd, void *buf, size_t n)	
+</span><span class="c1"></span>	<span class="kt">int</span> <span class="n">r</span><span class="p">;</span>
+	<span class="k">if</span> <span class="p">(</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="k">sizeof</span> <span class="p">(</span><span class="n">fsipcbuf</span><span class="p">.</span><span class="n">write</span><span class="p">.</span><span class="n">req_buf</span><span class="p">))</span> 
+		<span class="n">n</span> <span class="o">=</span> <span class="k">sizeof</span> <span class="p">(</span><span class="n">fsipcbuf</span><span class="p">.</span><span class="n">write</span><span class="p">.</span><span class="n">req_buf</span><span class="p">);</span>
+	<span class="n">memmove</span><span class="p">(</span><span class="n">fsipcbuf</span><span class="p">.</span><span class="n">write</span><span class="p">.</span><span class="n">req_buf</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">n</span><span class="p">);</span>
+	<span class="n">fsipcbuf</span><span class="p">.</span><span class="n">write</span><span class="p">.</span><span class="n">req_fileid</span> <span class="o">=</span> <span class="n">fd</span><span class="o">-&gt;</span><span class="n">fd_file</span><span class="p">.</span><span class="n">id</span><span class="p">;</span>
+	<span class="n">fsipcbuf</span><span class="p">.</span><span class="n">write</span><span class="p">.</span><span class="n">req_n</span> <span class="o">=</span> <span class="n">n</span><span class="p">;</span>
+	<span class="k">return</span> <span class="nf">fsipc</span><span class="p">(</span><span class="n">FSREQ_WRITE</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+</code></pre></td></tr></table>
+</div>
+</div><blockquote>
+<p><strong>Exercise 7.</strong> <code>spawn</code> relies on the new syscall <code>sys_env_set_trapframe</code> to initialize the state of the newly created environment. Implement <code>sys_env_set_trapframe</code> in <code>kern/syscall.c</code> (don't forget to dispatch the new system call in <code>syscall()</code>).</p>
+</blockquote>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">// static int sys_env_set_trapframe(envid_t envid, struct Trapframe *tf)	
+</span><span class="c1"></span>	<span class="k">struct</span> <span class="n">Env</span> <span class="o">*</span><span class="n">e</span><span class="p">;</span>
+	<span class="k">if</span><span class="p">(</span><span class="n">envid2env</span><span class="p">(</span><span class="n">envid</span><span class="p">,</span><span class="o">&amp;</span><span class="n">e</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">){</span>
+		<span class="k">return</span> <span class="o">-</span><span class="n">E_BAD_ENV</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="n">user_mem_assert</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">tf</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span> <span class="n">Trapframe</span><span class="p">),</span> <span class="n">PTE_U</span><span class="p">);</span>
+	<span class="n">e</span><span class="o">-&gt;</span><span class="n">env_tf</span> <span class="o">=</span> <span class="o">*</span><span class="n">tf</span><span class="p">;</span>
+	<span class="n">e</span><span class="o">-&gt;</span><span class="n">env_tf</span><span class="p">.</span><span class="n">tf_eflags</span> <span class="o">|=</span> <span class="n">FL_IF</span><span class="p">;</span>
+	<span class="n">e</span><span class="o">-&gt;</span><span class="n">env_tf</span><span class="p">.</span><span class="n">tf_eflags</span> <span class="o">&amp;=</span> <span class="p">(</span><span class="o">~</span><span class="n">FL_IOPL_MASK</span><span class="p">);</span>
+	<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><blockquote>
+<p><strong>Exercise 8.</strong> Change <code>duppage</code> in <code>lib/fork.c</code> to follow the new convention. If the page table entry has the <code>PTE_SHARE</code> bit set, just copy the mapping directly. (You should use <code>PTE_SYSCALL</code>, not <code>0xfff</code>, to mask out the relevant bits from the page table entry. <code>0xfff</code> picks up the accessed and dirty bits as well.)</p>
+<p>Likewise, implement <code>copy_shared_pages</code> in <code>lib/spawn.c</code>. It should loop through all page table entries in the current process (just like <code>fork</code> did), copying any page mappings that have the <code>PTE_SHARE</code> bit set into the child process.</p>
+</blockquote>
+<p>spawn的话可以从用户态加载应用程序去运行。</p>
+<blockquote>
+<p><strong>Exercise 9.</strong> In your kern/trap.c, call kbd_intr to handle trap IRQ_OFFSET+IRQ_KBD and serial_intr to handle trap IRQ_OFFSET+IRQ_SERIAL.</p>
+</blockquote>
+<p><code>kbd_intr</code>函数读取键盘的输入；<code>serial_intr</code>函数读取输入的数据到buffer里面。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c">		<span class="k">case</span> <span class="n">IRQ_OFFSET</span><span class="o">+</span><span class="nl">IRQ_KBD</span><span class="p">:{</span>
+			<span class="n">kbd_intr</span><span class="p">();</span>
+			<span class="n">lapic_eoi</span><span class="p">();</span>
+			<span class="k">return</span><span class="p">;</span>
+		<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><blockquote>
+<p><strong>Exercise 10.</strong> The shell doesn't support I/O redirection. It would be nice to run sh &lt;script instead of having to type in all the commands in the script by hand, as you did above. Add I/O redirection for &lt; to user/sh.c.</p>
+</blockquote>
+<p>io重定向：以重定向输入为例（比如<code>sh&lt;script</code>）。因为fd 0代表着stdin，fd 1代表着stdout，所以将待重定向的文件的fd拷贝到子进程的fd 0即可（执行<code>sh</code>的shell可以通过<code>getchar</code>的方式读取该文件内容【根据fd绑定的内容找到对应的<code>devfile</code>，那么<code>getchar</code>的读取转换成<code>devfile-&gt;read</code>】）。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c">			<span class="k">if</span> <span class="p">((</span><span class="n">fd</span> <span class="o">=</span> <span class="n">open</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">O_RDONLY</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+				<span class="n">cprintf</span><span class="p">(</span><span class="s">&#34;open %s for read: %e&#34;</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">fd</span><span class="p">);</span>
+				<span class="n">exit</span><span class="p">();</span>
+			<span class="p">}</span>
+			<span class="k">if</span><span class="p">(</span><span class="n">fd</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">){</span>
+				<span class="n">dup</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+				<span class="n">close</span><span class="p">(</span><span class="n">fd</span><span class="p">);</span>
+			<span class="p">}</span>
+			<span class="k">break</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div></div>
+
+        </article>
+
+        
+
+        
+    
+    
+    
+        <ul class="post-copyright">
+            <li class="copyright-item author"><span class="copyright-item-text">作者</span>：<a href="https://chengshuyi.github.io" target="_blank" rel="noopener">程书意</a></li>
+            
+                
+                
+                
+                
+                <li class="copyright-item link"><span class="copyright-item-text">链接</span>：<a href="/posts/course/mit6828/lab5/" target="_blank" rel="noopener">https://chengshuyi.github.io/posts/course/mit6828/lab5/</a></li>
+            
+            <li class="copyright-item license"><span class="copyright-item-text">许可</span>：<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a></li>
+            
+        </ul>
+    
+
+
+
+        
+    <div class="updated-badge-container"><div title="Updated @ 2020-06-02 14:44:30 UTC" style="cursor:help;display:inline-block">
+
+<svg xmlns="http://www.w3.org/2000/svg" width="130" height="20" class="updated-badge"><linearGradient id="b" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient><clipPath id="a"><rect width="130" height="20" rx="3" fill="#fff"/></clipPath><g clip-path="url(#a)"><path class="updated-badge-left" d="M0 0h55v20H0z"/><path class="updated-badge-right" d="M55 0h75v20H55z"/><path fill="url(#b)" d="M0 0h130v20H0z"/></g><g fill="#fff" text-anchor="middle" font-size="110"><text x="285" y="150" fill="#010101" fill-opacity=".3" textLength="450" transform="scale(.1)">updated</text><text x="285" y="140" textLength="450" transform="scale(.1)">updated</text><text x="915" y="150" fill="#010101" fill-opacity=".3" textLength="650" transform="scale(.1)">2020-06-02</text><text x="915" y="140" textLength="650" transform="scale(.1)">2020-06-02</text></g></svg></div></div>
+
+
+        
+
+        
+    
+    
+
+<div class="post-share">
+
+        
+
+        <div class="share-items">
+
+            
+                
+                <div class="share-item twitter">
+                    
+                    <a href="https://twitter.com/share?url=https://chengshuyi.github.io/posts/course/mit6828/lab5/&amp;text=Lab5%20-%20%e5%ae%9e%e9%aa%8c%e7%ac%94%e8%ae%b0&amp;via=reuixiy" title="分享到「Twitter」" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon twitter-icon"><path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z"/></svg></a>
+                </div>
+            
+
+            
+                
+                <div class="share-item facebook">
+                    
+                    <a href="https://www.facebook.com/sharer/sharer.php?u=https://chengshuyi.github.io/posts/course/mit6828/lab5/" title="分享到「Facebook」" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon facebook-icon"><path d="M504 256C504 119 393 8 256 8S8 119 8 256c0 123.78 90.69 226.38 209.25 245V327.69h-63V256h63v-54.64c0-62.15 37-96.48 93.67-96.48 27.14 0 55.52 4.84 55.52 4.84v61h-31.28c-30.8 0-40.41 19.12-40.41 38.73V256h68.78l-11 71.69h-57.78V501C413.31 482.38 504 379.78 504 256z"/></svg></a>
+                </div>
+            
+
+            
+                
+                <div class="share-item linkedin">
+                    
+                    <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https://chengshuyi.github.io/posts/course/mit6828/lab5/&amp;title=Lab5%20-%20%e5%ae%9e%e9%aa%8c%e7%ac%94%e8%ae%b0&amp;summary=%e6%96%87%e4%bb%b6%e7%b3%bb%e7%bb%9f%e6%9e%b6%e6%9e%84%20%e5%9c%a8init.c%e9%80%9a%e8%bf%87ENV_CREATE%28fs_fs,%20ENV_TYPE_FS%29;%e5%88%9b%e5%bb%ba%e4%b8%80%e4%b8%aa%e4%b8%93%e7%94%a8%e4%ba%8e%e6%96%87%e4%bb%b6%e7%b3%bb%e7%bb%9f%e7%9a%84%e8%bf%9b%e7%a8%8b%ef%bc%8c%e8%af%a5%e8%bf%9b%e7%a8%8b%e6%8f%90%e4%be%9b%e4%ba%86%e6%96%87%e4%bb%b6%e7%b3%bb%e7%bb%9f%e7%9a%84%e7%ae%a1%e7%90%86%ef%bc%8c%e5%8c%85%e6%8b%ac%e8%af%bb%e5%8f%96%e6%96%87%e4%bb%b6%e3%80%81%e5%86%99%e5%85%a5%e6%96%87%e2%80%a6%e2%80%a6&amp;source=%e7%a8%8b%e4%b9%a6%e6%84%8f" title="分享到「LinkedIn」" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="icon linkedin-icon"><path d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3zM135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5zm282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9V416z"/></svg></a>
+                </div>
+            
+
+            
+                
+                <div class="share-item telegram">
+                    
+                    <a href="https://t.me/share/url?url=https://chengshuyi.github.io/posts/course/mit6828/lab5/&amp;text=Lab5%20-%20%e5%ae%9e%e9%aa%8c%e7%ac%94%e8%ae%b0" title="分享到「Telegram」" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512" class="icon telegram-icon"><path d="M248 8C111 8 0 119 0 256s111 248 248 248 248-111 248-248S385 8 248 8zm121.8 169.9l-40.7 191.8c-3 13.6-11.1 16.9-22.4 10.5l-62-45.7-29.9 28.8c-3.3 3.3-6.1 6.1-12.5 6.1l4.4-63.1 114.9-103.8c5-4.4-1.1-6.9-7.7-2.5l-142 89.4-61.2-19.1c-13.3-4.2-13.6-13.3 2.8-19.7l239.1-92.2c11.1-4 20.8 2.7 17.2 19.5z"/></svg></a>
+                </div>
+            
+
+            
+                
+                <div class="share-item weibo">
+                    
+                    <a href="https://service.weibo.com/share/share.php?&amp;url=https://chengshuyi.github.io/posts/course/mit6828/lab5/&amp;title=Lab5%20-%20%e5%ae%9e%e9%aa%8c%e7%ac%94%e8%ae%b0&amp;pic=https://chengshuyi.github.io/icons/apple-touch-icon.png&amp;searchPic=false" title="分享到「新浪微博」" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon weibo-icon"><path d="M407 177.6c7.6-24-13.4-46.8-37.4-41.7-22 4.8-28.8-28.1-7.1-32.8 50.1-10.9 92.3 37.1 76.5 84.8-6.8 21.2-38.8 10.8-32-10.3zM214.8 446.7C108.5 446.7 0 395.3 0 310.4c0-44.3 28-95.4 76.3-143.7C176 67 279.5 65.8 249.9 161c-4 13.1 12.3 5.7 12.3 6 79.5-33.6 140.5-16.8 114 51.4-3.7 9.4 1.1 10.9 8.3 13.1 135.7 42.3 34.8 215.2-169.7 215.2zm143.7-146.3c-5.4-55.7-78.5-94-163.4-85.7-84.8 8.6-148.8 60.3-143.4 116s78.5 94 163.4 85.7c84.8-8.6 148.8-60.3 143.4-116zM347.9 35.1c-25.9 5.6-16.8 43.7 8.3 38.3 72.3-15.2 134.8 52.8 111.7 124-7.4 24.2 29.1 37 37.4 12 31.9-99.8-55.1-195.9-157.4-174.3zm-78.5 311c-17.1 38.8-66.8 60-109.1 46.3-40.8-13.1-58-53.4-40.3-89.7 17.7-35.4 63.1-55.4 103.4-45.1 42 10.8 63.1 50.2 46 88.5zm-86.3-30c-12.9-5.4-30 .3-38 12.9-8.3 12.9-4.3 28 8.6 34 13.1 6 30.8.3 39.1-12.9 8-13.1 3.7-28.3-9.7-34zm32.6-13.4c-5.1-1.7-11.4.6-14.3 5.4-2.9 5.1-1.4 10.6 3.7 12.9 5.1 2 11.7-.3 14.6-5.4 2.8-5.2 1.1-10.9-4-12.9z"/></svg></a>
+                </div>
+            
+
+            
+                
+                <div class="share-item douban">
+                    
+                    <a href="https://www.douban.com/share/service?href=https://chengshuyi.github.io/posts/course/mit6828/lab5/&amp;name=Lab5%20-%20%e5%ae%9e%e9%aa%8c%e7%ac%94%e8%ae%b0&amp;text=%e6%96%87%e4%bb%b6%e7%b3%bb%e7%bb%9f%e6%9e%b6%e6%9e%84%20%e5%9c%a8init.c%e9%80%9a%e8%bf%87ENV_CREATE%28fs_fs,%20ENV_TYPE_FS%29;%e5%88%9b%e5%bb%ba%e4%b8%80%e4%b8%aa%e4%b8%93%e7%94%a8%e4%ba%8e%e6%96%87%e4%bb%b6%e7%b3%bb%e7%bb%9f%e7%9a%84%e8%bf%9b%e7%a8%8b%ef%bc%8c%e8%af%a5%e8%bf%9b%e7%a8%8b%e6%8f%90%e4%be%9b%e4%ba%86%e6%96%87%e4%bb%b6%e7%b3%bb%e7%bb%9f%e7%9a%84%e7%ae%a1%e7%90%86%ef%bc%8c%e5%8c%85%e6%8b%ac%e8%af%bb%e5%8f%96%e6%96%87%e4%bb%b6%e3%80%81%e5%86%99%e5%85%a5%e6%96%87%e2%80%a6%e2%80%a6" title="分享到「豆瓣」" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon douban-icon"><path d="M.643.92v2.412h22.714V.92H.643zm1.974 4.926v9.42h18.764v-9.42H2.617zm2.72 2.408H18.69v4.605H5.338V8.254zm1.657 7.412l-2.512.938c1.037 1.461 1.87 2.825 2.512 4.091H0v2.385h24v-2.385h-6.678c.818-1.176 1.589-2.543 2.303-4.091l-2.73-.938a29.952 29.952 0 01-2.479 5.03h-4.75c-.786-1.962-1.677-3.641-2.672-5.03Z"/></svg></a>
+                </div>
+            
+
+            
+                
+                <div class="share-item qq">
+                    
+                    <a href="https://connect.qq.com/widget/shareqq/index.html?url=https://chengshuyi.github.io/posts/course/mit6828/lab5/&amp;title=Lab5%20-%20%e5%ae%9e%e9%aa%8c%e7%ac%94%e8%ae%b0&amp;summary=%e6%96%87%e4%bb%b6%e7%b3%bb%e7%bb%9f%e6%9e%b6%e6%9e%84%20%e5%9c%a8init.c%e9%80%9a%e8%bf%87ENV_CREATE%28fs_fs,%20ENV_TYPE_FS%29;%e5%88%9b%e5%bb%ba%e4%b8%80%e4%b8%aa%e4%b8%93%e7%94%a8%e4%ba%8e%e6%96%87%e4%bb%b6%e7%b3%bb%e7%bb%9f%e7%9a%84%e8%bf%9b%e7%a8%8b%ef%bc%8c%e8%af%a5%e8%bf%9b%e7%a8%8b%e6%8f%90%e4%be%9b%e4%ba%86%e6%96%87%e4%bb%b6%e7%b3%bb%e7%bb%9f%e7%9a%84%e7%ae%a1%e7%90%86%ef%bc%8c%e5%8c%85%e6%8b%ac%e8%af%bb%e5%8f%96%e6%96%87%e4%bb%b6%e3%80%81%e5%86%99%e5%85%a5%e6%96%87%e2%80%a6%e2%80%a6&amp;pics=https://chengshuyi.github.io/icons/apple-touch-icon.png&amp;site=%e7%a8%8b%e4%b9%a6%e6%84%8f" title="分享到「QQ」" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="icon qq-icon"><path d="M433.754 420.445c-11.526 1.393-44.86-52.741-44.86-52.741 0 31.345-16.136 72.247-51.051 101.786 16.842 5.192 54.843 19.167 45.803 34.421-7.316 12.343-125.51 7.881-159.632 4.037-34.122 3.844-152.316 8.306-159.632-4.037-9.045-15.25 28.918-29.214 45.783-34.415-34.92-29.539-51.059-70.445-51.059-101.792 0 0-33.334 54.134-44.859 52.741-5.37-.65-12.424-29.644 9.347-99.704 10.261-33.024 21.995-60.478 40.144-105.779C60.683 98.063 108.982.006 224 0c113.737.006 163.156 96.133 160.264 214.963 18.118 45.223 29.912 72.85 40.144 105.778 21.768 70.06 14.716 99.053 9.346 99.704z"/></svg></a>
+                </div>
+            
+
+            
+                
+                <div class="share-item qzone">
+                    
+                    <a href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=https://chengshuyi.github.io/posts/course/mit6828/lab5/&amp;title=Lab5%20-%20%e5%ae%9e%e9%aa%8c%e7%ac%94%e8%ae%b0&amp;summary=%e6%96%87%e4%bb%b6%e7%b3%bb%e7%bb%9f%e6%9e%b6%e6%9e%84%20%e5%9c%a8init.c%e9%80%9a%e8%bf%87ENV_CREATE%28fs_fs,%20ENV_TYPE_FS%29;%e5%88%9b%e5%bb%ba%e4%b8%80%e4%b8%aa%e4%b8%93%e7%94%a8%e4%ba%8e%e6%96%87%e4%bb%b6%e7%b3%bb%e7%bb%9f%e7%9a%84%e8%bf%9b%e7%a8%8b%ef%bc%8c%e8%af%a5%e8%bf%9b%e7%a8%8b%e6%8f%90%e4%be%9b%e4%ba%86%e6%96%87%e4%bb%b6%e7%b3%bb%e7%bb%9f%e7%9a%84%e7%ae%a1%e7%90%86%ef%bc%8c%e5%8c%85%e6%8b%ac%e8%af%bb%e5%8f%96%e6%96%87%e4%bb%b6%e3%80%81%e5%86%99%e5%85%a5%e6%96%87%e2%80%a6%e2%80%a6&amp;pics=https://chengshuyi.github.io/icons/apple-touch-icon.png&amp;site=%e7%a8%8b%e4%b9%a6%e6%84%8f" title="分享到「QQ 空间」" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon qzone-icon"><path d="M23.985 9.202c-.032-.099-.127-.223-.334-.258-.207-.036-7.351-1.406-7.351-1.406s-.105-.022-.198-.07c-.092-.047-.127-.167-.127-.167S12.447.956 12.349.77C12.25.583 12.104.532 12 .532c-.104 0-.251.051-.349.238-.098.186-3.626 6.531-3.626 6.531s-.035.12-.128.167c-.092.047-.197.07-.197.07S.556 8.908.348 8.943c-.208.036-.302.16-.333.258a.477.477 0 0 0 .125.449l5.362 5.49s.072.08.119.172c.016.104.005.21.005.21s-1.189 7.242-1.22 7.45.075.369.159.43c.083.062.233.106.421.013.189-.093 6.812-3.261 6.812-3.261s.098-.044.201-.061c.103-.017.201.061.201.061s6.623 3.168 6.812 3.261c.188.094.338.049.421-.013a.463.463 0 0 0 .159-.43c-.021-.14-.93-5.677-.93-5.677.876-.54 1.425-1.039 1.849-1.747-2.594.969-6.006 1.717-9.415 1.866-.915.041-2.41.097-3.473-.015-.678-.071-1.17-.144-1.243-.438-.053-.215.054-.46.545-.831a2640.5 2640.5 0 0 1 2.861-2.155c1.285-.968 3.559-2.47 3.559-2.731 0-.285-2.144-.781-4.037-.781-1.945 0-2.275.132-2.811.168-.488.034-.769.005-.804-.138-.06-.248.183-.389.588-.568.709-.314 1.86-.594 1.984-.626.194-.052 3.082-.805 5.618-.535 1.318.14 3.244.668 3.244 1.276 0 .342-1.721 1.494-3.225 2.597-1.149.843-2.217 1.561-2.217 1.688 0 .342 3.533 1.241 6.689 1.01l.003-.022c.048-.092.119-.172.119-.172l5.362-5.49a.477.477 0 0 0 .127-.449z"/></svg></a>
+                </div>
+            
+
+            
+                
+                <div class="share-item qrcode">
+                    <div class="qrcode-container" title="通过「二维码」"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="icon qrcode-icon"><path d="M0 224h192V32H0v192zM64 96h64v64H64V96zm192-64v192h192V32H256zm128 128h-64V96h64v64zM0 480h192V288H0v192zm64-128h64v64H64v-64zm352-64h32v128h-96v-32h-32v96h-64V288h96v32h64v-32zm0 160h32v32h-32v-32zm-64 0h32v32h-32v-32z"/></svg><div id="qrcode-img"></div>
+                    </div>
+                    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+
+<script>
+    var typeNumber = 0;
+    var errorCorrectionLevel = 'L';
+    var qr = qrcode(typeNumber, errorCorrectionLevel);
+    qr.addData('https:\/\/chengshuyi.github.io\/posts\/course\/mit6828\/lab5\/');
+    qr.make();
+    document.getElementById('qrcode-img').innerHTML = qr.createImgTag();
+</script>
+
+                </div>
+            
+
+        </div>
+
+    </div>
+
+
+
+
+        
+    
+    
+        <div class="related-posts">
+            <h2 class="related-title">相关文章：<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon related-icon"><path d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"/></svg></h2>
+            <ul class="related-list">
+                
+                    <li class="related-item">
+                        <a href="/posts/course/mit6828/lab4/" class="related-link">Lab4 - 实验笔记</a>
+                    </li>
+                
+                    <li class="related-item">
+                        <a href="/posts/course/mit6828/lab3/" class="related-link">Lab3 - 实验笔记</a>
+                    </li>
+                
+                    <li class="related-item">
+                        <a href="/posts/course/mit6828/lab2/" class="related-link">Lab2 - 实验笔记</a>
+                    </li>
+                
+                    <li class="related-item">
+                        <a href="/posts/course/mit6828/lab1/" class="related-link">Lab1 - 实验笔记</a>
+                    </li>
+                
+            </ul>
+        </div>
+    
+
+
+        
+    
+        <div class="post-tags">
+            
+                
+                
+                
+                
+                    
+                    <a href="/tags/mit6828-os%E5%AE%9E%E9%AA%8C/" rel="tag" class="post-tags-link"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon tag-icon"><path d="M0 252.118V48C0 21.49 21.49 0 48 0h204.118a48 48 0 0 1 33.941 14.059l211.882 211.882c18.745 18.745 18.745 49.137 0 67.882L293.823 497.941c-18.745 18.745-49.137 18.745-67.882 0L14.059 286.059A48 48 0 0 1 0 252.118zM112 64c-26.51 0-48 21.49-48 48s21.49 48 48 48 48-21.49 48-48-21.49-48-48-48z"/></svg>mit6828 OS实验</a>
+                
+            
+        </div>
+    
+
+
+        
+
+        
+
+        
+    
+        
+        
+    
+    
+    
+    
+        <ul class="post-nav">
+            
+                <li class="post-nav-prev">
+                    <a href="/posts/linux-kernel/bpf-paper/" rel="prev">< The BSD Packet Filter论文笔记及源码解析</a>
+                </li>
+            
+            
+                <li class="post-nav-next">
+                    <a href="/posts/course/mit6828/lab4/" rel="next">Lab4 - 实验笔记 ></a>
+                </li>
+            
+        </ul>
+    
+
+
+        
+
+
+    </div>
+</main>
+
+
+            
+    <div id="back-to-top" class="back-to-top">
+        <a href="#"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="icon"><path d="M34.9 289.5l-22.2-22.2c-9.4-9.4-9.4-24.6 0-33.9L207 39c9.4-9.4 24.6-9.4 33.9 0l194.3 194.3c9.4 9.4 9.4 24.6 0 33.9L413 289.4c-9.5 9.5-25 9.3-34.3-.4L264 168.6V456c0 13.3-10.7 24-24 24h-32c-13.3 0-24-10.7-24-24V168.6L69.2 289.1c-9.3 9.8-24.8 10-34.3.4z"/></svg></a>
+    </div>
+
+            
+    <footer id="footer" class="footer">
+        <div class="footer-inner"><div class="site-info">©&nbsp;1969–2020&nbsp;<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon footer-icon"><path d="M462.3 62.6C407.5 15.9 326 24.3 275.7 76.2L256 96.5l-19.7-20.3C186.1 24.3 104.5 15.9 49.7 62.6c-62.8 53.6-66.1 149.8-9.9 207.9l193.5 199.8c12.5 12.9 32.8 12.9 45.3 0l193.5-199.8c56.3-58.1 53-154.3-9.8-207.9z"/></svg>&nbsp;程书意</div><div class="powered-by">Powered by <a href="https://github.com/gohugoio/hugo" target="_blank" rel="noopener">Hugo</a> | Theme is <a href="https://github.com/reuixiy/hugo-theme-meme" target="_blank" rel="noopener">MemE</a></div><div class="site-copyright"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a></div>
+
+            
+        </div>
+    </footer>
+
+
+        </div>
+        <script src="/js/meme.min.e173d917b4d2012bf68b1ff9d69316b4067c8f101bc3edf8d126cded554538b6.js" integrity="sha256-4XPZF7TSASv2ix/51pMWtAZ8jxAbw+340SbN7VVFOLY="></script>
+
+
+    <script src="https://cdn.jsdelivr.net/gh/cferdinandi/smooth-scroll/dist/smooth-scroll.polyfills.min.js"></script>
+
+<script>
+    var scroll = new SmoothScroll('a[href*="#"]', {
+        speedAsDuration: true,
+        header: '[data-scroll-header]'
+    });
+</script>
+
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous" />
+<script>
+    if (typeof renderMathInElement === 'undefined') {
+        var getScript = (options) => {
+            var script = document.createElement('script');
+            script.defer = true;
+            script.crossOrigin = 'anonymous';
+            Object.keys(options).forEach((key) => {
+                script[key] = options[key];
+            });
+            document.body.appendChild(script);
+        };
+        getScript({
+            src: 'https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.js',
+            integrity: 'sha384-JiKN5O8x9Hhs/UE5cT5AAJqieYlOZbGT3CHws/y97o3ty4R7/O5poG9F3JoiOYw1',
+            onload: () => {
+                getScript({
+                    src: 'https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/contrib/mhchem.min.js',
+                    integrity: 'sha384-oa0lfxCGjaU1LdYckhq8LZcP+JTf8cyJXe69O6VE6UrShzWveT6KiCElJrck/stm',
+                    onload: () => {
+                        getScript({
+                            src: 'https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/contrib/auto-render.min.js',
+                            integrity: 'sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI',
+                            onload: () => {
+                                renderKaTex();
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    } else {
+        renderKaTex();
+    }
+    function renderKaTex() {
+        renderMathInElement(
+            document.body,
+            {
+                delimiters: [
+                    {left: "$$", right: "$$", display: true},
+                    {left: "\\[", right: "\\]", display: true},
+                    {left: "$", right: "$", display: false},
+                    {left: "\\(", right: "\\)", display: false}
+                ]
+            }
+        );
+    }
+</script>
+
+
+
+    <script>
+    if (typeof MathJax === 'undefined') {
+        window.MathJax = {
+            loader: {
+                load: ['[tex]/mhchem']
+            },
+            
+            tex: {
+                inlineMath: {'[+]': [['$', '$']]},
+                tags: 'ams',
+                packages: {'[+]': ['mhchem']}
+            }
+        };
+        (function() {
+            var script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js';
+            script.defer = true;
+            document.head.appendChild(script);
+        })();
+    } else {
+        MathJax.texReset();
+        MathJax.typeset();
+    }
+</script>
+
+
+
+
+
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/medium-zoom@latest/dist/medium-zoom.min.js"></script>
+
+<script>
+    mediumZoom(document.querySelectorAll('div.post-body img'), {
+        background: 'hsla(var(--color-bg-h), var(--color-bg-s), var(--color-bg-l), 0.95)'
+    })
+</script>
+
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/instant.page@3.0.0/instantpage.min.js" type="module" defer></script>
+
+
+
+
+
+
+
+
+
+
+    </body>
+</html>

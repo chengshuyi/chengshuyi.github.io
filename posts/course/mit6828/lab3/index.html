@@ -53,7 +53,7 @@
     <meta name="author" content="程书意" />
     
     
-    <meta name="description" content="User Environments and Exception Handling env_init函数的实现类似于page_init函数，主要将空闲的struct Env插入到env_free_list链表上； env_setup_vm函数为该……" />
+    <meta name="description" content="lab3的实验主要涉及到x86的硬件机制：中断、异常等等。因此，需要自己实现中断向量表、保存和恢复上下文、系统调用和页异常相关的函数。 lab3也新增了用户进程的概念，需……" />
 
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
     <link rel="mask-icon" href="/icons/safari-pinned-tab.svg" color="#2a6df4" />
@@ -81,13 +81,13 @@
         "@context": "https://schema.org",
         "@type": "BlogPosting",
         "datePublished": "2020-04-25T13:34:13+08:00",
-        "dateModified": "2020-05-10T08:32:34+00:00",
+        "dateModified": "2020-06-02T14:44:30+00:00",
         "url": "https://chengshuyi.github.io/posts/course/mit6828/lab3/",
         "headline": "Lab3 - 实验笔记",
-        "description": "User Environments and Exception Handling env_init函数的实现类似于page_init函数，主要将空闲的struct Env插入到env_free_list链表上； env_setup_vm函数为该……",
+        "description": "lab3的实验主要涉及到x86的硬件机制：中断、异常等等。因此，需要自己实现中断向量表、保存和恢复上下文、系统调用和页异常相关的函数。 lab3也新增了用户进程的概念，需……",
         "inLanguage" : "zh-CN",
         "articleSection": "posts",
-        "wordCount":  796 ,
+        "wordCount":  2072 ,
         "image": ["https://gitee.com/chengshuyi/scripts/raw/master/img/20200425200239.png"],
         "author": {
             "@type": "Person",
@@ -131,13 +131,13 @@
 
 
 <meta property="og:title" content="Lab3 - 实验笔记" />
-<meta property="og:description" content="User Environments and Exception Handling env_init函数的实现类似于page_init函数，主要将空闲的struct Env插入到env_free_list链表上； env_setup_vm函数为该……" />
+<meta property="og:description" content="lab3的实验主要涉及到x86的硬件机制：中断、异常等等。因此，需要自己实现中断向量表、保存和恢复上下文、系统调用和页异常相关的函数。 lab3也新增了用户进程的概念，需……" />
 <meta property="og:url" content="https://chengshuyi.github.io/posts/course/mit6828/lab3/" />
 <meta property="og:site_name" content="程书意" />
 <meta property="og:locale" content="zh" /><meta property="og:image" content="https://gitee.com/chengshuyi/scripts/raw/master/img/20200425200239.png" />
 <meta property="og:type" content="article" />
     <meta property="article:published_time" content="2020-04-25T13:34:13+08:00" />
-    <meta property="article:modified_time" content="2020-05-10T08:32:34+00:00" />
+    <meta property="article:modified_time" content="2020-06-02T14:44:30+00:00" />
     
     <meta property="article:section" content="posts" />
 
@@ -250,7 +250,7 @@
     
     
         
-        <time datetime="2020-05-10T08:32:34+00:00" class="post-meta-item modified"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="icon post-meta-icon"><path d="M400 64h-48V12c0-6.627-5.373-12-12-12h-40c-6.627 0-12 5.373-12 12v52H160V12c0-6.627-5.373-12-12-12h-40c-6.627 0-12 5.373-12 12v52H48C21.49 64 0 85.49 0 112v352c0 26.51 21.49 48 48 48h352c26.51 0 48-21.49 48-48V112c0-26.51-21.49-48-48-48zm-6 400H54a6 6 0 0 1-6-6V160h352v298a6 6 0 0 1-6 6zm-52.849-200.65L198.842 404.519c-4.705 4.667-12.303 4.637-16.971-.068l-75.091-75.699c-4.667-4.705-4.637-12.303.068-16.971l22.719-22.536c4.705-4.667 12.303-4.637 16.97.069l44.104 44.461 111.072-110.181c4.705-4.667 12.303-4.637 16.971.068l22.536 22.718c4.667 4.705 4.636 12.303-.069 16.97z"/></svg>&nbsp;2020.5.10</time>
+        <time datetime="2020-06-02T14:44:30+00:00" class="post-meta-item modified"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="icon post-meta-icon"><path d="M400 64h-48V12c0-6.627-5.373-12-12-12h-40c-6.627 0-12 5.373-12 12v52H160V12c0-6.627-5.373-12-12-12h-40c-6.627 0-12 5.373-12 12v52H48C21.49 64 0 85.49 0 112v352c0 26.51 21.49 48 48 48h352c26.51 0 48-21.49 48-48V112c0-26.51-21.49-48-48-48zm-6 400H54a6 6 0 0 1-6-6V160h352v298a6 6 0 0 1-6 6zm-52.849-200.65L198.842 404.519c-4.705 4.667-12.303 4.637-16.971-.068l-75.091-75.699c-4.667-4.705-4.637-12.303.068-16.971l22.719-22.536c4.705-4.667 12.303-4.637 16.97.069l44.104 44.461 111.072-110.181c4.705-4.667 12.303-4.637 16.971.068l22.536 22.718c4.667 4.705 4.636 12.303-.069 16.97z"/></svg>&nbsp;2020.6.2</time>
     
     
     
@@ -265,27 +265,153 @@
     
     
         
-        <span class="post-meta-item wordcount"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon post-meta-icon"><path d="M497.9 142.1l-46.1 46.1c-4.7 4.7-12.3 4.7-17 0l-111-111c-4.7-4.7-4.7-12.3 0-17l46.1-46.1c18.7-18.7 49.1-18.7 67.9 0l60.1 60.1c18.8 18.7 18.8 49.1 0 67.9zM284.2 99.8L21.6 362.4.4 483.9c-2.9 16.4 11.4 30.6 27.8 27.8l121.5-21.3 262.6-262.6c4.7-4.7 4.7-12.3 0-17l-111-111c-4.8-4.7-12.4-4.7-17.1 0zM124.1 339.9c-5.5-5.5-5.5-14.3 0-19.8l154-154c5.5-5.5 14.3-5.5 19.8 0s5.5 14.3 0 19.8l-154 154c-5.5 5.5-14.3 5.5-19.8 0zM88 424h48v36.3l-64.5 11.3-31.1-31.1L51.7 376H88v48z"/></svg>&nbsp;796</span>
+        <span class="post-meta-item wordcount"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon post-meta-icon"><path d="M497.9 142.1l-46.1 46.1c-4.7 4.7-12.3 4.7-17 0l-111-111c-4.7-4.7-4.7-12.3 0-17l46.1-46.1c18.7-18.7 49.1-18.7 67.9 0l60.1 60.1c18.8 18.7 18.8 49.1 0 67.9zM284.2 99.8L21.6 362.4.4 483.9c-2.9 16.4 11.4 30.6 27.8 27.8l121.5-21.3 262.6-262.6c4.7-4.7 4.7-12.3 0-17l-111-111c-4.8-4.7-12.4-4.7-17.1 0zM124.1 339.9c-5.5-5.5-5.5-14.3 0-19.8l154-154c5.5-5.5 14.3-5.5 19.8 0s5.5 14.3 0 19.8l-154 154c-5.5 5.5-14.3 5.5-19.8 0zM88 424h48v36.3l-64.5 11.3-31.1-31.1L51.7 376H88v48z"/></svg>&nbsp;2072</span>
     
     
         
-        <span class="post-meta-item reading-time"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon post-meta-icon"><path d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm0 448c-110.5 0-200-89.5-200-200S145.5 56 256 56s200 89.5 200 200-89.5 200-200 200zm61.8-104.4l-84.9-61.7c-3.1-2.3-4.9-5.9-4.9-9.7V116c0-6.6 5.4-12 12-12h32c6.6 0 12 5.4 12 12v141.7l66.8 48.6c5.4 3.9 6.5 11.4 2.6 16.8L334.6 349c-3.9 5.3-11.4 6.5-16.8 2.6z"/></svg>&nbsp;2&nbsp;分钟</span>
+        <span class="post-meta-item reading-time"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon post-meta-icon"><path d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm0 448c-110.5 0-200-89.5-200-200S145.5 56 256 56s200 89.5 200 200-89.5 200-200 200zm61.8-104.4l-84.9-61.7c-3.1-2.3-4.9-5.9-4.9-9.7V116c0-6.6 5.4-12 12-12h32c6.6 0 12 5.4 12 12v141.7l66.8 48.6c5.4 3.9 6.5 11.4 2.6 16.8L334.6 349c-3.9 5.3-11.4 6.5-16.8 2.6z"/></svg>&nbsp;5&nbsp;分钟</span>
     
     
 </div>
             
 
-            <div class="post-body"><h3 id="user-environments-and-exception-handling"><a href="#user-environments-and-exception-handling" class="anchor-link"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon anchor-icon"><path d="M326.612 185.391c59.747 59.809 58.927 155.698.36 214.59-.11.12-.24.25-.36.37l-67.2 67.2c-59.27 59.27-155.699 59.262-214.96 0-59.27-59.26-59.27-155.7 0-214.96l37.106-37.106c9.84-9.84 26.786-3.3 27.294 10.606.648 17.722 3.826 35.527 9.69 52.721 1.986 5.822.567 12.262-3.783 16.612l-13.087 13.087c-28.026 28.026-28.905 73.66-1.155 101.96 28.024 28.579 74.086 28.749 102.325.51l67.2-67.19c28.191-28.191 28.073-73.757 0-101.83-3.701-3.694-7.429-6.564-10.341-8.569a16.037 16.037 0 0 1-6.947-12.606c-.396-10.567 3.348-21.456 11.698-29.806l21.054-21.055c5.521-5.521 14.182-6.199 20.584-1.731a152.482 152.482 0 0 1 20.522 17.197zM467.547 44.449c-59.261-59.262-155.69-59.27-214.96 0l-67.2 67.2c-.12.12-.25.25-.36.37-58.566 58.892-59.387 154.781.36 214.59a152.454 152.454 0 0 0 20.521 17.196c6.402 4.468 15.064 3.789 20.584-1.731l21.054-21.055c8.35-8.35 12.094-19.239 11.698-29.806a16.037 16.037 0 0 0-6.947-12.606c-2.912-2.005-6.64-4.875-10.341-8.569-28.073-28.073-28.191-73.639 0-101.83l67.2-67.19c28.239-28.239 74.3-28.069 102.325.51 27.75 28.3 26.872 73.934-1.155 101.96l-13.087 13.087c-4.35 4.35-5.769 10.79-3.783 16.612 5.864 17.194 9.042 34.999 9.69 52.721.509 13.906 17.454 20.446 27.294 10.606l37.106-37.106c59.271-59.259 59.271-155.699.001-214.959z"/></svg></a>User Environments and Exception Handling</h3>
+            <div class="post-body"><p>lab3的实验主要涉及到x86的硬件机制：中断、异常等等。因此，需要自己实现中断向量表、保存和恢复上下文、系统调用和页异常相关的函数。</p>
+<p>lab3也新增了用户进程的概念，需要实现相关函数。</p>
+<h3 id="user-environments"><a href="#user-environments" class="anchor-link"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon anchor-icon"><path d="M326.612 185.391c59.747 59.809 58.927 155.698.36 214.59-.11.12-.24.25-.36.37l-67.2 67.2c-59.27 59.27-155.699 59.262-214.96 0-59.27-59.26-59.27-155.7 0-214.96l37.106-37.106c9.84-9.84 26.786-3.3 27.294 10.606.648 17.722 3.826 35.527 9.69 52.721 1.986 5.822.567 12.262-3.783 16.612l-13.087 13.087c-28.026 28.026-28.905 73.66-1.155 101.96 28.024 28.579 74.086 28.749 102.325.51l67.2-67.19c28.191-28.191 28.073-73.757 0-101.83-3.701-3.694-7.429-6.564-10.341-8.569a16.037 16.037 0 0 1-6.947-12.606c-.396-10.567 3.348-21.456 11.698-29.806l21.054-21.055c5.521-5.521 14.182-6.199 20.584-1.731a152.482 152.482 0 0 1 20.522 17.197zM467.547 44.449c-59.261-59.262-155.69-59.27-214.96 0l-67.2 67.2c-.12.12-.25.25-.36.37-58.566 58.892-59.387 154.781.36 214.59a152.454 152.454 0 0 0 20.521 17.196c6.402 4.468 15.064 3.789 20.584-1.731l21.054-21.055c8.35-8.35 12.094-19.239 11.698-29.806a16.037 16.037 0 0 0-6.947-12.606c-2.912-2.005-6.64-4.875-10.341-8.569-28.073-28.073-28.191-73.639 0-101.83l67.2-67.19c28.239-28.239 74.3-28.069 102.325.51 27.75 28.3 26.872 73.934-1.155 101.96l-13.087 13.087c-4.35 4.35-5.769 10.79-3.783 16.612 5.864 17.194 9.042 34.999 9.69 52.721.509 13.906 17.454 20.446 27.294 10.606l37.106-37.106c59.271-59.259 59.271-155.699.001-214.959z"/></svg></a>user environments</h3>
+<p>jos的user environments是tcb的概念，用于描述一个进程实体。其结构如下所示：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="k">struct</span> <span class="n">Env</span> <span class="p">{</span>
+	<span class="k">struct</span> <span class="n">Trapframe</span> <span class="n">env_tf</span><span class="p">;</span>	<span class="c1">// Saved registers
+</span><span class="c1"></span>	<span class="k">struct</span> <span class="n">Env</span> <span class="o">*</span><span class="n">env_link</span><span class="p">;</span>		<span class="c1">// Next free Env
+</span><span class="c1"></span>	<span class="n">envid_t</span> <span class="n">env_id</span><span class="p">;</span>				<span class="c1">// Unique environment identifier
+</span><span class="c1"></span>	<span class="n">envid_t</span> <span class="n">env_parent_id</span><span class="p">;</span>		<span class="c1">// env_id of this env&#39;s parent
+</span><span class="c1"></span>	<span class="k">enum</span> <span class="n">EnvType</span> <span class="n">env_type</span><span class="p">;</span>		<span class="c1">// Indicates special system environments
+</span><span class="c1"></span>	<span class="kt">unsigned</span> <span class="n">env_status</span><span class="p">;</span>		<span class="c1">// Status of the environment
+</span><span class="c1"></span>	<span class="n">uint32_t</span> <span class="n">env_runs</span><span class="p">;</span>			<span class="c1">// Number of times environment has run
+</span><span class="c1"></span>	<span class="kt">int</span> <span class="n">env_cpunum</span><span class="p">;</span>				<span class="c1">// The CPU that the env is running on
+</span><span class="c1"></span>
+	<span class="c1">// Address space
+</span><span class="c1"></span>	<span class="n">pde_t</span> <span class="o">*</span><span class="n">env_pgdir</span><span class="p">;</span>			<span class="c1">// Kernel virtual address of page dir
+</span><span class="c1"></span>
+	<span class="c1">// Exception handling
+</span><span class="c1"></span>	<span class="kt">void</span> <span class="o">*</span><span class="n">env_pgfault_upcall</span><span class="p">;</span>	<span class="c1">// Page fault upcall entry point
+</span><span class="c1"></span>
+	<span class="c1">// Lab 4 IPC
+</span><span class="c1"></span>	<span class="kt">bool</span> <span class="n">env_ipc_recving</span><span class="p">;</span>		<span class="c1">// Env is blocked receiving
+</span><span class="c1"></span>	<span class="kt">void</span> <span class="o">*</span><span class="n">env_ipc_dstva</span><span class="p">;</span>		<span class="c1">// VA at which to map received page
+</span><span class="c1"></span>	<span class="n">uint32_t</span> <span class="n">env_ipc_value</span><span class="p">;</span>		<span class="c1">// Data value sent to us
+</span><span class="c1"></span>	<span class="n">envid_t</span> <span class="n">env_ipc_from</span><span class="p">;</span>		<span class="c1">// envid of the sender
+</span><span class="c1"></span>	<span class="kt">int</span> <span class="n">env_ipc_perm</span><span class="p">;</span>			<span class="c1">// Perm of page mapping received
+</span><span class="c1"></span><span class="p">};</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="中断和异常"><a href="#中断和异常" class="anchor-link"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon anchor-icon"><path d="M326.612 185.391c59.747 59.809 58.927 155.698.36 214.59-.11.12-.24.25-.36.37l-67.2 67.2c-59.27 59.27-155.699 59.262-214.96 0-59.27-59.26-59.27-155.7 0-214.96l37.106-37.106c9.84-9.84 26.786-3.3 27.294 10.606.648 17.722 3.826 35.527 9.69 52.721 1.986 5.822.567 12.262-3.783 16.612l-13.087 13.087c-28.026 28.026-28.905 73.66-1.155 101.96 28.024 28.579 74.086 28.749 102.325.51l67.2-67.19c28.191-28.191 28.073-73.757 0-101.83-3.701-3.694-7.429-6.564-10.341-8.569a16.037 16.037 0 0 1-6.947-12.606c-.396-10.567 3.348-21.456 11.698-29.806l21.054-21.055c5.521-5.521 14.182-6.199 20.584-1.731a152.482 152.482 0 0 1 20.522 17.197zM467.547 44.449c-59.261-59.262-155.69-59.27-214.96 0l-67.2 67.2c-.12.12-.25.25-.36.37-58.566 58.892-59.387 154.781.36 214.59a152.454 152.454 0 0 0 20.521 17.196c6.402 4.468 15.064 3.789 20.584-1.731l21.054-21.055c8.35-8.35 12.094-19.239 11.698-29.806a16.037 16.037 0 0 0-6.947-12.606c-2.912-2.005-6.64-4.875-10.341-8.569-28.073-28.073-28.191-73.639 0-101.83l67.2-67.19c28.239-28.239 74.3-28.069 102.325.51 27.75 28.3 26.872 73.934-1.155 101.96l-13.087 13.087c-4.35 4.35-5.769 10.79-3.783 16.612 5.864 17.194 9.042 34.999 9.69 52.721.509 13.906 17.454 20.446 27.294 10.606l37.106-37.106c59.271-59.259 59.271-155.699.001-214.959z"/></svg></a>中断和异常</h3>
+<p>中断描述符表：x86最多有256个表项；</p>
+<p>TSS：包含了段选择子和栈的基址；</p>
+<p>0-31号中断：同步异常；</p>
+<p>31号以上中断：软中断和硬中断；</p>
+<p>嵌套中断和异常：</p>
+<blockquote>
+<p><strong>Exercise 1.</strong> Modify <code>mem_init()</code> in <code>kern/pmap.c</code> to allocate and map the <code>envs</code> array. This array consists of exactly <code>NENV</code> instances of the <code>Env</code> structure allocated much like how you allocated the <code>pages</code> array. Also like the <code>pages</code> array, the memory backing <code>envs</code> should also be mapped user read-only at <code>UENVS</code> (defined in <code>inc/memlayout.h</code>) so user processes can read from this array.</p>
+</blockquote>
+<p>为<code>NENV</code>个<code>struct Env</code>分配内存空间，然后将其映射到位于用户地址空间的虚拟地址UENVS。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">//分配内存
+</span><span class="c1"></span><span class="n">envs</span> <span class="o">=</span> <span class="p">(</span><span class="k">struct</span> <span class="n">Env</span><span class="o">*</span><span class="p">)</span><span class="n">boot_alloc</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span> <span class="n">Env</span><span class="p">)</span><span class="o">*</span><span class="n">NENV</span><span class="p">);</span>
+<span class="n">memset</span><span class="p">(</span><span class="n">envs</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span> <span class="n">Env</span><span class="p">)</span><span class="o">*</span><span class="n">NENV</span><span class="p">);</span>
+<span class="c1">//做映射
+</span><span class="c1"></span><span class="n">boot_map_region</span><span class="p">(</span><span class="n">kern_pgdir</span><span class="p">,</span><span class="n">UENVS</span><span class="p">,</span><span class="n">ROUNDUP</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span> <span class="n">Env</span><span class="p">)</span><span class="o">*</span><span class="n">NENV</span><span class="p">,</span><span class="n">PGSIZE</span><span class="p">),</span><span class="n">PADDR</span><span class="p">(</span><span class="n">envs</span><span class="p">),</span><span class="n">PTE_P</span><span class="o">|</span><span class="n">PTE_U</span><span class="p">);</span>
+</code></pre></td></tr></table>
+</div>
+</div><blockquote>
+<p><strong>Exercise 2.</strong> In the file <code>env.c</code>, finish coding the following functions:</p>
 <ul>
-<li><code>env_init</code>函数的实现类似于<code>page_init</code>函数，主要将空闲的<code>struct Env</code>插入到<code>env_free_list</code>链表上；</li>
-<li><code>env_setup_vm</code>函数为该进程分配一个页目录表，并将内核页目录表内容拷贝到该进程的页目录表；</li>
-<li><code>region_alloc</code>函数为进程分配内存，并将其映射到其地址空间；</li>
-<li><code>load_icode</code>函数解析elf文件头部信息，将其加载到指定的地址上；修改进程的eip值；为该进程创建用户栈；</li>
-<li><code>env_alloc</code>函数工作流程：调用<code>env_setup_vm</code>完成进程的页目录表的分配；分配一个id；设置该进程的寄存器的值，包括：ds、es、ss、esp、cs等；</li>
-<li><code>env_create</code>函数先后调用了<code>env_alloc</code>函数和<code>load_icode</code>函数；</li>
-<li><code>env_run</code>函数根据进程是否发生切换来决定是否更新cr3寄存器的值；</li>
+<li><code>env_init()</code></li>
 </ul>
-<p>中断流程如下：</p>
+<p>Initialize all of the <code>Env</code> structures in the <code>envs</code> array and add them to the <code>env_free_list</code>. Also calls <code>env_init_percpu</code>, which configures the segmentation hardware with separate segments for privilege level 0 (kernel) and privilege level 3 (user).</p>
+<ul>
+<li><code>env_setup_vm()</code></li>
+</ul>
+<p>Allocate a page directory for a new environment and initialize the kernel portion of the new environment's address space.</p>
+<ul>
+<li><code>region_alloc()</code></li>
+</ul>
+<p>Allocates and maps physical memory for an environment</p>
+<ul>
+<li><code>load_icode()</code></li>
+</ul>
+<p>You will need to parse an ELF binary image, much like the boot loader already does, and load its contents into the user address space of a new environment.</p>
+<ul>
+<li><code>env_create()</code></li>
+</ul>
+<p>Allocate an environment with <code>env_alloc</code> and call <code>load_icode</code> to load an ELF binary into it.</p>
+<ul>
+<li><code>env_run()</code></li>
+</ul>
+<p>Start a given environment running in user mode.</p>
+</blockquote>
+<p>函数较多，实现简单，这里不再贴代码。</p>
+<ul>
+<li>
+<p><code>env_init</code>函数的实现类似于<code>page_init</code>函数，主要将空闲的<code>struct Env</code>插入到<code>env_free_list</code>链表上；</p>
+</li>
+<li>
+<p><code>env_setup_vm</code>函数为该进程分配一个页目录表，并将内核页目录表内容拷贝到该进程的页目录表；</p>
+</li>
+<li>
+<p><code>region_alloc</code>函数为进程分配内存，并将其映射到其地址空间，其参数是<code>va</code>和<code>len</code>；</p>
+</li>
+<li>
+<p><code>load_icode</code>函数解析elf文件头部信息，将其加载到指定的地址上；修改进程的eip值；为该进程创建用户栈；</p>
+</li>
+<li>
+<p><code>env_alloc</code>函数工作流程：调用<code>env_setup_vm</code>完成进程的页目录表的分配；分配一个id；设置该进程的寄存器的值，包括：ds、es、ss、esp、cs等；</p>
+</li>
+<li>
+<p><code>env_create</code>函数先后调用了<code>env_alloc</code>函数和<code>load_icode</code>函数；</p>
+</li>
+<li>
+<p><code>env_run</code>函数根据进程是否发生切换来决定是否更新cr3寄存器的值；</p>
+</li>
+</ul>
+<blockquote>
+<p><strong>Exercise 4.</strong> Edit <code>trapentry.S</code> and <code>trap.c</code> and implement the features described above. The macros <code>TRAPHANDLER</code> and <code>TRAPHANDLER_NOEC</code> in <code>trapentry.S</code> should help you, as well as the T_* defines in <code>inc/trap.h</code>. You will need to add an entry point in <code>trapentry.S</code> (using those macros) for each trap defined in <code>inc/trap.h</code>, and you'll have to provide <code>_alltraps</code> which the <code>TRAPHANDLER</code> macros refer to. You will also need to modify <code>trap_init()</code> to initialize the <code>idt</code> to point to each of these entry points defined in <code>trapentry.S; the </code>SETGATE` macro will be helpful here.</p>
+</blockquote>
+<p>具体代码没有粘贴，记录一下具体的中断流程：</p>
 <ol>
 <li>中断或者异常发生，cpu判断当前特权级来决定是否切换到内核栈；</li>
 <li>如下图所示，如果发生特权级切换需要特别保存ss和esp寄存器（中断嵌套的话只能发生在内核态）；</li>
@@ -298,15 +424,165 @@
 <li>执行iret指令，从内核栈中pop出ss和esp寄存器；</li>
 </ol>
 <p><img src="https://gitee.com/chengshuyi/scripts/raw/master/img/20200425200239.png" alt=""></p>
-<h3 id="page-faults-breakpoints-exceptions-and-system-calls"><a href="#page-faults-breakpoints-exceptions-and-system-calls" class="anchor-link"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon anchor-icon"><path d="M326.612 185.391c59.747 59.809 58.927 155.698.36 214.59-.11.12-.24.25-.36.37l-67.2 67.2c-59.27 59.27-155.699 59.262-214.96 0-59.27-59.26-59.27-155.7 0-214.96l37.106-37.106c9.84-9.84 26.786-3.3 27.294 10.606.648 17.722 3.826 35.527 9.69 52.721 1.986 5.822.567 12.262-3.783 16.612l-13.087 13.087c-28.026 28.026-28.905 73.66-1.155 101.96 28.024 28.579 74.086 28.749 102.325.51l67.2-67.19c28.191-28.191 28.073-73.757 0-101.83-3.701-3.694-7.429-6.564-10.341-8.569a16.037 16.037 0 0 1-6.947-12.606c-.396-10.567 3.348-21.456 11.698-29.806l21.054-21.055c5.521-5.521 14.182-6.199 20.584-1.731a152.482 152.482 0 0 1 20.522 17.197zM467.547 44.449c-59.261-59.262-155.69-59.27-214.96 0l-67.2 67.2c-.12.12-.25.25-.36.37-58.566 58.892-59.387 154.781.36 214.59a152.454 152.454 0 0 0 20.521 17.196c6.402 4.468 15.064 3.789 20.584-1.731l21.054-21.055c8.35-8.35 12.094-19.239 11.698-29.806a16.037 16.037 0 0 0-6.947-12.606c-2.912-2.005-6.64-4.875-10.341-8.569-28.073-28.073-28.191-73.639 0-101.83l67.2-67.19c28.239-28.239 74.3-28.069 102.325.51 27.75 28.3 26.872 73.934-1.155 101.96l-13.087 13.087c-4.35 4.35-5.769 10.79-3.783 16.612 5.864 17.194 9.042 34.999 9.69 52.721.509 13.906 17.454 20.446 27.294 10.606l37.106-37.106c59.271-59.259 59.271-155.699.001-214.959z"/></svg></a>Page Faults, Breakpoints Exceptions, and System Calls</h3>
-<p>page falults比较简单，不再叙述；</p>
-<p>breakpoints exceptions：貌似linux上的gdb调试程序就是通过这个异常来实现的；</p>
-<p>系统调用：这里需要注意的是当前不再通过栈传递参数，而是通过寄存器传递，系统调用号存在eax寄存器，剩余的五个参数分别对应着 %edx, %ecx, %ebx, edi, 和esi。返回值存放在eax寄存器；</p>
-<h4 id="user-mode-startup"><a href="#user-mode-startup" class="anchor-link"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon anchor-icon"><path d="M326.612 185.391c59.747 59.809 58.927 155.698.36 214.59-.11.12-.24.25-.36.37l-67.2 67.2c-59.27 59.27-155.699 59.262-214.96 0-59.27-59.26-59.27-155.7 0-214.96l37.106-37.106c9.84-9.84 26.786-3.3 27.294 10.606.648 17.722 3.826 35.527 9.69 52.721 1.986 5.822.567 12.262-3.783 16.612l-13.087 13.087c-28.026 28.026-28.905 73.66-1.155 101.96 28.024 28.579 74.086 28.749 102.325.51l67.2-67.19c28.191-28.191 28.073-73.757 0-101.83-3.701-3.694-7.429-6.564-10.341-8.569a16.037 16.037 0 0 1-6.947-12.606c-.396-10.567 3.348-21.456 11.698-29.806l21.054-21.055c5.521-5.521 14.182-6.199 20.584-1.731a152.482 152.482 0 0 1 20.522 17.197zM467.547 44.449c-59.261-59.262-155.69-59.27-214.96 0l-67.2 67.2c-.12.12-.25.25-.36.37-58.566 58.892-59.387 154.781.36 214.59a152.454 152.454 0 0 0 20.521 17.196c6.402 4.468 15.064 3.789 20.584-1.731l21.054-21.055c8.35-8.35 12.094-19.239 11.698-29.806a16.037 16.037 0 0 0-6.947-12.606c-2.912-2.005-6.64-4.875-10.341-8.569-28.073-28.073-28.191-73.639 0-101.83l67.2-67.19c28.239-28.239 74.3-28.069 102.325.51 27.75 28.3 26.872 73.934-1.155 101.96l-13.087 13.087c-4.35 4.35-5.769 10.79-3.783 16.612 5.864 17.194 9.042 34.999 9.69 52.721.509 13.906 17.454 20.446 27.294 10.606l37.106-37.106c59.271-59.259 59.271-155.699.001-214.959z"/></svg></a>User-mode startup</h4>
-<p>初始化该进程的环境变量，比如thisenv。</p>
-<h4 id="page-faults-and-memory-protection"><a href="#page-faults-and-memory-protection" class="anchor-link"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon anchor-icon"><path d="M326.612 185.391c59.747 59.809 58.927 155.698.36 214.59-.11.12-.24.25-.36.37l-67.2 67.2c-59.27 59.27-155.699 59.262-214.96 0-59.27-59.26-59.27-155.7 0-214.96l37.106-37.106c9.84-9.84 26.786-3.3 27.294 10.606.648 17.722 3.826 35.527 9.69 52.721 1.986 5.822.567 12.262-3.783 16.612l-13.087 13.087c-28.026 28.026-28.905 73.66-1.155 101.96 28.024 28.579 74.086 28.749 102.325.51l67.2-67.19c28.191-28.191 28.073-73.757 0-101.83-3.701-3.694-7.429-6.564-10.341-8.569a16.037 16.037 0 0 1-6.947-12.606c-.396-10.567 3.348-21.456 11.698-29.806l21.054-21.055c5.521-5.521 14.182-6.199 20.584-1.731a152.482 152.482 0 0 1 20.522 17.197zM467.547 44.449c-59.261-59.262-155.69-59.27-214.96 0l-67.2 67.2c-.12.12-.25.25-.36.37-58.566 58.892-59.387 154.781.36 214.59a152.454 152.454 0 0 0 20.521 17.196c6.402 4.468 15.064 3.789 20.584-1.731l21.054-21.055c8.35-8.35 12.094-19.239 11.698-29.806a16.037 16.037 0 0 0-6.947-12.606c-2.912-2.005-6.64-4.875-10.341-8.569-28.073-28.073-28.191-73.639 0-101.83l67.2-67.19c28.239-28.239 74.3-28.069 102.325.51 27.75 28.3 26.872 73.934-1.155 101.96l-13.087 13.087c-4.35 4.35-5.769 10.79-3.783 16.612 5.864 17.194 9.042 34.999 9.69 52.721.509 13.906 17.454 20.446 27.294 10.606l37.106-37.106c59.271-59.259 59.271-155.699.001-214.959z"/></svg></a>Page faults and memory protection</h4>
-<p>用户进程传进来的指针一定要检查，首先检查该指针不能在内核地址空间，然后判断是否存在该虚拟地址，最后检查读写权限；</p>
+<h3 id="页异常"><a href="#页异常" class="anchor-link"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon anchor-icon"><path d="M326.612 185.391c59.747 59.809 58.927 155.698.36 214.59-.11.12-.24.25-.36.37l-67.2 67.2c-59.27 59.27-155.699 59.262-214.96 0-59.27-59.26-59.27-155.7 0-214.96l37.106-37.106c9.84-9.84 26.786-3.3 27.294 10.606.648 17.722 3.826 35.527 9.69 52.721 1.986 5.822.567 12.262-3.783 16.612l-13.087 13.087c-28.026 28.026-28.905 73.66-1.155 101.96 28.024 28.579 74.086 28.749 102.325.51l67.2-67.19c28.191-28.191 28.073-73.757 0-101.83-3.701-3.694-7.429-6.564-10.341-8.569a16.037 16.037 0 0 1-6.947-12.606c-.396-10.567 3.348-21.456 11.698-29.806l21.054-21.055c5.521-5.521 14.182-6.199 20.584-1.731a152.482 152.482 0 0 1 20.522 17.197zM467.547 44.449c-59.261-59.262-155.69-59.27-214.96 0l-67.2 67.2c-.12.12-.25.25-.36.37-58.566 58.892-59.387 154.781.36 214.59a152.454 152.454 0 0 0 20.521 17.196c6.402 4.468 15.064 3.789 20.584-1.731l21.054-21.055c8.35-8.35 12.094-19.239 11.698-29.806a16.037 16.037 0 0 0-6.947-12.606c-2.912-2.005-6.64-4.875-10.341-8.569-28.073-28.073-28.191-73.639 0-101.83l67.2-67.19c28.239-28.239 74.3-28.069 102.325.51 27.75 28.3 26.872 73.934-1.155 101.96l-13.087 13.087c-4.35 4.35-5.769 10.79-3.783 16.612 5.864 17.194 9.042 34.999 9.69 52.721.509 13.906 17.454 20.446 27.294 10.606l37.106-37.106c59.271-59.259 59.271-155.699.001-214.959z"/></svg></a>页异常</h3>
+<p>页异常的中断向量号是14，当页异常发生时，处理器会自动保存其虚拟地址到<code>cr2</code>寄存器；</p>
+<blockquote>
+<p><strong>Exercise 5.</strong> Modify <code>trap_dispatch()</code> to dispatch page fault exceptions to <code>page_fault_handler()</code>.</p>
+</blockquote>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c">		<span class="k">case</span> <span class="nl">T_PGFLT</span><span class="p">:{</span>
+			<span class="n">page_fault_handler</span><span class="p">(</span><span class="n">tf</span><span class="p">);</span>
+			<span class="k">break</span><span class="p">;</span>
+		<span class="p">}</span>
+</code></pre></td></tr></table>
 </div>
+</div><h3 id="断点异常"><a href="#断点异常" class="anchor-link"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon anchor-icon"><path d="M326.612 185.391c59.747 59.809 58.927 155.698.36 214.59-.11.12-.24.25-.36.37l-67.2 67.2c-59.27 59.27-155.699 59.262-214.96 0-59.27-59.26-59.27-155.7 0-214.96l37.106-37.106c9.84-9.84 26.786-3.3 27.294 10.606.648 17.722 3.826 35.527 9.69 52.721 1.986 5.822.567 12.262-3.783 16.612l-13.087 13.087c-28.026 28.026-28.905 73.66-1.155 101.96 28.024 28.579 74.086 28.749 102.325.51l67.2-67.19c28.191-28.191 28.073-73.757 0-101.83-3.701-3.694-7.429-6.564-10.341-8.569a16.037 16.037 0 0 1-6.947-12.606c-.396-10.567 3.348-21.456 11.698-29.806l21.054-21.055c5.521-5.521 14.182-6.199 20.584-1.731a152.482 152.482 0 0 1 20.522 17.197zM467.547 44.449c-59.261-59.262-155.69-59.27-214.96 0l-67.2 67.2c-.12.12-.25.25-.36.37-58.566 58.892-59.387 154.781.36 214.59a152.454 152.454 0 0 0 20.521 17.196c6.402 4.468 15.064 3.789 20.584-1.731l21.054-21.055c8.35-8.35 12.094-19.239 11.698-29.806a16.037 16.037 0 0 0-6.947-12.606c-2.912-2.005-6.64-4.875-10.341-8.569-28.073-28.073-28.191-73.639 0-101.83l67.2-67.19c28.239-28.239 74.3-28.069 102.325.51 27.75 28.3 26.872 73.934-1.155 101.96l-13.087 13.087c-4.35 4.35-5.769 10.79-3.783 16.612 5.864 17.194 9.042 34.999 9.69 52.721.509 13.906 17.454 20.446 27.294 10.606l37.106-37.106c59.271-59.259 59.271-155.699.001-214.959z"/></svg></a>断点异常</h3>
+<p>断点异常的中断向量号是3，调试程序时需要在相应的指令下插入该条指令（int 0x3），触发软件异常，可以调试程序。</p>
+<blockquote>
+<p><strong>Exercise 6.</strong> Modify <code>trap_dispatch()</code> to make breakpoint exceptions invoke the kernel monitor.</p>
+</blockquote>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c">		<span class="k">case</span> <span class="nl">T_BRKPT</span><span class="p">:{</span>
+			<span class="n">monitor</span><span class="p">(</span><span class="n">tf</span><span class="p">);</span>
+			<span class="k">break</span><span class="p">;</span>
+		<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="系统调用"><a href="#系统调用" class="anchor-link"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon anchor-icon"><path d="M326.612 185.391c59.747 59.809 58.927 155.698.36 214.59-.11.12-.24.25-.36.37l-67.2 67.2c-59.27 59.27-155.699 59.262-214.96 0-59.27-59.26-59.27-155.7 0-214.96l37.106-37.106c9.84-9.84 26.786-3.3 27.294 10.606.648 17.722 3.826 35.527 9.69 52.721 1.986 5.822.567 12.262-3.783 16.612l-13.087 13.087c-28.026 28.026-28.905 73.66-1.155 101.96 28.024 28.579 74.086 28.749 102.325.51l67.2-67.19c28.191-28.191 28.073-73.757 0-101.83-3.701-3.694-7.429-6.564-10.341-8.569a16.037 16.037 0 0 1-6.947-12.606c-.396-10.567 3.348-21.456 11.698-29.806l21.054-21.055c5.521-5.521 14.182-6.199 20.584-1.731a152.482 152.482 0 0 1 20.522 17.197zM467.547 44.449c-59.261-59.262-155.69-59.27-214.96 0l-67.2 67.2c-.12.12-.25.25-.36.37-58.566 58.892-59.387 154.781.36 214.59a152.454 152.454 0 0 0 20.521 17.196c6.402 4.468 15.064 3.789 20.584-1.731l21.054-21.055c8.35-8.35 12.094-19.239 11.698-29.806a16.037 16.037 0 0 0-6.947-12.606c-2.912-2.005-6.64-4.875-10.341-8.569-28.073-28.073-28.191-73.639 0-101.83l67.2-67.19c28.239-28.239 74.3-28.069 102.325.51 27.75 28.3 26.872 73.934-1.155 101.96l-13.087 13.087c-4.35 4.35-5.769 10.79-3.783 16.612 5.864 17.194 9.042 34.999 9.69 52.721.509 13.906 17.454 20.446 27.294 10.606l37.106-37.106c59.271-59.259 59.271-155.699.001-214.959z"/></svg></a>系统调用</h3>
+<blockquote>
+<p><strong>Exercise 7.</strong> Add a handler in the kernel for interrupt vector <code>T_SYSCALL</code>. You will have to edit <code>kern/trapentry.S</code> and <code>kern/trap.c</code>'s <code>trap_init()</code>. You also need to change <code>trap_dispatch()</code> to handle the system call interrupt by calling <code>syscall()</code> (defined in <code>kern/syscall.c</code>) with the appropriate arguments, and then arranging for the return value to be passed back to the user process in <code>%eax</code>. Finally, you need to implement <code>syscall()</code> in <code>kern/syscall.c</code>. Make sure <code>syscall()</code> returns <code>-E_INVAL</code> if the system call number is invalid. You should read and understand <code>lib/syscall.c</code> (especially the inline assembly routine) in order to confirm your understanding of the system call interface. Handle all the system calls listed in <code>inc/syscall.h</code> by invoking the corresponding kernel function for each call.</p>
+</blockquote>
+<p>实现系统调用部分，为用户程序提供内核服务，具体看代码:-）。</p>
+<h4 id="用户程序入口"><a href="#用户程序入口" class="anchor-link"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon anchor-icon"><path d="M326.612 185.391c59.747 59.809 58.927 155.698.36 214.59-.11.12-.24.25-.36.37l-67.2 67.2c-59.27 59.27-155.699 59.262-214.96 0-59.27-59.26-59.27-155.7 0-214.96l37.106-37.106c9.84-9.84 26.786-3.3 27.294 10.606.648 17.722 3.826 35.527 9.69 52.721 1.986 5.822.567 12.262-3.783 16.612l-13.087 13.087c-28.026 28.026-28.905 73.66-1.155 101.96 28.024 28.579 74.086 28.749 102.325.51l67.2-67.19c28.191-28.191 28.073-73.757 0-101.83-3.701-3.694-7.429-6.564-10.341-8.569a16.037 16.037 0 0 1-6.947-12.606c-.396-10.567 3.348-21.456 11.698-29.806l21.054-21.055c5.521-5.521 14.182-6.199 20.584-1.731a152.482 152.482 0 0 1 20.522 17.197zM467.547 44.449c-59.261-59.262-155.69-59.27-214.96 0l-67.2 67.2c-.12.12-.25.25-.36.37-58.566 58.892-59.387 154.781.36 214.59a152.454 152.454 0 0 0 20.521 17.196c6.402 4.468 15.064 3.789 20.584-1.731l21.054-21.055c8.35-8.35 12.094-19.239 11.698-29.806a16.037 16.037 0 0 0-6.947-12.606c-2.912-2.005-6.64-4.875-10.341-8.569-28.073-28.073-28.191-73.639 0-101.83l67.2-67.19c28.239-28.239 74.3-28.069 102.325.51 27.75 28.3 26.872 73.934-1.155 101.96l-13.087 13.087c-4.35 4.35-5.769 10.79-3.783 16.612 5.864 17.194 9.042 34.999 9.69 52.721.509 13.906 17.454 20.446 27.294 10.606l37.106-37.106c59.271-59.259 59.271-155.699.001-214.959z"/></svg></a>用户程序入口</h4>
+<p>主要关注几个文件的代码，分别是<code>lib/entry.S</code>、<code>lib/libmain.c</code>和<code>lib/exit.c</code>。</p>
+<blockquote>
+<p><strong>Exercise 8.</strong> Add the required code to the user library, then boot your kernel. You should see <code>user/hello</code> print &quot;<code>hello, world</code>&quot; and then print &quot;<code>i am environment 00001000</code>&quot;. <code>user/hello</code> then attempts to &quot;exit&quot; by calling <code>sys_env_destroy()</code> (see <code>lib/libmain.c</code> and <code>lib/exit.c</code>).</p>
+</blockquote>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span>
+<span class="nf">libmain</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="c1">// set thisenv to point at our Env structure in envs[].
+</span><span class="c1"></span>	<span class="c1">// LAB 3: Your code here.
+</span><span class="c1"></span>	<span class="n">envid_t</span> <span class="n">id</span> <span class="o">=</span> <span class="n">sys_getenvid</span><span class="p">();</span>
+	<span class="n">thisenv</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">envs</span><span class="p">[</span><span class="n">ENVX</span><span class="p">(</span><span class="n">id</span><span class="p">)];</span>
+
+	<span class="c1">// save the name of the program so that panic() can use it
+</span><span class="c1"></span>	<span class="k">if</span> <span class="p">(</span><span class="n">argc</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+		<span class="n">binaryname</span> <span class="o">=</span> <span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+
+	<span class="c1">// call user main routine
+</span><span class="c1"></span>	<span class="n">umain</span><span class="p">(</span><span class="n">argc</span><span class="p">,</span> <span class="n">argv</span><span class="p">);</span>
+
+	<span class="c1">// exit gracefully
+</span><span class="c1"></span>	<span class="n">exit</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="内存保护机制"><a href="#内存保护机制" class="anchor-link"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon anchor-icon"><path d="M326.612 185.391c59.747 59.809 58.927 155.698.36 214.59-.11.12-.24.25-.36.37l-67.2 67.2c-59.27 59.27-155.699 59.262-214.96 0-59.27-59.26-59.27-155.7 0-214.96l37.106-37.106c9.84-9.84 26.786-3.3 27.294 10.606.648 17.722 3.826 35.527 9.69 52.721 1.986 5.822.567 12.262-3.783 16.612l-13.087 13.087c-28.026 28.026-28.905 73.66-1.155 101.96 28.024 28.579 74.086 28.749 102.325.51l67.2-67.19c28.191-28.191 28.073-73.757 0-101.83-3.701-3.694-7.429-6.564-10.341-8.569a16.037 16.037 0 0 1-6.947-12.606c-.396-10.567 3.348-21.456 11.698-29.806l21.054-21.055c5.521-5.521 14.182-6.199 20.584-1.731a152.482 152.482 0 0 1 20.522 17.197zM467.547 44.449c-59.261-59.262-155.69-59.27-214.96 0l-67.2 67.2c-.12.12-.25.25-.36.37-58.566 58.892-59.387 154.781.36 214.59a152.454 152.454 0 0 0 20.521 17.196c6.402 4.468 15.064 3.789 20.584-1.731l21.054-21.055c8.35-8.35 12.094-19.239 11.698-29.806a16.037 16.037 0 0 0-6.947-12.606c-2.912-2.005-6.64-4.875-10.341-8.569-28.073-28.073-28.191-73.639 0-101.83l67.2-67.19c28.239-28.239 74.3-28.069 102.325.51 27.75 28.3 26.872 73.934-1.155 101.96l-13.087 13.087c-4.35 4.35-5.769 10.79-3.783 16.612 5.864 17.194 9.042 34.999 9.69 52.721.509 13.906 17.454 20.446 27.294 10.606l37.106-37.106c59.271-59.259 59.271-155.699.001-214.959z"/></svg></a>内存保护机制</h4>
+<ol>
+<li>用户进程传进来的指针一定要检查，首先检查该指针不能在内核地址空间，然后判断是否存在该虚拟地址，最后检查读写权限；</li>
+<li>内核不能够发生页错误；</li>
+</ol>
+<blockquote>
+<p><strong>Exercise 9.</strong> Change <code>kern/trap.c</code> to panic if a page fault happens in kernel mode.</p>
+<p>Read <code>user_mem_assert</code> in <code>kern/pmap.c</code> and implement <code>user_mem_check</code> in that same file.</p>
+<p>Change <code>kern/syscall.c</code> to sanity check arguments to system calls.</p>
+</blockquote>
+<p>内核不能够发生页错误。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c">	<span class="k">if</span><span class="p">(</span><span class="n">tf</span><span class="o">-&gt;</span><span class="n">tf_cs</span> <span class="o">==</span> <span class="n">GD_KT</span><span class="p">){</span>
+		<span class="n">panic</span><span class="p">(</span><span class="s">&#34;kernel page fault</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+	<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>用户进程传进来的指针检查函数：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">int</span> <span class="nf">user_mem_check</span><span class="p">(</span><span class="k">struct</span> <span class="n">Env</span> <span class="o">*</span><span class="n">env</span><span class="p">,</span> <span class="k">const</span> <span class="kt">void</span> <span class="o">*</span><span class="n">va</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">len</span><span class="p">,</span> <span class="kt">int</span> <span class="n">perm</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="c1">// LAB 3: Your code here.
+</span><span class="c1"></span>	<span class="n">uintptr_t</span> <span class="n">s</span> <span class="o">=</span> <span class="n">ROUNDDOWN</span><span class="p">((</span><span class="n">uintptr_t</span><span class="p">)</span><span class="n">va</span><span class="p">,</span><span class="n">PGSIZE</span><span class="p">);</span>
+	<span class="n">uintptr_t</span> <span class="n">e</span> <span class="o">=</span> <span class="n">ROUNDUP</span><span class="p">((</span><span class="n">uintptr_t</span><span class="p">)</span><span class="n">va</span><span class="o">+</span><span class="n">len</span><span class="p">,</span><span class="n">PGSIZE</span><span class="p">);</span>
+	<span class="n">pte_t</span> <span class="o">*</span><span class="n">pte_entry</span><span class="p">;</span>
+	<span class="k">for</span><span class="p">(;</span><span class="n">s</span><span class="o">&lt;</span><span class="n">e</span><span class="p">;</span><span class="n">s</span><span class="o">+=</span><span class="n">PGSIZE</span><span class="p">){</span>
+		<span class="c1">// cprintf(&#34;va is %x ULIM is %x\n&#34;,s,ULIM);
+</span><span class="c1"></span>		<span class="n">page_lookup</span><span class="p">(</span><span class="n">env</span><span class="o">-&gt;</span><span class="n">env_pgdir</span><span class="p">,(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span><span class="n">s</span><span class="p">,</span><span class="o">&amp;</span><span class="n">pte_entry</span><span class="p">);</span> 
+        <span class="c1">// 1. 首先检查该指针不能在内核地址空间
+</span><span class="c1"></span>        <span class="c1">// 2. 然后判断是否存在该虚拟地址
+</span><span class="c1"></span>        <span class="c1">// 3. 最后检查读写权限
+</span><span class="c1"></span>		<span class="k">if</span><span class="p">(</span><span class="n">s</span><span class="o">&gt;</span><span class="n">ULIM</span> <span class="o">||</span> <span class="n">pte_entry</span> <span class="o">==</span> <span class="nb">NULL</span> <span class="o">||</span> <span class="p">(</span><span class="n">PGOFF</span><span class="p">(</span><span class="o">*</span><span class="n">pte_entry</span><span class="p">)</span><span class="o">&amp;</span><span class="n">perm</span><span class="p">)</span> <span class="o">!=</span> <span class="n">perm</span><span class="p">){</span>
+			<span class="n">user_mem_check_addr</span> <span class="o">=</span> <span class="n">MAX</span><span class="p">(</span><span class="n">s</span><span class="p">,(</span><span class="n">uintptr_t</span><span class="p">)</span><span class="n">va</span><span class="p">);</span>
+			<span class="k">return</span> <span class="o">-</span><span class="n">E_FAULT</span><span class="p">;</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div></div>
 
         </article>
 
@@ -333,9 +609,9 @@
 
 
         
-    <div class="updated-badge-container"><div title="Updated @ 2020-05-10 08:32:34 UTC" style="cursor:help;display:inline-block">
+    <div class="updated-badge-container"><div title="Updated @ 2020-06-02 14:44:30 UTC" style="cursor:help;display:inline-block">
 
-<svg xmlns="http://www.w3.org/2000/svg" width="130" height="20" class="updated-badge"><linearGradient id="b" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient><clipPath id="a"><rect width="130" height="20" rx="3" fill="#fff"/></clipPath><g clip-path="url(#a)"><path class="updated-badge-left" d="M0 0h55v20H0z"/><path class="updated-badge-right" d="M55 0h75v20H55z"/><path fill="url(#b)" d="M0 0h130v20H0z"/></g><g fill="#fff" text-anchor="middle" font-size="110"><text x="285" y="150" fill="#010101" fill-opacity=".3" textLength="450" transform="scale(.1)">updated</text><text x="285" y="140" textLength="450" transform="scale(.1)">updated</text><text x="915" y="150" fill="#010101" fill-opacity=".3" textLength="650" transform="scale(.1)">2020-05-10</text><text x="915" y="140" textLength="650" transform="scale(.1)">2020-05-10</text></g></svg></div></div>
+<svg xmlns="http://www.w3.org/2000/svg" width="130" height="20" class="updated-badge"><linearGradient id="b" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient><clipPath id="a"><rect width="130" height="20" rx="3" fill="#fff"/></clipPath><g clip-path="url(#a)"><path class="updated-badge-left" d="M0 0h55v20H0z"/><path class="updated-badge-right" d="M55 0h75v20H55z"/><path fill="url(#b)" d="M0 0h130v20H0z"/></g><g fill="#fff" text-anchor="middle" font-size="110"><text x="285" y="150" fill="#010101" fill-opacity=".3" textLength="450" transform="scale(.1)">updated</text><text x="285" y="140" textLength="450" transform="scale(.1)">updated</text><text x="915" y="150" fill="#010101" fill-opacity=".3" textLength="650" transform="scale(.1)">2020-06-02</text><text x="915" y="140" textLength="650" transform="scale(.1)">2020-06-02</text></g></svg></div></div>
 
 
         
@@ -370,7 +646,7 @@
                 
                 <div class="share-item linkedin">
                     
-                    <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https://chengshuyi.github.io/posts/course/mit6828/lab3/&amp;title=Lab3%20-%20%e5%ae%9e%e9%aa%8c%e7%ac%94%e8%ae%b0&amp;summary=User%20Environments%20and%20Exception%20Handling%20env_init%e5%87%bd%e6%95%b0%e7%9a%84%e5%ae%9e%e7%8e%b0%e7%b1%bb%e4%bc%bc%e4%ba%8epage_init%e5%87%bd%e6%95%b0%ef%bc%8c%e4%b8%bb%e8%a6%81%e5%b0%86%e7%a9%ba%e9%97%b2%e7%9a%84struct%20Env%e6%8f%92%e5%85%a5%e5%88%b0env_free_list%e9%93%be%e8%a1%a8%e4%b8%8a%ef%bc%9b%20env_setup_vm%e5%87%bd%e6%95%b0%e4%b8%ba%e8%af%a5%e2%80%a6%e2%80%a6&amp;source=%e7%a8%8b%e4%b9%a6%e6%84%8f" title="分享到「LinkedIn」" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="icon linkedin-icon"><path d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3zM135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5zm282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9V416z"/></svg></a>
+                    <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https://chengshuyi.github.io/posts/course/mit6828/lab3/&amp;title=Lab3%20-%20%e5%ae%9e%e9%aa%8c%e7%ac%94%e8%ae%b0&amp;summary=lab3%e7%9a%84%e5%ae%9e%e9%aa%8c%e4%b8%bb%e8%a6%81%e6%b6%89%e5%8f%8a%e5%88%b0x86%e7%9a%84%e7%a1%ac%e4%bb%b6%e6%9c%ba%e5%88%b6%ef%bc%9a%e4%b8%ad%e6%96%ad%e3%80%81%e5%bc%82%e5%b8%b8%e7%ad%89%e7%ad%89%e3%80%82%e5%9b%a0%e6%ad%a4%ef%bc%8c%e9%9c%80%e8%a6%81%e8%87%aa%e5%b7%b1%e5%ae%9e%e7%8e%b0%e4%b8%ad%e6%96%ad%e5%90%91%e9%87%8f%e8%a1%a8%e3%80%81%e4%bf%9d%e5%ad%98%e5%92%8c%e6%81%a2%e5%a4%8d%e4%b8%8a%e4%b8%8b%e6%96%87%e3%80%81%e7%b3%bb%e7%bb%9f%e8%b0%83%e7%94%a8%e5%92%8c%e9%a1%b5%e5%bc%82%e5%b8%b8%e7%9b%b8%e5%85%b3%e7%9a%84%e5%87%bd%e6%95%b0%e3%80%82%20lab3%e4%b9%9f%e6%96%b0%e5%a2%9e%e4%ba%86%e7%94%a8%e6%88%b7%e8%bf%9b%e7%a8%8b%e7%9a%84%e6%a6%82%e5%bf%b5%ef%bc%8c%e9%9c%80%e2%80%a6%e2%80%a6&amp;source=%e7%a8%8b%e4%b9%a6%e6%84%8f" title="分享到「LinkedIn」" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="icon linkedin-icon"><path d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3zM135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5zm282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9V416z"/></svg></a>
                 </div>
             
 
@@ -394,7 +670,7 @@
                 
                 <div class="share-item douban">
                     
-                    <a href="https://www.douban.com/share/service?href=https://chengshuyi.github.io/posts/course/mit6828/lab3/&amp;name=Lab3%20-%20%e5%ae%9e%e9%aa%8c%e7%ac%94%e8%ae%b0&amp;text=User%20Environments%20and%20Exception%20Handling%20env_init%e5%87%bd%e6%95%b0%e7%9a%84%e5%ae%9e%e7%8e%b0%e7%b1%bb%e4%bc%bc%e4%ba%8epage_init%e5%87%bd%e6%95%b0%ef%bc%8c%e4%b8%bb%e8%a6%81%e5%b0%86%e7%a9%ba%e9%97%b2%e7%9a%84struct%20Env%e6%8f%92%e5%85%a5%e5%88%b0env_free_list%e9%93%be%e8%a1%a8%e4%b8%8a%ef%bc%9b%20env_setup_vm%e5%87%bd%e6%95%b0%e4%b8%ba%e8%af%a5%e2%80%a6%e2%80%a6" title="分享到「豆瓣」" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon douban-icon"><path d="M.643.92v2.412h22.714V.92H.643zm1.974 4.926v9.42h18.764v-9.42H2.617zm2.72 2.408H18.69v4.605H5.338V8.254zm1.657 7.412l-2.512.938c1.037 1.461 1.87 2.825 2.512 4.091H0v2.385h24v-2.385h-6.678c.818-1.176 1.589-2.543 2.303-4.091l-2.73-.938a29.952 29.952 0 01-2.479 5.03h-4.75c-.786-1.962-1.677-3.641-2.672-5.03Z"/></svg></a>
+                    <a href="https://www.douban.com/share/service?href=https://chengshuyi.github.io/posts/course/mit6828/lab3/&amp;name=Lab3%20-%20%e5%ae%9e%e9%aa%8c%e7%ac%94%e8%ae%b0&amp;text=lab3%e7%9a%84%e5%ae%9e%e9%aa%8c%e4%b8%bb%e8%a6%81%e6%b6%89%e5%8f%8a%e5%88%b0x86%e7%9a%84%e7%a1%ac%e4%bb%b6%e6%9c%ba%e5%88%b6%ef%bc%9a%e4%b8%ad%e6%96%ad%e3%80%81%e5%bc%82%e5%b8%b8%e7%ad%89%e7%ad%89%e3%80%82%e5%9b%a0%e6%ad%a4%ef%bc%8c%e9%9c%80%e8%a6%81%e8%87%aa%e5%b7%b1%e5%ae%9e%e7%8e%b0%e4%b8%ad%e6%96%ad%e5%90%91%e9%87%8f%e8%a1%a8%e3%80%81%e4%bf%9d%e5%ad%98%e5%92%8c%e6%81%a2%e5%a4%8d%e4%b8%8a%e4%b8%8b%e6%96%87%e3%80%81%e7%b3%bb%e7%bb%9f%e8%b0%83%e7%94%a8%e5%92%8c%e9%a1%b5%e5%bc%82%e5%b8%b8%e7%9b%b8%e5%85%b3%e7%9a%84%e5%87%bd%e6%95%b0%e3%80%82%20lab3%e4%b9%9f%e6%96%b0%e5%a2%9e%e4%ba%86%e7%94%a8%e6%88%b7%e8%bf%9b%e7%a8%8b%e7%9a%84%e6%a6%82%e5%bf%b5%ef%bc%8c%e9%9c%80%e2%80%a6%e2%80%a6" title="分享到「豆瓣」" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon douban-icon"><path d="M.643.92v2.412h22.714V.92H.643zm1.974 4.926v9.42h18.764v-9.42H2.617zm2.72 2.408H18.69v4.605H5.338V8.254zm1.657 7.412l-2.512.938c1.037 1.461 1.87 2.825 2.512 4.091H0v2.385h24v-2.385h-6.678c.818-1.176 1.589-2.543 2.303-4.091l-2.73-.938a29.952 29.952 0 01-2.479 5.03h-4.75c-.786-1.962-1.677-3.641-2.672-5.03Z"/></svg></a>
                 </div>
             
 
@@ -402,7 +678,7 @@
                 
                 <div class="share-item qq">
                     
-                    <a href="https://connect.qq.com/widget/shareqq/index.html?url=https://chengshuyi.github.io/posts/course/mit6828/lab3/&amp;title=Lab3%20-%20%e5%ae%9e%e9%aa%8c%e7%ac%94%e8%ae%b0&amp;summary=User%20Environments%20and%20Exception%20Handling%20env_init%e5%87%bd%e6%95%b0%e7%9a%84%e5%ae%9e%e7%8e%b0%e7%b1%bb%e4%bc%bc%e4%ba%8epage_init%e5%87%bd%e6%95%b0%ef%bc%8c%e4%b8%bb%e8%a6%81%e5%b0%86%e7%a9%ba%e9%97%b2%e7%9a%84struct%20Env%e6%8f%92%e5%85%a5%e5%88%b0env_free_list%e9%93%be%e8%a1%a8%e4%b8%8a%ef%bc%9b%20env_setup_vm%e5%87%bd%e6%95%b0%e4%b8%ba%e8%af%a5%e2%80%a6%e2%80%a6&amp;pics=https://gitee.com/chengshuyi/scripts/raw/master/img/20200425200239.png&amp;site=%e7%a8%8b%e4%b9%a6%e6%84%8f" title="分享到「QQ」" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="icon qq-icon"><path d="M433.754 420.445c-11.526 1.393-44.86-52.741-44.86-52.741 0 31.345-16.136 72.247-51.051 101.786 16.842 5.192 54.843 19.167 45.803 34.421-7.316 12.343-125.51 7.881-159.632 4.037-34.122 3.844-152.316 8.306-159.632-4.037-9.045-15.25 28.918-29.214 45.783-34.415-34.92-29.539-51.059-70.445-51.059-101.792 0 0-33.334 54.134-44.859 52.741-5.37-.65-12.424-29.644 9.347-99.704 10.261-33.024 21.995-60.478 40.144-105.779C60.683 98.063 108.982.006 224 0c113.737.006 163.156 96.133 160.264 214.963 18.118 45.223 29.912 72.85 40.144 105.778 21.768 70.06 14.716 99.053 9.346 99.704z"/></svg></a>
+                    <a href="https://connect.qq.com/widget/shareqq/index.html?url=https://chengshuyi.github.io/posts/course/mit6828/lab3/&amp;title=Lab3%20-%20%e5%ae%9e%e9%aa%8c%e7%ac%94%e8%ae%b0&amp;summary=lab3%e7%9a%84%e5%ae%9e%e9%aa%8c%e4%b8%bb%e8%a6%81%e6%b6%89%e5%8f%8a%e5%88%b0x86%e7%9a%84%e7%a1%ac%e4%bb%b6%e6%9c%ba%e5%88%b6%ef%bc%9a%e4%b8%ad%e6%96%ad%e3%80%81%e5%bc%82%e5%b8%b8%e7%ad%89%e7%ad%89%e3%80%82%e5%9b%a0%e6%ad%a4%ef%bc%8c%e9%9c%80%e8%a6%81%e8%87%aa%e5%b7%b1%e5%ae%9e%e7%8e%b0%e4%b8%ad%e6%96%ad%e5%90%91%e9%87%8f%e8%a1%a8%e3%80%81%e4%bf%9d%e5%ad%98%e5%92%8c%e6%81%a2%e5%a4%8d%e4%b8%8a%e4%b8%8b%e6%96%87%e3%80%81%e7%b3%bb%e7%bb%9f%e8%b0%83%e7%94%a8%e5%92%8c%e9%a1%b5%e5%bc%82%e5%b8%b8%e7%9b%b8%e5%85%b3%e7%9a%84%e5%87%bd%e6%95%b0%e3%80%82%20lab3%e4%b9%9f%e6%96%b0%e5%a2%9e%e4%ba%86%e7%94%a8%e6%88%b7%e8%bf%9b%e7%a8%8b%e7%9a%84%e6%a6%82%e5%bf%b5%ef%bc%8c%e9%9c%80%e2%80%a6%e2%80%a6&amp;pics=https://gitee.com/chengshuyi/scripts/raw/master/img/20200425200239.png&amp;site=%e7%a8%8b%e4%b9%a6%e6%84%8f" title="分享到「QQ」" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="icon qq-icon"><path d="M433.754 420.445c-11.526 1.393-44.86-52.741-44.86-52.741 0 31.345-16.136 72.247-51.051 101.786 16.842 5.192 54.843 19.167 45.803 34.421-7.316 12.343-125.51 7.881-159.632 4.037-34.122 3.844-152.316 8.306-159.632-4.037-9.045-15.25 28.918-29.214 45.783-34.415-34.92-29.539-51.059-70.445-51.059-101.792 0 0-33.334 54.134-44.859 52.741-5.37-.65-12.424-29.644 9.347-99.704 10.261-33.024 21.995-60.478 40.144-105.779C60.683 98.063 108.982.006 224 0c113.737.006 163.156 96.133 160.264 214.963 18.118 45.223 29.912 72.85 40.144 105.778 21.768 70.06 14.716 99.053 9.346 99.704z"/></svg></a>
                 </div>
             
 
@@ -410,7 +686,7 @@
                 
                 <div class="share-item qzone">
                     
-                    <a href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=https://chengshuyi.github.io/posts/course/mit6828/lab3/&amp;title=Lab3%20-%20%e5%ae%9e%e9%aa%8c%e7%ac%94%e8%ae%b0&amp;summary=User%20Environments%20and%20Exception%20Handling%20env_init%e5%87%bd%e6%95%b0%e7%9a%84%e5%ae%9e%e7%8e%b0%e7%b1%bb%e4%bc%bc%e4%ba%8epage_init%e5%87%bd%e6%95%b0%ef%bc%8c%e4%b8%bb%e8%a6%81%e5%b0%86%e7%a9%ba%e9%97%b2%e7%9a%84struct%20Env%e6%8f%92%e5%85%a5%e5%88%b0env_free_list%e9%93%be%e8%a1%a8%e4%b8%8a%ef%bc%9b%20env_setup_vm%e5%87%bd%e6%95%b0%e4%b8%ba%e8%af%a5%e2%80%a6%e2%80%a6&amp;pics=https://gitee.com/chengshuyi/scripts/raw/master/img/20200425200239.png&amp;site=%e7%a8%8b%e4%b9%a6%e6%84%8f" title="分享到「QQ 空间」" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon qzone-icon"><path d="M23.985 9.202c-.032-.099-.127-.223-.334-.258-.207-.036-7.351-1.406-7.351-1.406s-.105-.022-.198-.07c-.092-.047-.127-.167-.127-.167S12.447.956 12.349.77C12.25.583 12.104.532 12 .532c-.104 0-.251.051-.349.238-.098.186-3.626 6.531-3.626 6.531s-.035.12-.128.167c-.092.047-.197.07-.197.07S.556 8.908.348 8.943c-.208.036-.302.16-.333.258a.477.477 0 0 0 .125.449l5.362 5.49s.072.08.119.172c.016.104.005.21.005.21s-1.189 7.242-1.22 7.45.075.369.159.43c.083.062.233.106.421.013.189-.093 6.812-3.261 6.812-3.261s.098-.044.201-.061c.103-.017.201.061.201.061s6.623 3.168 6.812 3.261c.188.094.338.049.421-.013a.463.463 0 0 0 .159-.43c-.021-.14-.93-5.677-.93-5.677.876-.54 1.425-1.039 1.849-1.747-2.594.969-6.006 1.717-9.415 1.866-.915.041-2.41.097-3.473-.015-.678-.071-1.17-.144-1.243-.438-.053-.215.054-.46.545-.831a2640.5 2640.5 0 0 1 2.861-2.155c1.285-.968 3.559-2.47 3.559-2.731 0-.285-2.144-.781-4.037-.781-1.945 0-2.275.132-2.811.168-.488.034-.769.005-.804-.138-.06-.248.183-.389.588-.568.709-.314 1.86-.594 1.984-.626.194-.052 3.082-.805 5.618-.535 1.318.14 3.244.668 3.244 1.276 0 .342-1.721 1.494-3.225 2.597-1.149.843-2.217 1.561-2.217 1.688 0 .342 3.533 1.241 6.689 1.01l.003-.022c.048-.092.119-.172.119-.172l5.362-5.49a.477.477 0 0 0 .127-.449z"/></svg></a>
+                    <a href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=https://chengshuyi.github.io/posts/course/mit6828/lab3/&amp;title=Lab3%20-%20%e5%ae%9e%e9%aa%8c%e7%ac%94%e8%ae%b0&amp;summary=lab3%e7%9a%84%e5%ae%9e%e9%aa%8c%e4%b8%bb%e8%a6%81%e6%b6%89%e5%8f%8a%e5%88%b0x86%e7%9a%84%e7%a1%ac%e4%bb%b6%e6%9c%ba%e5%88%b6%ef%bc%9a%e4%b8%ad%e6%96%ad%e3%80%81%e5%bc%82%e5%b8%b8%e7%ad%89%e7%ad%89%e3%80%82%e5%9b%a0%e6%ad%a4%ef%bc%8c%e9%9c%80%e8%a6%81%e8%87%aa%e5%b7%b1%e5%ae%9e%e7%8e%b0%e4%b8%ad%e6%96%ad%e5%90%91%e9%87%8f%e8%a1%a8%e3%80%81%e4%bf%9d%e5%ad%98%e5%92%8c%e6%81%a2%e5%a4%8d%e4%b8%8a%e4%b8%8b%e6%96%87%e3%80%81%e7%b3%bb%e7%bb%9f%e8%b0%83%e7%94%a8%e5%92%8c%e9%a1%b5%e5%bc%82%e5%b8%b8%e7%9b%b8%e5%85%b3%e7%9a%84%e5%87%bd%e6%95%b0%e3%80%82%20lab3%e4%b9%9f%e6%96%b0%e5%a2%9e%e4%ba%86%e7%94%a8%e6%88%b7%e8%bf%9b%e7%a8%8b%e7%9a%84%e6%a6%82%e5%bf%b5%ef%bc%8c%e9%9c%80%e2%80%a6%e2%80%a6&amp;pics=https://gitee.com/chengshuyi/scripts/raw/master/img/20200425200239.png&amp;site=%e7%a8%8b%e4%b9%a6%e6%84%8f" title="分享到「QQ 空间」" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon qzone-icon"><path d="M23.985 9.202c-.032-.099-.127-.223-.334-.258-.207-.036-7.351-1.406-7.351-1.406s-.105-.022-.198-.07c-.092-.047-.127-.167-.127-.167S12.447.956 12.349.77C12.25.583 12.104.532 12 .532c-.104 0-.251.051-.349.238-.098.186-3.626 6.531-3.626 6.531s-.035.12-.128.167c-.092.047-.197.07-.197.07S.556 8.908.348 8.943c-.208.036-.302.16-.333.258a.477.477 0 0 0 .125.449l5.362 5.49s.072.08.119.172c.016.104.005.21.005.21s-1.189 7.242-1.22 7.45.075.369.159.43c.083.062.233.106.421.013.189-.093 6.812-3.261 6.812-3.261s.098-.044.201-.061c.103-.017.201.061.201.061s6.623 3.168 6.812 3.261c.188.094.338.049.421-.013a.463.463 0 0 0 .159-.43c-.021-.14-.93-5.677-.93-5.677.876-.54 1.425-1.039 1.849-1.747-2.594.969-6.006 1.717-9.415 1.866-.915.041-2.41.097-3.473-.015-.678-.071-1.17-.144-1.243-.438-.053-.215.054-.46.545-.831a2640.5 2640.5 0 0 1 2.861-2.155c1.285-.968 3.559-2.47 3.559-2.731 0-.285-2.144-.781-4.037-.781-1.945 0-2.275.132-2.811.168-.488.034-.769.005-.804-.138-.06-.248.183-.389.588-.568.709-.314 1.86-.594 1.984-.626.194-.052 3.082-.805 5.618-.535 1.318.14 3.244.668 3.244 1.276 0 .342-1.721 1.494-3.225 2.597-1.149.843-2.217 1.561-2.217 1.688 0 .342 3.533 1.241 6.689 1.01l.003-.022c.048-.092.119-.172.119-.172l5.362-5.49a.477.477 0 0 0 .127-.449z"/></svg></a>
                 </div>
             
 
@@ -446,6 +722,10 @@
         <div class="related-posts">
             <h2 class="related-title">相关文章：<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon related-icon"><path d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"/></svg></h2>
             <ul class="related-list">
+                
+                    <li class="related-item">
+                        <a href="/posts/course/mit6828/lab5/" class="related-link">Lab5 - 实验笔记</a>
+                    </li>
                 
                     <li class="related-item">
                         <a href="/posts/course/mit6828/lab4/" class="related-link">Lab4 - 实验笔记</a>

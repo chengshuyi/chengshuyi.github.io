@@ -23,10 +23,130 @@
         
             <copyright>[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh)</copyright>
         
-        <lastBuildDate>Sun, 10 May 2020 08:32:38 +0000</lastBuildDate>
+        <lastBuildDate>Tue, 02 Jun 2020 14:44:33 +0000</lastBuildDate>
         
             <atom:link rel="self" type="application/rss+xml" href="https://chengshuyi.github.io/rss.xml" />
         
+        
+            <item>
+                <title>Fat32文件系统详解</title>
+                <link>https://chengshuyi.github.io/posts/filesystem/fat/</link>
+                <guid isPermaLink="true">https://chengshuyi.github.io/posts/filesystem/fat/</guid>
+                <pubDate>Thu, 14 May 2020 20:06:37 +0800</pubDate>
+                
+                    <author>c15271843451@outlook.com (程书意)</author>
+                
+                <copyright>[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh)</copyright>
+                
+                    <description><![CDATA[<p>本文主要介绍了fat32文件系统，包括硬盘分区的格式、文件分配表和目录项等重要内容。</p>
+<p>下面简要的描述fat32文件系统比较关键的两个函数：</p>
+<ol>
+<li>
+<p><code>f_mount</code>函数：在指定的硬盘上挂载文件系统（主要是读取引导区和<code>Volume ID</code>）；</p>
+</li>
+<li>
+<p><code>f_open</code>函数：</p>
+<p>a. 首先去根目录区（0x02H簇号），找到该文件的根目录（主要是匹配目录项，一个目录项占32B，所以一个簇大概$2^n<em>512/32=2^n</em>16$个目录项）；</p>
+<p>b. 查看当前目录项属性，如果是子目录，则查找下一个目录项（类似于步骤a）。如果是当前要查找的文件，则查找完毕；</p>
+</li>
+</ol>
+<h3 id="fat32磁盘空间的划分">fat32磁盘空间的划分</h3>
+<p>首先第一个扇区（512字节）作为引导扇区，其中引导扇区记录了当前硬盘的分区情况，以及每个分区所包含的信息：文件系统类型、分区开始的扇区和占用扇区的个数；</p>
+<p>然后根据对应的分区可以找到该分区的第一个扇区，该扇区称为<code>volume ID</code>。<code>volume ID</code>包含了一些关于当前文件系统的重要信息，以fat32为例：</p>
+<ul>
+<li>每个扇区占多少字节（总是512字节）；</li>
+<li>每个簇有多少个扇区（2的n次方）</li>
+<li>保留扇区的个数；</li>
+<li>文件分配表的个数（总是2，有一个是备份）；</li>
+<li>文件分配表占用的扇区数（根据分区大小计算即可）；</li>
+<li>根目录所在的簇（一般是2）；</li>
+</ul>
+<p>接着是保留扇区空间；</p>
+<p>再接着是文件分配表区（显示链接法）：</p>
+<ul>
+<li>fat32说明其文件分配表的表项是32位的；</li>
+<li>每一个表项的位置代表着一个簇号，该表项的值表示下一个簇号；</li>
+</ul>
+<p>最后是数据区，不仅包含了文件数据还包含了文件系统数据。</p>
+<h3 id="引导区">引导区</h3>
+<p>硬盘的第一个扇区称为引导区，也叫主引导扇区（MBR）。Boot Code也就是我们常说的bootloader代码。partition n表示分区，可以看到最多支持四个分区。</p>
+<p><img src="https://gitee.com/chengshuyi/scripts/raw/master/img/20200514222207.png" alt=""></p>
+<p>这里我们主要看下分区描述符所占的16字节包含哪些信息？格式如下图所示：</p>
+<p><img src="https://gitee.com/chengshuyi/scripts/raw/master/img/20200602135143.png" alt=""></p>
+<p>重要的信息有三个：</p>
+<ol>
+<li>Type code：表明当前文件系统的类型；</li>
+<li>LBA Begin：当前分区起始扇区号；</li>
+<li>Number of Sectors：当前分区占有多少扇区；</li>
+</ol>
+<h3 id="volume-id">volume ID</h3>
+<p>分区的第一个扇区称为<code>volume ID</code>。<code>volume ID</code>包含了一些关于当前文件系统的重要信息：</p>
+<ul>
+<li>每个扇区占多少字节（总是512字节）；</li>
+<li>每个簇有多少个扇区（2的n次方）</li>
+<li>保留扇区的个数；</li>
+<li>文件分配表的个数（总是2，有一个是备份）；</li>
+<li>文件分配表占用的扇区数（根据分区大小计算即可）；</li>
+<li>根目录所在的簇（一般是2）；</li>
+</ul>
+<p><img src="https://gitee.com/chengshuyi/scripts/raw/master/img/20200602135838.png" alt=""></p>
+<h3 id="保留扇区">保留扇区</h3>
+<p><img src="https://gitee.com/chengshuyi/scripts/raw/master/img/20200602161814.png" alt=""></p>
+<h3 id="文件分配表区">文件分配表区</h3>
+<p>文件分配表区是FAT文件系统管理磁盘空间和文件的最重要区域，它保存逻辑盘数据区各簇使用情况信息，采用<strong>位示图法</strong>来表示，文件所占用的存储空间及空闲空间的管理都是通过FAT实现的。FAT区共保存了两个相同的文件分配表, 便于第一个损坏时, 还有第二个可用。</p>
+<p>一个扇区的大小是512B，那么一个扇区可以存放128个簇号。因此，32bit的值中高7-31位表示扇区号（当前FAT表该簇号所在的扇区），低7位表示偏移（便宜单位是32bit）。</p>
+<p><strong>未被分配使用和已回收</strong>的簇相应位置写零，<strong>坏簇</strong>相应位置填入特定值 0FFFFFF7H 标识，<strong>已分配</strong>的簇相应位置填入非零值，具体为：如果该簇是文件的<strong>最后一簇</strong>, 填入的值为 0FFFFFFFH, 如果该簇<strong>不是文件的最后一簇</strong>，填入的值为该文件占用的下一个簇的簇号，这样，正好将文件占用的各簇构成一个簇链，保存在FAT32 表中。</p>
+<h3 id="数据区">数据区</h3>
+<p>数据区是存放文件数据的地方，这里需要特别考虑根目录区或者目录区。FAT32 文件系统中，根目录作为数据区的一部分，采用与子目录相似的管理方式，这 一点 与FAT12、FAT16明显不同，如FAT16文件系统的根目录区( ROOT区) 是固定区域、固定大小的，占用从FAT区之后紧接着的32个扇区，最多保存 512 个目录项( 其根目录保存的文件数受限的原因在此) ，作为系统区的一部分。FAT32的根目录一般情况下从02H簇开始使用，大小视需要增加，因此根目录下的文件数目不再受最多 512 的限制。</p>
+<p>下图是目录项的格式：</p>
+<p><img src="https://gitee.com/chengshuyi/scripts/raw/master/img/20200602162221.png" alt=""></p>
+<p>其中比较重要的有：</p>
+<ul>
+<li>短文件名：8+3格式；</li>
+<li>文件属性：只读、隐藏、是否为子目录等；</li>
+<li>簇号（HIgh）：存储文件起始簇的簇号的高16位；</li>
+<li>簇号（Low）：存储文件起始簇的簇号的低16位；</li>
+<li>大小：文件的长度；</li>
+</ul>
+<!-- ### 专业名词缩写
+
+LBA:logical block addressing
+
+MBR:master Boot Record
+
+CHS:Cylinder Head Sector -->
+<h3 id="参考文献">参考文献</h3>
+<p>[1]. Understanding FAT32 Filesystems. <a href="https://www.pjrc.com/tech/8051/ide/fat32.html">https://www.pjrc.com/tech/8051/ide/fat32.html</a>.</p>
+<p>[2]. 张明亮, 张宗杰. 浅析FAT32文件系统[J]. 计算机与数字工程, 2005(01):56-59.</p>
+]]></description>
+                
+                
+                
+                
+                
+                    
+                        
+                            
+                                
+                                
+                                
+                                    <category domain="https://chengshuyi.github.io/categories/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/">文件系统</category>
+                                
+                            
+                        
+                    
+                        
+                            
+                                
+                                
+                                
+                                    <category domain="https://chengshuyi.github.io/tags/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/">文件系统</category>
+                                
+                            
+                        
+                    
+                
+            </item>
         
             <item>
                 <title>The BSD Packet Filter论文笔记及源码解析</title>
@@ -846,6 +966,683 @@ L5: ret #0						# 返回长度0
             </item>
         
             <item>
+                <title>Lab5 - 实验笔记</title>
+                <link>https://chengshuyi.github.io/posts/course/mit6828/lab5/</link>
+                <guid isPermaLink="true">https://chengshuyi.github.io/posts/course/mit6828/lab5/</guid>
+                <pubDate>Sat, 25 Apr 2020 13:34:18 +0800</pubDate>
+                
+                    <author>c15271843451@outlook.com (程书意)</author>
+                
+                <copyright>[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh)</copyright>
+                
+                    <description><![CDATA[<h3 id="文件系统架构">文件系统架构</h3>
+<p>在<code>init.c</code>通过<code>ENV_CREATE(fs_fs, ENV_TYPE_FS);</code>创建一个专用于文件系统的进程，该进程提供了文件系统的管理，包括读取文件、写入文件等等；</p>
+<p>假设有其他的进程需要进行文件读取，则需要通过ipc（inter process call）的方式将读取文件的元信息传递文件系统进程；</p>
+<p>以打开文件为例，具体代码流程如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">// 库提供的open函数
+</span><span class="c1"></span><span class="kt">int</span> <span class="nf">open</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">path</span><span class="p">,</span> <span class="kt">int</span> <span class="n">mode</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="kt">int</span> <span class="n">r</span><span class="p">;</span>
+	<span class="k">struct</span> <span class="n">Fd</span> <span class="o">*</span><span class="n">fd</span><span class="p">;</span>
+	<span class="c1">// fd_alloc利用之前的自映射快速找到用户进程空间未使用的struct Fd空间。（通过判断虚拟地址对应的表项是否存在）
+</span><span class="c1"></span>	<span class="k">if</span> <span class="p">((</span><span class="n">r</span> <span class="o">=</span> <span class="n">fd_alloc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">fd</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
+		<span class="k">return</span> <span class="n">r</span><span class="p">;</span>
+	<span class="c1">// ipc参数
+</span><span class="c1"></span>	<span class="n">strcpy</span><span class="p">(</span><span class="n">fsipcbuf</span><span class="p">.</span><span class="n">open</span><span class="p">.</span><span class="n">req_path</span><span class="p">,</span> <span class="n">path</span><span class="p">);</span>
+	<span class="n">fsipcbuf</span><span class="p">.</span><span class="n">open</span><span class="p">.</span><span class="n">req_omode</span> <span class="o">=</span> <span class="n">mode</span><span class="p">;</span>
+	<span class="c1">// fsipc的信息传递，具体看下面
+</span><span class="c1"></span>	<span class="k">if</span> <span class="p">((</span><span class="n">r</span> <span class="o">=</span> <span class="n">fsipc</span><span class="p">(</span><span class="n">FSREQ_OPEN</span><span class="p">,</span> <span class="n">fd</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">fd_close</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+		<span class="k">return</span> <span class="n">r</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">fd2num</span><span class="p">(</span><span class="n">fd</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">// file system对jos提供的ipc机制的封装，主要是传递的参数格式化
+</span><span class="c1">// type是操作类型，比如FSREQ_OPEN
+</span><span class="c1">// dstva是struct Fd的虚拟地址
+</span><span class="c1"></span><span class="k">static</span> <span class="kt">int</span> <span class="nf">fsipc</span><span class="p">(</span><span class="kt">unsigned</span> <span class="n">type</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span><span class="n">dstva</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">static</span> <span class="n">envid_t</span> <span class="n">fsenv</span><span class="p">;</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">fsenv</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="c1">// 利用子映射快速遍历所有的env，找到文件系统对应的env（ipc通信需要的参数）
+</span><span class="c1"></span>		<span class="n">fsenv</span> <span class="o">=</span> <span class="n">ipc_find_env</span><span class="p">(</span><span class="n">ENV_TYPE_FS</span><span class="p">);</span>
+    <span class="c1">// ipc
+</span><span class="c1"></span>	<span class="n">ipc_send</span><span class="p">(</span><span class="n">fsenv</span><span class="p">,</span> <span class="n">type</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">fsipcbuf</span><span class="p">,</span> <span class="n">PTE_P</span> <span class="o">|</span> <span class="n">PTE_W</span> <span class="o">|</span> <span class="n">PTE_U</span><span class="p">);</span>
+	<span class="k">return</span> <span class="n">ipc_recv</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="n">dstva</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c">      <span class="n">Regular</span> <span class="n">env</span>           <span class="n">FS</span> <span class="n">env</span>
+   <span class="o">+---------------+</span>   <span class="o">+---------------+</span>
+   <span class="o">|</span>      <span class="n">read</span>     <span class="o">|</span>   <span class="o">|</span>   <span class="n">file_read</span>   <span class="o">|</span>
+   <span class="o">|</span>   <span class="p">(</span><span class="n">lib</span><span class="o">/</span><span class="n">fd</span><span class="p">.</span><span class="n">c</span><span class="p">)</span>  <span class="o">|</span>   <span class="o">|</span>   <span class="p">(</span><span class="n">fs</span><span class="o">/</span><span class="n">fs</span><span class="p">.</span><span class="n">c</span><span class="p">)</span>   <span class="o">|</span>
+<span class="p">...</span><span class="o">|</span><span class="p">.......</span><span class="o">|</span><span class="p">.......</span><span class="o">|</span><span class="p">...</span><span class="o">|</span><span class="p">.......</span><span class="o">^</span><span class="p">.......</span><span class="o">|</span><span class="p">...............</span>
+   <span class="o">|</span>       <span class="n">v</span>       <span class="o">|</span>   <span class="o">|</span>       <span class="o">|</span>       <span class="o">|</span> <span class="n">RPC</span> <span class="n">mechanism</span>
+   <span class="o">|</span>  <span class="n">devfile_read</span> <span class="o">|</span>   <span class="o">|</span>  <span class="n">serve_read</span>   <span class="o">|</span>
+   <span class="o">|</span>  <span class="p">(</span><span class="n">lib</span><span class="o">/</span><span class="n">file</span><span class="p">.</span><span class="n">c</span><span class="p">)</span> <span class="o">|</span>   <span class="o">|</span>  <span class="p">(</span><span class="n">fs</span><span class="o">/</span><span class="n">serv</span><span class="p">.</span><span class="n">c</span><span class="p">)</span>  <span class="o">|</span>
+   <span class="o">|</span>       <span class="o">|</span>       <span class="o">|</span>   <span class="o">|</span>       <span class="o">^</span>       <span class="o">|</span>
+   <span class="o">|</span>       <span class="n">v</span>       <span class="o">|</span>   <span class="o">|</span>       <span class="o">|</span>       <span class="o">|</span>
+   <span class="o">|</span>     <span class="n">fsipc</span>     <span class="o">|</span>   <span class="o">|</span>     <span class="n">serve</span>     <span class="o">|</span>
+   <span class="o">|</span>  <span class="p">(</span><span class="n">lib</span><span class="o">/</span><span class="n">file</span><span class="p">.</span><span class="n">c</span><span class="p">)</span> <span class="o">|</span>   <span class="o">|</span>  <span class="p">(</span><span class="n">fs</span><span class="o">/</span><span class="n">serv</span><span class="p">.</span><span class="n">c</span><span class="p">)</span>  <span class="o">|</span>
+   <span class="o">|</span>       <span class="o">|</span>       <span class="o">|</span>   <span class="o">|</span>       <span class="o">^</span>       <span class="o">|</span>
+   <span class="o">|</span>       <span class="n">v</span>       <span class="o">|</span>   <span class="o">|</span>       <span class="o">|</span>       <span class="o">|</span>
+   <span class="o">|</span>   <span class="n">ipc_send</span>    <span class="o">|</span>   <span class="o">|</span>   <span class="n">ipc_recv</span>    <span class="o">|</span>
+   <span class="o">|</span>       <span class="o">|</span>       <span class="o">|</span>   <span class="o">|</span>       <span class="o">^</span>       <span class="o">|</span>
+   <span class="o">+-------|-------+</span>   <span class="o">+-------|-------+</span>
+           <span class="o">|</span>                   <span class="o">|</span>
+           <span class="o">+-------------------+</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="spawn">spawn</h3>
+<p>spawn是创建进程的另外一种方式，它不同于fork。fork的话是创建和自身一样的运行环境，程序代码也是当前运行的程序代码。而spawn则是从文件系统加载一段新的程序代码去运行。spwan的具体流程如下：</p>
+<ol>
+<li>加载程序代码到内存中（从文件系统读取程序代码）；</li>
+<li>创建子进程；</li>
+</ol>
+<h3 id="shell">shell</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="k">struct</span> <span class="n">Pipe</span> <span class="p">{</span>
+	<span class="n">off_t</span> <span class="n">p_rpos</span><span class="p">;</span>		<span class="c1">// read position
+</span><span class="c1"></span>	<span class="n">off_t</span> <span class="n">p_wpos</span><span class="p">;</span>		<span class="c1">// write position
+</span><span class="c1"></span>	<span class="n">uint8_t</span> <span class="n">p_buf</span><span class="p">[</span><span class="n">PIPEBUFSIZ</span><span class="p">];</span>	<span class="c1">// data buffer
+</span><span class="c1"></span><span class="p">};</span>
+
+<span class="k">struct</span> <span class="n">Dev</span> <span class="n">devpipe</span> <span class="o">=</span>
+<span class="p">{</span>
+	<span class="p">.</span><span class="n">dev_id</span> <span class="o">=</span>	<span class="sc">&#39;p&#39;</span><span class="p">,</span>
+	<span class="p">.</span><span class="n">dev_name</span> <span class="o">=</span>	<span class="s">&#34;pipe&#34;</span><span class="p">,</span>
+	<span class="p">.</span><span class="n">dev_read</span> <span class="o">=</span>	<span class="n">devpipe_read</span><span class="p">,</span>
+	<span class="p">.</span><span class="n">dev_write</span> <span class="o">=</span>	<span class="n">devpipe_write</span><span class="p">,</span>
+	<span class="p">.</span><span class="n">dev_close</span> <span class="o">=</span>	<span class="n">devpipe_close</span><span class="p">,</span>
+	<span class="p">.</span><span class="n">dev_stat</span> <span class="o">=</span>	<span class="n">devpipe_stat</span><span class="p">,</span>
+<span class="p">};</span>
+
+<span class="c1">// 分开的命令分别进行spawn出新的进程去处理
+</span><span class="c1"></span>		<span class="k">case</span> <span class="sc">&#39;|&#39;</span><span class="o">:</span>	
+			<span class="c1">// 分配出两个fd,绑定的文件是devpipe
+</span><span class="c1"></span>			<span class="k">if</span> <span class="p">((</span><span class="n">r</span> <span class="o">=</span> <span class="n">pipe</span><span class="p">(</span><span class="n">p</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+				<span class="n">cprintf</span><span class="p">(</span><span class="s">&#34;pipe: %e&#34;</span><span class="p">,</span> <span class="n">r</span><span class="p">);</span>
+				<span class="n">exit</span><span class="p">();</span>
+			<span class="p">}</span>
+			<span class="c1">// 创建子进程
+</span><span class="c1"></span>			<span class="k">if</span> <span class="p">((</span><span class="n">r</span> <span class="o">=</span> <span class="n">fork</span><span class="p">())</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+				<span class="n">cprintf</span><span class="p">(</span><span class="s">&#34;fork: %e&#34;</span><span class="p">,</span> <span class="n">r</span><span class="p">);</span>
+				<span class="n">exit</span><span class="p">();</span>
+			<span class="p">}</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">r</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+                <span class="c1">// 子进程
+</span><span class="c1"></span>				<span class="k">if</span> <span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="c1">// 0是stdin，将pipe的第一个fd变成子进程的stdin
+</span><span class="c1"></span>					<span class="n">dup</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">);</span>
+                    <span class="c1">// 释放pipe的fd
+</span><span class="c1"></span>					<span class="n">close</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+				<span class="p">}</span>
+                <span class="c1">// 释放pipe的fd
+</span><span class="c1"></span>				<span class="n">close</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+				<span class="k">goto</span> <span class="n">again</span><span class="p">;</span>
+			<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                <span class="c1">// 当前进程
+</span><span class="c1"></span>				<span class="n">pipe_child</span> <span class="o">=</span> <span class="n">r</span><span class="p">;</span>
+				<span class="k">if</span> <span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="c1">// 将pipe的第二个fd变成当前进程的stdout
+</span><span class="c1"></span>					<span class="n">dup</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">);</span>
+					<span class="n">close</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+				<span class="p">}</span>
+				<span class="n">close</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+				<span class="k">goto</span> <span class="n">runit</span><span class="p">;</span>
+			<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><blockquote>
+<p><strong>Exercise 1.</strong> <code>i386_init</code> identifies the file system environment by passing the type <code>ENV_TYPE_FS</code> to your environment creation function, <code>env_create</code>. Modify <code>env_create</code> in <code>env.c</code>, so that it gives the file system environment I/O privilege, but never gives that privilege to any other environment.</p>
+</blockquote>
+<p>标记不同env的类型，文件系统的env类型是<code>ENV_TYPE_FS</code>。修改flags让用户模式的程序可以使用io特权指令。</p>
+<!-- The x86 processor uses the IOPL bits in the EFLAGS register **to determine whether protected-mode code is allowed to perform special device I/O instructions such as the IN and OUT instructions.** Since all of the IDE disk registers we need to access are located in the x86's I/O space rather than being memory-mapped, **giving "I/O privilege" to the file system environment is the only thing we need to do in order to allow the file system to access these registers**. In effect, the IOPL bits in the EFLAGS register provides the kernel with a simple "all-or-nothing" method of controlling whether user-mode code can access I/O space. In our case, we want the file system environment to be able to access I/O space, but we do not want any other environments to be able to access I/O space at all. -->
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="nf">env_create</span><span class="p">(</span><span class="n">uint8_t</span> <span class="o">*</span><span class="n">binary</span><span class="p">,</span> <span class="k">enum</span> <span class="n">EnvType</span> <span class="n">type</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">// lab3
+</span><span class="c1"></span>	<span class="k">struct</span> <span class="n">Env</span> <span class="o">*</span><span class="n">env</span><span class="p">;</span>
+	<span class="n">env_alloc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">env</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+	<span class="n">env</span><span class="o">-&gt;</span><span class="n">env_type</span> <span class="o">=</span> <span class="n">type</span><span class="p">;</span>
+	<span class="n">load_icode</span><span class="p">(</span><span class="n">env</span><span class="p">,</span><span class="n">binary</span><span class="p">);</span>
+    <span class="c1">// lab5
+</span><span class="c1"></span>	<span class="k">if</span><span class="p">(</span><span class="n">type</span> <span class="o">==</span> <span class="n">ENV_TYPE_FS</span><span class="p">){</span>
+		<span class="n">env</span><span class="o">-&gt;</span><span class="n">env_type</span> <span class="o">=</span> <span class="n">ENV_TYPE_FS</span><span class="p">;</span>
+		<span class="n">env</span><span class="o">-&gt;</span><span class="n">env_tf</span><span class="p">.</span><span class="n">tf_eflags</span> <span class="o">|=</span> <span class="n">FL_IOPL_MASK</span><span class="p">;</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><blockquote>
+<p><strong>Exercise 2.</strong> Implement the <code>bc_pgfault</code> and <code>flush_block</code> functions in <code>fs/bc.c</code>. <code>bc_pgfault</code> is a page fault handler, just like the one your wrote in the previous lab for copy-on-write fork, except that its job is to load pages in from the disk in response to a page fault. When writing this, keep in mind that (1) <code>addr</code> may not be aligned to a block boundary and (2) <code>ide_read</code> operates in sectors, not blocks.</p>
+</blockquote>
+<p>硬盘的数据在内存中叫block cache，jos分配了固定的虚拟地址空间存放硬盘数据，当我们需要读写的时候，如果该数据在内存中不存在，则会触发异常，该异常由内核传递给用户程序处理，即<code>bc_pgfault</code>函数。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">// static void bc_pgfault(struct UTrapframe *utf)
+</span><span class="c1"></span>	<span class="c1">// 地址对齐
+</span><span class="c1"></span>	<span class="n">addr</span> <span class="o">=</span> <span class="n">ROUNDDOWN</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span><span class="n">BLKSIZE</span><span class="p">);</span>
+	<span class="c1">// 分配一个page的物理内存
+</span><span class="c1"></span>	<span class="k">if</span><span class="p">((</span><span class="n">r</span> <span class="o">=</span> <span class="n">sys_page_alloc</span><span class="p">(</span><span class="mi">0</span><span class="p">,(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span><span class="n">addr</span><span class="p">,</span><span class="n">PTE_SYSCALL</span><span class="p">))</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">)</span>
+		<span class="n">panic</span><span class="p">(</span><span class="s">&#34;in bc_pgfault, sys_page_alloc: %e&#34;</span><span class="p">,</span><span class="n">r</span><span class="p">);</span>
+	<span class="c1">// 读取磁盘数据到内存中
+</span><span class="c1"></span>	<span class="k">if</span><span class="p">((</span><span class="n">r</span> <span class="o">=</span> <span class="n">ide_read</span><span class="p">(((</span><span class="n">uintptr_t</span><span class="p">)</span><span class="n">addr</span><span class="o">-</span><span class="n">DISKMAP</span><span class="p">)</span><span class="o">/</span><span class="n">BLKSIZE</span><span class="o">*</span><span class="n">BLKSECTS</span><span class="p">,</span><span class="n">addr</span><span class="p">,</span><span class="n">BLKSECTS</span><span class="p">))</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">)</span>
+		<span class="n">panic</span><span class="p">(</span><span class="s">&#34;in bc_pgfault, ide_read: %e&#34;</span><span class="p">,</span><span class="n">r</span><span class="p">);</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><code>flush_block</code>主要是维持内存和硬盘中的数据同步。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">// void flush_block(void *addr)	
+</span><span class="c1"></span>	<span class="kt">int</span> <span class="n">r</span><span class="p">;</span>
+	<span class="n">addr</span> <span class="o">=</span> <span class="n">ROUNDDOWN</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span><span class="n">BLKSIZE</span><span class="p">);</span>
+	<span class="c1">// 该地址对应的block存在内存中，并且有修改过（没有修改的话就不用flush）。
+</span><span class="c1"></span>	<span class="k">if</span><span class="p">(</span><span class="n">va_is_mapped</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="n">va_is_dirty</span><span class="p">(</span><span class="n">addr</span><span class="p">)){</span>
+		<span class="k">if</span><span class="p">((</span><span class="n">r</span> <span class="o">=</span> <span class="n">ide_write</span><span class="p">(</span><span class="n">blockno</span><span class="o">*</span><span class="n">BLKSECTS</span><span class="p">,</span><span class="n">addr</span><span class="p">,</span><span class="n">BLKSECTS</span><span class="p">))</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">)</span>
+			<span class="n">panic</span><span class="p">(</span><span class="s">&#34;in flush_block, ide_write %e&#34;</span><span class="p">,</span><span class="n">r</span><span class="p">);</span>
+        <span class="c1">// 清除dirty位
+</span><span class="c1"></span>		<span class="k">if</span> <span class="p">((</span><span class="n">r</span> <span class="o">=</span> <span class="n">sys_page_map</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">addr</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">addr</span><span class="p">,</span> <span class="n">uvpt</span><span class="p">[</span><span class="n">PGNUM</span><span class="p">(</span><span class="n">addr</span><span class="p">)]</span> <span class="o">&amp;</span> <span class="n">PTE_SYSCALL</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
+			<span class="n">panic</span><span class="p">(</span><span class="s">&#34;in flush_block, sys_page_map: %e&#34;</span><span class="p">,</span> <span class="n">r</span><span class="p">);</span>
+	<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><blockquote>
+<p><strong>Exercise 3.</strong> Use <code>free_block</code> as a model to implement <code>alloc_block</code> in <code>fs/fs.c</code>, which should find a free disk block in the bitmap, mark it used, and return the number of that block. When you allocate a block, you should immediately flush the changed bitmap block to disk with <code>flush_block</code>, to help file system consistency.</p>
+</blockquote>
+<p>从硬盘空闲块中分配一块，返回块号。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">//int alloc_block(void)
+</span><span class="c1"></span>	<span class="n">uint32_t</span> <span class="n">i</span><span class="p">;</span>
+	<span class="k">for</span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">super</span><span class="o">-&gt;</span><span class="n">s_nblocks</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">){</span>
+		<span class="k">if</span><span class="p">(</span><span class="n">block_is_free</span><span class="p">(</span><span class="n">i</span><span class="p">)){</span>
+			<span class="n">bitmap</span><span class="p">[</span><span class="n">i</span><span class="o">/</span><span class="mi">32</span><span class="p">]</span> <span class="o">&amp;=</span> <span class="o">~</span><span class="p">(</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="p">(</span><span class="n">i</span><span class="o">%</span><span class="mi">32</span><span class="p">));</span>
+            <span class="c1">// 将bitmap数据flush到硬盘，防止断电等意外发生，造成数据的丢失
+</span><span class="c1"></span>			<span class="n">flush_block</span><span class="p">((</span><span class="kt">void</span> <span class="o">*</span><span class="p">)((</span><span class="mi">2</span><span class="o">+</span><span class="n">i</span><span class="o">/</span><span class="n">BLKBITSIZE</span><span class="p">)</span><span class="o">*</span><span class="n">BLKSIZE</span><span class="o">+</span><span class="n">DISKMAP</span><span class="p">));</span>
+			<span class="k">return</span> <span class="n">i</span><span class="p">;</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><blockquote>
+<p><strong>Exercise 4.</strong> Implement <code>file_block_walk</code> and <code>file_get_block</code>. <code>file_block_walk</code> maps from a block offset within a file to the pointer for that block in the <code>struct File</code> or the indirect block, very much like what <code>pgdir_walk</code> did for page tables. <code>file_get_block</code> goes one step further and maps to the actual disk block, allocating a new one if necessary.</p>
+</blockquote>
+<p>jos文件系统采用类似于inode的方式，每个文件数据对应的物理存储块编号采用直接方式和间接方式。直接索引就是将该存储块编号存放在inode的数组中，间接索引是将该存储块编号存放在block中。<code>file_block_walk</code>函数将文件的逻辑地址转换成对应的硬盘上的物理地址。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">//static int file_block_walk(struct File *f, uint32_t filebno, uint32_t **ppdiskbno, bool alloc)
+</span><span class="c1"></span>	<span class="n">uintptr_t</span> <span class="o">*</span><span class="n">addr</span><span class="p">;</span>
+	<span class="c1">// 逻辑块号小于NDIRECT
+</span><span class="c1"></span>	<span class="k">if</span><span class="p">(</span><span class="n">filebno</span> <span class="o">&lt;</span> <span class="n">NDIRECT</span><span class="p">){</span>
+		<span class="o">*</span><span class="n">ppdiskbno</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">f</span><span class="o">-&gt;</span><span class="n">f_direct</span><span class="p">[</span><span class="n">filebno</span><span class="p">];</span>
+		<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="p">}</span><span class="k">else</span><span class="p">{</span>
+        <span class="c1">// 超过文件最大限制
+</span><span class="c1"></span>		<span class="k">if</span><span class="p">(</span><span class="n">filebno</span> <span class="o">&gt;=</span> <span class="n">NDIRECT</span> <span class="o">+</span> <span class="n">NINDIRECT</span><span class="p">)</span>
+			<span class="k">return</span> <span class="o">-</span><span class="n">E_INVAL</span><span class="p">;</span>
+        <span class="c1">// 间接存储的block还未分配
+</span><span class="c1"></span>		<span class="k">if</span><span class="p">(</span><span class="n">f</span><span class="o">-&gt;</span><span class="n">f_indirect</span><span class="o">==</span> <span class="mi">0</span> <span class="o">||</span> <span class="n">block_is_free</span><span class="p">(</span><span class="n">f</span><span class="o">-&gt;</span><span class="n">f_indirect</span><span class="p">)){</span>
+			<span class="k">if</span><span class="p">(</span><span class="n">alloc</span><span class="p">){</span>
+                <span class="c1">// 分配一个block用于存储物理存储块编号
+</span><span class="c1"></span>				<span class="n">f</span><span class="o">-&gt;</span><span class="n">f_indirect</span> <span class="o">=</span> <span class="n">alloc_block</span><span class="p">();</span>
+				<span class="k">if</span><span class="p">(</span><span class="n">f</span><span class="o">-&gt;</span><span class="n">f_indirect</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">){</span>
+					<span class="n">f</span><span class="o">-&gt;</span><span class="n">f_indirect</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+					<span class="k">return</span> <span class="o">-</span><span class="n">E_NO_DISK</span><span class="p">;</span>
+				<span class="p">}</span>
+			<span class="p">}</span><span class="k">else</span><span class="p">{</span>
+				<span class="k">return</span> <span class="o">-</span><span class="n">E_NOT_FOUND</span><span class="p">;</span>
+			<span class="p">}</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+	<span class="c1">// 获取间接索引的物理存储块（一般会触发上面的bc_pgfault）
+</span><span class="c1"></span>	<span class="n">addr</span> <span class="o">=</span> <span class="p">(</span><span class="n">uintptr_t</span> <span class="o">*</span><span class="p">)(</span><span class="n">f</span><span class="o">-&gt;</span><span class="n">f_indirect</span><span class="o">*</span><span class="n">BLKSIZE</span><span class="o">+</span><span class="n">DISKMAP</span><span class="p">);</span>
+	<span class="c1">// 物理块号
+</span><span class="c1"></span>	<span class="o">*</span><span class="n">ppdiskbno</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">addr</span><span class="p">[</span><span class="n">filebno</span><span class="o">-</span><span class="n">NDIRECT</span><span class="p">];</span>
+	<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">// int file_get_block(struct File *f, uint32_t filebno, char **blk)
+</span><span class="c1"></span>	<span class="c1">// LAB 5: Your code here.
+</span><span class="c1"></span>	<span class="kt">int</span> <span class="n">r</span><span class="p">;</span>
+	<span class="n">uint32_t</span> <span class="o">*</span><span class="n">ppdiskbno</span><span class="p">;</span>
+	<span class="c1">// 找到逻辑块号对应的物理块号
+</span><span class="c1"></span>	<span class="k">if</span><span class="p">((</span><span class="n">r</span> <span class="o">=</span> <span class="n">file_block_walk</span><span class="p">(</span><span class="n">f</span><span class="p">,</span><span class="n">filebno</span><span class="p">,</span><span class="o">&amp;</span><span class="n">ppdiskbno</span><span class="p">,</span><span class="mi">0</span><span class="p">))</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">){</span>
+		<span class="k">return</span> <span class="n">r</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="c1">// 物理块不存在，需要分配一个物理块给当前文件
+</span><span class="c1"></span>	<span class="k">if</span><span class="p">(</span><span class="o">*</span><span class="n">ppdiskbno</span> <span class="o">==</span> <span class="mi">0</span><span class="p">){</span>
+		<span class="o">*</span><span class="n">ppdiskbno</span> <span class="o">=</span> <span class="n">alloc_block</span><span class="p">();</span>
+		<span class="k">if</span><span class="p">(</span><span class="o">*</span><span class="n">ppdiskbno</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">){</span>
+			<span class="k">return</span> <span class="o">-</span><span class="n">E_NO_DISK</span><span class="p">;</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+	<span class="c1">// 返回该物理块映射的虚拟地址
+</span><span class="c1"></span>	<span class="o">*</span><span class="n">blk</span> <span class="o">=</span> <span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="p">)</span><span class="n">diskaddr</span><span class="p">(</span><span class="o">*</span><span class="n">ppdiskbno</span><span class="p">);</span>
+	<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><blockquote>
+<p><strong>Exercise 5.</strong> Implement <code>serve_read</code> in <code>fs/serv.c</code>.</p>
+<p><code>serve_read</code>'s heavy lifting will be done by the already-implemented <code>file_read</code> in <code>fs/fs.c</code> (which, in turn, is just a bunch of calls to <code>file_get_block</code>). <code>serve_read</code> just has to provide the RPC interface for file reading. Look at the comments and code in <code>serve_set_size</code> to get a general idea of how the server functions should be structured.</p>
+</blockquote>
+<p>前面几个函数是涉及到文件系统到硬盘的管理，下面的则是完成用户的请求。<code>serve_read</code>函数接收用户进程的Fsipc</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">//int serve_read(envid_t envid, union Fsipc *ipc)
+</span><span class="c1"></span>	<span class="kt">int</span> <span class="n">r</span><span class="p">;</span>
+	<span class="k">struct</span> <span class="n">OpenFile</span> <span class="o">*</span><span class="n">o</span><span class="p">;</span>
+	<span class="c1">// 检查该进程的打开文件列表是否存在该文件
+</span><span class="c1"></span>	<span class="k">if</span><span class="p">((</span><span class="n">r</span><span class="o">=</span><span class="n">openfile_lookup</span><span class="p">(</span><span class="n">envid</span><span class="p">,</span><span class="n">req</span><span class="o">-&gt;</span><span class="n">req_fileid</span><span class="p">,</span><span class="o">&amp;</span><span class="n">o</span><span class="p">))</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">){</span>
+		<span class="k">return</span> <span class="n">r</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="c1">// 读取文件数据（通过bc_pgfault的方式实现）
+</span><span class="c1"></span>	<span class="n">r</span> <span class="o">=</span> <span class="n">file_read</span><span class="p">(</span><span class="n">o</span><span class="o">-&gt;</span><span class="n">o_file</span><span class="p">,</span><span class="n">ret</span><span class="o">-&gt;</span><span class="n">ret_buf</span><span class="p">,</span><span class="n">req</span><span class="o">-&gt;</span><span class="n">req_n</span><span class="p">,</span><span class="n">o</span><span class="o">-&gt;</span><span class="n">o_fd</span><span class="o">-&gt;</span><span class="n">fd_offset</span><span class="p">);</span>
+	<span class="c1">// 修改seek位置
+</span><span class="c1"></span>	<span class="k">if</span><span class="p">(</span><span class="n">r</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span> <span class="n">o</span><span class="o">-&gt;</span><span class="n">o_fd</span><span class="o">-&gt;</span><span class="n">fd_offset</span> <span class="o">+=</span> <span class="n">r</span><span class="p">;</span>
+	<span class="k">return</span> <span class="n">r</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><blockquote>
+<p><strong>Exercise 6.</strong> Implement <code>serve_write</code> in <code>fs/serv.c</code> and <code>devfile_write</code> in <code>lib/file.c</code>.</p>
+</blockquote>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">// int serve_write(envid_t envid, struct Fsreq_write *req)
+</span><span class="c1"></span>	<span class="kt">int</span> <span class="n">r</span><span class="p">;</span>
+	<span class="k">struct</span> <span class="n">OpenFile</span> <span class="o">*</span><span class="n">o</span><span class="p">;</span>
+	<span class="c1">// 检查该进程的打开文件列表是否存在该文件
+</span><span class="c1"></span>	<span class="k">if</span><span class="p">((</span><span class="n">r</span><span class="o">=</span><span class="n">openfile_lookup</span><span class="p">(</span><span class="n">envid</span><span class="p">,</span><span class="n">req</span><span class="o">-&gt;</span><span class="n">req_fileid</span><span class="p">,</span><span class="o">&amp;</span><span class="n">o</span><span class="p">))</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">){</span>
+		<span class="k">return</span> <span class="n">r</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="n">r</span> <span class="o">=</span> <span class="n">file_write</span><span class="p">(</span><span class="n">o</span><span class="o">-&gt;</span><span class="n">o_file</span><span class="p">,</span><span class="n">req</span><span class="o">-&gt;</span><span class="n">req_buf</span><span class="p">,</span><span class="n">req</span><span class="o">-&gt;</span><span class="n">req_n</span> <span class="o">&gt;</span> <span class="n">PGSIZE</span><span class="o">?</span> <span class="nl">PGSIZE</span><span class="p">:</span><span class="n">req</span><span class="o">-&gt;</span><span class="n">req_n</span><span class="p">,</span><span class="n">o</span><span class="o">-&gt;</span><span class="n">o_fd</span><span class="o">-&gt;</span><span class="n">fd_offset</span><span class="p">);</span>
+	<span class="k">if</span><span class="p">(</span><span class="n">r</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="n">o</span><span class="o">-&gt;</span><span class="n">o_fd</span><span class="o">-&gt;</span><span class="n">fd_offset</span> <span class="o">+=</span> <span class="n">r</span><span class="p">;</span>
+	<span class="k">return</span> <span class="n">r</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">// static ssize_t devfile_read(struct Fd *fd, void *buf, size_t n)	
+</span><span class="c1"></span>	<span class="kt">int</span> <span class="n">r</span><span class="p">;</span>
+	<span class="k">if</span> <span class="p">(</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="k">sizeof</span> <span class="p">(</span><span class="n">fsipcbuf</span><span class="p">.</span><span class="n">write</span><span class="p">.</span><span class="n">req_buf</span><span class="p">))</span> 
+		<span class="n">n</span> <span class="o">=</span> <span class="k">sizeof</span> <span class="p">(</span><span class="n">fsipcbuf</span><span class="p">.</span><span class="n">write</span><span class="p">.</span><span class="n">req_buf</span><span class="p">);</span>
+	<span class="n">memmove</span><span class="p">(</span><span class="n">fsipcbuf</span><span class="p">.</span><span class="n">write</span><span class="p">.</span><span class="n">req_buf</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">n</span><span class="p">);</span>
+	<span class="n">fsipcbuf</span><span class="p">.</span><span class="n">write</span><span class="p">.</span><span class="n">req_fileid</span> <span class="o">=</span> <span class="n">fd</span><span class="o">-&gt;</span><span class="n">fd_file</span><span class="p">.</span><span class="n">id</span><span class="p">;</span>
+	<span class="n">fsipcbuf</span><span class="p">.</span><span class="n">write</span><span class="p">.</span><span class="n">req_n</span> <span class="o">=</span> <span class="n">n</span><span class="p">;</span>
+	<span class="k">return</span> <span class="nf">fsipc</span><span class="p">(</span><span class="n">FSREQ_WRITE</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+</code></pre></td></tr></table>
+</div>
+</div><blockquote>
+<p><strong>Exercise 7.</strong> <code>spawn</code> relies on the new syscall <code>sys_env_set_trapframe</code> to initialize the state of the newly created environment. Implement <code>sys_env_set_trapframe</code> in <code>kern/syscall.c</code> (don't forget to dispatch the new system call in <code>syscall()</code>).</p>
+</blockquote>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">// static int sys_env_set_trapframe(envid_t envid, struct Trapframe *tf)	
+</span><span class="c1"></span>	<span class="k">struct</span> <span class="n">Env</span> <span class="o">*</span><span class="n">e</span><span class="p">;</span>
+	<span class="k">if</span><span class="p">(</span><span class="n">envid2env</span><span class="p">(</span><span class="n">envid</span><span class="p">,</span><span class="o">&amp;</span><span class="n">e</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">){</span>
+		<span class="k">return</span> <span class="o">-</span><span class="n">E_BAD_ENV</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="n">user_mem_assert</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">tf</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span> <span class="n">Trapframe</span><span class="p">),</span> <span class="n">PTE_U</span><span class="p">);</span>
+	<span class="n">e</span><span class="o">-&gt;</span><span class="n">env_tf</span> <span class="o">=</span> <span class="o">*</span><span class="n">tf</span><span class="p">;</span>
+	<span class="n">e</span><span class="o">-&gt;</span><span class="n">env_tf</span><span class="p">.</span><span class="n">tf_eflags</span> <span class="o">|=</span> <span class="n">FL_IF</span><span class="p">;</span>
+	<span class="n">e</span><span class="o">-&gt;</span><span class="n">env_tf</span><span class="p">.</span><span class="n">tf_eflags</span> <span class="o">&amp;=</span> <span class="p">(</span><span class="o">~</span><span class="n">FL_IOPL_MASK</span><span class="p">);</span>
+	<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><blockquote>
+<p><strong>Exercise 8.</strong> Change <code>duppage</code> in <code>lib/fork.c</code> to follow the new convention. If the page table entry has the <code>PTE_SHARE</code> bit set, just copy the mapping directly. (You should use <code>PTE_SYSCALL</code>, not <code>0xfff</code>, to mask out the relevant bits from the page table entry. <code>0xfff</code> picks up the accessed and dirty bits as well.)</p>
+<p>Likewise, implement <code>copy_shared_pages</code> in <code>lib/spawn.c</code>. It should loop through all page table entries in the current process (just like <code>fork</code> did), copying any page mappings that have the <code>PTE_SHARE</code> bit set into the child process.</p>
+</blockquote>
+<p>spawn的话可以从用户态加载应用程序去运行。</p>
+<blockquote>
+<p><strong>Exercise 9.</strong> In your kern/trap.c, call kbd_intr to handle trap IRQ_OFFSET+IRQ_KBD and serial_intr to handle trap IRQ_OFFSET+IRQ_SERIAL.</p>
+</blockquote>
+<p><code>kbd_intr</code>函数读取键盘的输入；<code>serial_intr</code>函数读取输入的数据到buffer里面。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c">		<span class="k">case</span> <span class="n">IRQ_OFFSET</span><span class="o">+</span><span class="nl">IRQ_KBD</span><span class="p">:{</span>
+			<span class="n">kbd_intr</span><span class="p">();</span>
+			<span class="n">lapic_eoi</span><span class="p">();</span>
+			<span class="k">return</span><span class="p">;</span>
+		<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><blockquote>
+<p><strong>Exercise 10.</strong> The shell doesn't support I/O redirection. It would be nice to run sh &lt;script instead of having to type in all the commands in the script by hand, as you did above. Add I/O redirection for &lt; to user/sh.c.</p>
+</blockquote>
+<p>io重定向：以重定向输入为例（比如<code>sh&lt;script</code>）。因为fd 0代表着stdin，fd 1代表着stdout，所以将待重定向的文件的fd拷贝到子进程的fd 0即可（执行<code>sh</code>的shell可以通过<code>getchar</code>的方式读取该文件内容【根据fd绑定的内容找到对应的<code>devfile</code>，那么<code>getchar</code>的读取转换成<code>devfile-&gt;read</code>】）。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c">			<span class="k">if</span> <span class="p">((</span><span class="n">fd</span> <span class="o">=</span> <span class="n">open</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">O_RDONLY</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+				<span class="n">cprintf</span><span class="p">(</span><span class="s">&#34;open %s for read: %e&#34;</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">fd</span><span class="p">);</span>
+				<span class="n">exit</span><span class="p">();</span>
+			<span class="p">}</span>
+			<span class="k">if</span><span class="p">(</span><span class="n">fd</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">){</span>
+				<span class="n">dup</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+				<span class="n">close</span><span class="p">(</span><span class="n">fd</span><span class="p">);</span>
+			<span class="p">}</span>
+			<span class="k">break</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div>]]></description>
+                
+                
+                
+                
+                
+                    
+                        
+                            
+                                
+                                
+                                
+                                    <category domain="https://chengshuyi.github.io/categories/mit6828-os%E5%AE%9E%E9%AA%8C/">mit6828 OS实验</category>
+                                
+                            
+                        
+                    
+                        
+                            
+                                
+                                
+                                
+                                    <category domain="https://chengshuyi.github.io/tags/mit6828-os%E5%AE%9E%E9%AA%8C/">mit6828 OS实验</category>
+                                
+                            
+                        
+                    
+                
+            </item>
+        
+            <item>
                 <title>Lab4 - 实验笔记</title>
                 <link>https://chengshuyi.github.io/posts/course/mit6828/lab4/</link>
                 <guid isPermaLink="true">https://chengshuyi.github.io/posts/course/mit6828/lab4/</guid>
@@ -931,17 +1728,143 @@ L5: ret #0						# 返回长度0
                 
                 <copyright>[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh)</copyright>
                 
-                    <description><![CDATA[<h3 id="user-environments-and-exception-handling">User Environments and Exception Handling</h3>
+                    <description><![CDATA[<p>lab3的实验主要涉及到x86的硬件机制：中断、异常等等。因此，需要自己实现中断向量表、保存和恢复上下文、系统调用和页异常相关的函数。</p>
+<p>lab3也新增了用户进程的概念，需要实现相关函数。</p>
+<h3 id="user-environments">user environments</h3>
+<p>jos的user environments是tcb的概念，用于描述一个进程实体。其结构如下所示：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="k">struct</span> <span class="n">Env</span> <span class="p">{</span>
+	<span class="k">struct</span> <span class="n">Trapframe</span> <span class="n">env_tf</span><span class="p">;</span>	<span class="c1">// Saved registers
+</span><span class="c1"></span>	<span class="k">struct</span> <span class="n">Env</span> <span class="o">*</span><span class="n">env_link</span><span class="p">;</span>		<span class="c1">// Next free Env
+</span><span class="c1"></span>	<span class="n">envid_t</span> <span class="n">env_id</span><span class="p">;</span>				<span class="c1">// Unique environment identifier
+</span><span class="c1"></span>	<span class="n">envid_t</span> <span class="n">env_parent_id</span><span class="p">;</span>		<span class="c1">// env_id of this env&#39;s parent
+</span><span class="c1"></span>	<span class="k">enum</span> <span class="n">EnvType</span> <span class="n">env_type</span><span class="p">;</span>		<span class="c1">// Indicates special system environments
+</span><span class="c1"></span>	<span class="kt">unsigned</span> <span class="n">env_status</span><span class="p">;</span>		<span class="c1">// Status of the environment
+</span><span class="c1"></span>	<span class="n">uint32_t</span> <span class="n">env_runs</span><span class="p">;</span>			<span class="c1">// Number of times environment has run
+</span><span class="c1"></span>	<span class="kt">int</span> <span class="n">env_cpunum</span><span class="p">;</span>				<span class="c1">// The CPU that the env is running on
+</span><span class="c1"></span>
+	<span class="c1">// Address space
+</span><span class="c1"></span>	<span class="n">pde_t</span> <span class="o">*</span><span class="n">env_pgdir</span><span class="p">;</span>			<span class="c1">// Kernel virtual address of page dir
+</span><span class="c1"></span>
+	<span class="c1">// Exception handling
+</span><span class="c1"></span>	<span class="kt">void</span> <span class="o">*</span><span class="n">env_pgfault_upcall</span><span class="p">;</span>	<span class="c1">// Page fault upcall entry point
+</span><span class="c1"></span>
+	<span class="c1">// Lab 4 IPC
+</span><span class="c1"></span>	<span class="kt">bool</span> <span class="n">env_ipc_recving</span><span class="p">;</span>		<span class="c1">// Env is blocked receiving
+</span><span class="c1"></span>	<span class="kt">void</span> <span class="o">*</span><span class="n">env_ipc_dstva</span><span class="p">;</span>		<span class="c1">// VA at which to map received page
+</span><span class="c1"></span>	<span class="n">uint32_t</span> <span class="n">env_ipc_value</span><span class="p">;</span>		<span class="c1">// Data value sent to us
+</span><span class="c1"></span>	<span class="n">envid_t</span> <span class="n">env_ipc_from</span><span class="p">;</span>		<span class="c1">// envid of the sender
+</span><span class="c1"></span>	<span class="kt">int</span> <span class="n">env_ipc_perm</span><span class="p">;</span>			<span class="c1">// Perm of page mapping received
+</span><span class="c1"></span><span class="p">};</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="中断和异常">中断和异常</h3>
+<p>中断描述符表：x86最多有256个表项；</p>
+<p>TSS：包含了段选择子和栈的基址；</p>
+<p>0-31号中断：同步异常；</p>
+<p>31号以上中断：软中断和硬中断；</p>
+<p>嵌套中断和异常：</p>
+<blockquote>
+<p><strong>Exercise 1.</strong> Modify <code>mem_init()</code> in <code>kern/pmap.c</code> to allocate and map the <code>envs</code> array. This array consists of exactly <code>NENV</code> instances of the <code>Env</code> structure allocated much like how you allocated the <code>pages</code> array. Also like the <code>pages</code> array, the memory backing <code>envs</code> should also be mapped user read-only at <code>UENVS</code> (defined in <code>inc/memlayout.h</code>) so user processes can read from this array.</p>
+</blockquote>
+<p>为<code>NENV</code>个<code>struct Env</code>分配内存空间，然后将其映射到位于用户地址空间的虚拟地址UENVS。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">//分配内存
+</span><span class="c1"></span><span class="n">envs</span> <span class="o">=</span> <span class="p">(</span><span class="k">struct</span> <span class="n">Env</span><span class="o">*</span><span class="p">)</span><span class="n">boot_alloc</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span> <span class="n">Env</span><span class="p">)</span><span class="o">*</span><span class="n">NENV</span><span class="p">);</span>
+<span class="n">memset</span><span class="p">(</span><span class="n">envs</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span> <span class="n">Env</span><span class="p">)</span><span class="o">*</span><span class="n">NENV</span><span class="p">);</span>
+<span class="c1">//做映射
+</span><span class="c1"></span><span class="n">boot_map_region</span><span class="p">(</span><span class="n">kern_pgdir</span><span class="p">,</span><span class="n">UENVS</span><span class="p">,</span><span class="n">ROUNDUP</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span> <span class="n">Env</span><span class="p">)</span><span class="o">*</span><span class="n">NENV</span><span class="p">,</span><span class="n">PGSIZE</span><span class="p">),</span><span class="n">PADDR</span><span class="p">(</span><span class="n">envs</span><span class="p">),</span><span class="n">PTE_P</span><span class="o">|</span><span class="n">PTE_U</span><span class="p">);</span>
+</code></pre></td></tr></table>
+</div>
+</div><blockquote>
+<p><strong>Exercise 2.</strong> In the file <code>env.c</code>, finish coding the following functions:</p>
 <ul>
-<li><code>env_init</code>函数的实现类似于<code>page_init</code>函数，主要将空闲的<code>struct Env</code>插入到<code>env_free_list</code>链表上；</li>
-<li><code>env_setup_vm</code>函数为该进程分配一个页目录表，并将内核页目录表内容拷贝到该进程的页目录表；</li>
-<li><code>region_alloc</code>函数为进程分配内存，并将其映射到其地址空间；</li>
-<li><code>load_icode</code>函数解析elf文件头部信息，将其加载到指定的地址上；修改进程的eip值；为该进程创建用户栈；</li>
-<li><code>env_alloc</code>函数工作流程：调用<code>env_setup_vm</code>完成进程的页目录表的分配；分配一个id；设置该进程的寄存器的值，包括：ds、es、ss、esp、cs等；</li>
-<li><code>env_create</code>函数先后调用了<code>env_alloc</code>函数和<code>load_icode</code>函数；</li>
-<li><code>env_run</code>函数根据进程是否发生切换来决定是否更新cr3寄存器的值；</li>
+<li><code>env_init()</code></li>
 </ul>
-<p>中断流程如下：</p>
+<p>Initialize all of the <code>Env</code> structures in the <code>envs</code> array and add them to the <code>env_free_list</code>. Also calls <code>env_init_percpu</code>, which configures the segmentation hardware with separate segments for privilege level 0 (kernel) and privilege level 3 (user).</p>
+<ul>
+<li><code>env_setup_vm()</code></li>
+</ul>
+<p>Allocate a page directory for a new environment and initialize the kernel portion of the new environment's address space.</p>
+<ul>
+<li><code>region_alloc()</code></li>
+</ul>
+<p>Allocates and maps physical memory for an environment</p>
+<ul>
+<li><code>load_icode()</code></li>
+</ul>
+<p>You will need to parse an ELF binary image, much like the boot loader already does, and load its contents into the user address space of a new environment.</p>
+<ul>
+<li><code>env_create()</code></li>
+</ul>
+<p>Allocate an environment with <code>env_alloc</code> and call <code>load_icode</code> to load an ELF binary into it.</p>
+<ul>
+<li><code>env_run()</code></li>
+</ul>
+<p>Start a given environment running in user mode.</p>
+</blockquote>
+<p>函数较多，实现简单，这里不再贴代码。</p>
+<ul>
+<li>
+<p><code>env_init</code>函数的实现类似于<code>page_init</code>函数，主要将空闲的<code>struct Env</code>插入到<code>env_free_list</code>链表上；</p>
+</li>
+<li>
+<p><code>env_setup_vm</code>函数为该进程分配一个页目录表，并将内核页目录表内容拷贝到该进程的页目录表；</p>
+</li>
+<li>
+<p><code>region_alloc</code>函数为进程分配内存，并将其映射到其地址空间，其参数是<code>va</code>和<code>len</code>；</p>
+</li>
+<li>
+<p><code>load_icode</code>函数解析elf文件头部信息，将其加载到指定的地址上；修改进程的eip值；为该进程创建用户栈；</p>
+</li>
+<li>
+<p><code>env_alloc</code>函数工作流程：调用<code>env_setup_vm</code>完成进程的页目录表的分配；分配一个id；设置该进程的寄存器的值，包括：ds、es、ss、esp、cs等；</p>
+</li>
+<li>
+<p><code>env_create</code>函数先后调用了<code>env_alloc</code>函数和<code>load_icode</code>函数；</p>
+</li>
+<li>
+<p><code>env_run</code>函数根据进程是否发生切换来决定是否更新cr3寄存器的值；</p>
+</li>
+</ul>
+<blockquote>
+<p><strong>Exercise 4.</strong> Edit <code>trapentry.S</code> and <code>trap.c</code> and implement the features described above. The macros <code>TRAPHANDLER</code> and <code>TRAPHANDLER_NOEC</code> in <code>trapentry.S</code> should help you, as well as the T_* defines in <code>inc/trap.h</code>. You will need to add an entry point in <code>trapentry.S</code> (using those macros) for each trap defined in <code>inc/trap.h</code>, and you'll have to provide <code>_alltraps</code> which the <code>TRAPHANDLER</code> macros refer to. You will also need to modify <code>trap_init()</code> to initialize the <code>idt</code> to point to each of these entry points defined in <code>trapentry.S; the </code>SETGATE` macro will be helpful here.</p>
+</blockquote>
+<p>具体代码没有粘贴，记录一下具体的中断流程：</p>
 <ol>
 <li>中断或者异常发生，cpu判断当前特权级来决定是否切换到内核栈；</li>
 <li>如下图所示，如果发生特权级切换需要特别保存ss和esp寄存器（中断嵌套的话只能发生在内核态）；</li>
@@ -954,15 +1877,165 @@ L5: ret #0						# 返回长度0
 <li>执行iret指令，从内核栈中pop出ss和esp寄存器；</li>
 </ol>
 <p><img src="https://gitee.com/chengshuyi/scripts/raw/master/img/20200425200239.png" alt=""></p>
-<h3 id="page-faults-breakpoints-exceptions-and-system-calls">Page Faults, Breakpoints Exceptions, and System Calls</h3>
-<p>page falults比较简单，不再叙述；</p>
-<p>breakpoints exceptions：貌似linux上的gdb调试程序就是通过这个异常来实现的；</p>
-<p>系统调用：这里需要注意的是当前不再通过栈传递参数，而是通过寄存器传递，系统调用号存在eax寄存器，剩余的五个参数分别对应着 %edx, %ecx, %ebx, edi, 和esi。返回值存放在eax寄存器；</p>
-<h4 id="user-mode-startup">User-mode startup</h4>
-<p>初始化该进程的环境变量，比如thisenv。</p>
-<h4 id="page-faults-and-memory-protection">Page faults and memory protection</h4>
-<p>用户进程传进来的指针一定要检查，首先检查该指针不能在内核地址空间，然后判断是否存在该虚拟地址，最后检查读写权限；</p>
-]]></description>
+<h3 id="页异常">页异常</h3>
+<p>页异常的中断向量号是14，当页异常发生时，处理器会自动保存其虚拟地址到<code>cr2</code>寄存器；</p>
+<blockquote>
+<p><strong>Exercise 5.</strong> Modify <code>trap_dispatch()</code> to dispatch page fault exceptions to <code>page_fault_handler()</code>.</p>
+</blockquote>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c">		<span class="k">case</span> <span class="nl">T_PGFLT</span><span class="p">:{</span>
+			<span class="n">page_fault_handler</span><span class="p">(</span><span class="n">tf</span><span class="p">);</span>
+			<span class="k">break</span><span class="p">;</span>
+		<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="断点异常">断点异常</h3>
+<p>断点异常的中断向量号是3，调试程序时需要在相应的指令下插入该条指令（int 0x3），触发软件异常，可以调试程序。</p>
+<blockquote>
+<p><strong>Exercise 6.</strong> Modify <code>trap_dispatch()</code> to make breakpoint exceptions invoke the kernel monitor.</p>
+</blockquote>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c">		<span class="k">case</span> <span class="nl">T_BRKPT</span><span class="p">:{</span>
+			<span class="n">monitor</span><span class="p">(</span><span class="n">tf</span><span class="p">);</span>
+			<span class="k">break</span><span class="p">;</span>
+		<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="系统调用">系统调用</h3>
+<blockquote>
+<p><strong>Exercise 7.</strong> Add a handler in the kernel for interrupt vector <code>T_SYSCALL</code>. You will have to edit <code>kern/trapentry.S</code> and <code>kern/trap.c</code>'s <code>trap_init()</code>. You also need to change <code>trap_dispatch()</code> to handle the system call interrupt by calling <code>syscall()</code> (defined in <code>kern/syscall.c</code>) with the appropriate arguments, and then arranging for the return value to be passed back to the user process in <code>%eax</code>. Finally, you need to implement <code>syscall()</code> in <code>kern/syscall.c</code>. Make sure <code>syscall()</code> returns <code>-E_INVAL</code> if the system call number is invalid. You should read and understand <code>lib/syscall.c</code> (especially the inline assembly routine) in order to confirm your understanding of the system call interface. Handle all the system calls listed in <code>inc/syscall.h</code> by invoking the corresponding kernel function for each call.</p>
+</blockquote>
+<p>实现系统调用部分，为用户程序提供内核服务，具体看代码:-）。</p>
+<h4 id="用户程序入口">用户程序入口</h4>
+<p>主要关注几个文件的代码，分别是<code>lib/entry.S</code>、<code>lib/libmain.c</code>和<code>lib/exit.c</code>。</p>
+<blockquote>
+<p><strong>Exercise 8.</strong> Add the required code to the user library, then boot your kernel. You should see <code>user/hello</code> print &quot;<code>hello, world</code>&quot; and then print &quot;<code>i am environment 00001000</code>&quot;. <code>user/hello</code> then attempts to &quot;exit&quot; by calling <code>sys_env_destroy()</code> (see <code>lib/libmain.c</code> and <code>lib/exit.c</code>).</p>
+</blockquote>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span>
+<span class="nf">libmain</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="c1">// set thisenv to point at our Env structure in envs[].
+</span><span class="c1"></span>	<span class="c1">// LAB 3: Your code here.
+</span><span class="c1"></span>	<span class="n">envid_t</span> <span class="n">id</span> <span class="o">=</span> <span class="n">sys_getenvid</span><span class="p">();</span>
+	<span class="n">thisenv</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">envs</span><span class="p">[</span><span class="n">ENVX</span><span class="p">(</span><span class="n">id</span><span class="p">)];</span>
+
+	<span class="c1">// save the name of the program so that panic() can use it
+</span><span class="c1"></span>	<span class="k">if</span> <span class="p">(</span><span class="n">argc</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+		<span class="n">binaryname</span> <span class="o">=</span> <span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+
+	<span class="c1">// call user main routine
+</span><span class="c1"></span>	<span class="n">umain</span><span class="p">(</span><span class="n">argc</span><span class="p">,</span> <span class="n">argv</span><span class="p">);</span>
+
+	<span class="c1">// exit gracefully
+</span><span class="c1"></span>	<span class="n">exit</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="内存保护机制">内存保护机制</h4>
+<ol>
+<li>用户进程传进来的指针一定要检查，首先检查该指针不能在内核地址空间，然后判断是否存在该虚拟地址，最后检查读写权限；</li>
+<li>内核不能够发生页错误；</li>
+</ol>
+<blockquote>
+<p><strong>Exercise 9.</strong> Change <code>kern/trap.c</code> to panic if a page fault happens in kernel mode.</p>
+<p>Read <code>user_mem_assert</code> in <code>kern/pmap.c</code> and implement <code>user_mem_check</code> in that same file.</p>
+<p>Change <code>kern/syscall.c</code> to sanity check arguments to system calls.</p>
+</blockquote>
+<p>内核不能够发生页错误。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c">	<span class="k">if</span><span class="p">(</span><span class="n">tf</span><span class="o">-&gt;</span><span class="n">tf_cs</span> <span class="o">==</span> <span class="n">GD_KT</span><span class="p">){</span>
+		<span class="n">panic</span><span class="p">(</span><span class="s">&#34;kernel page fault</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+	<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>用户进程传进来的指针检查函数：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">int</span> <span class="nf">user_mem_check</span><span class="p">(</span><span class="k">struct</span> <span class="n">Env</span> <span class="o">*</span><span class="n">env</span><span class="p">,</span> <span class="k">const</span> <span class="kt">void</span> <span class="o">*</span><span class="n">va</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">len</span><span class="p">,</span> <span class="kt">int</span> <span class="n">perm</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="c1">// LAB 3: Your code here.
+</span><span class="c1"></span>	<span class="n">uintptr_t</span> <span class="n">s</span> <span class="o">=</span> <span class="n">ROUNDDOWN</span><span class="p">((</span><span class="n">uintptr_t</span><span class="p">)</span><span class="n">va</span><span class="p">,</span><span class="n">PGSIZE</span><span class="p">);</span>
+	<span class="n">uintptr_t</span> <span class="n">e</span> <span class="o">=</span> <span class="n">ROUNDUP</span><span class="p">((</span><span class="n">uintptr_t</span><span class="p">)</span><span class="n">va</span><span class="o">+</span><span class="n">len</span><span class="p">,</span><span class="n">PGSIZE</span><span class="p">);</span>
+	<span class="n">pte_t</span> <span class="o">*</span><span class="n">pte_entry</span><span class="p">;</span>
+	<span class="k">for</span><span class="p">(;</span><span class="n">s</span><span class="o">&lt;</span><span class="n">e</span><span class="p">;</span><span class="n">s</span><span class="o">+=</span><span class="n">PGSIZE</span><span class="p">){</span>
+		<span class="c1">// cprintf(&#34;va is %x ULIM is %x\n&#34;,s,ULIM);
+</span><span class="c1"></span>		<span class="n">page_lookup</span><span class="p">(</span><span class="n">env</span><span class="o">-&gt;</span><span class="n">env_pgdir</span><span class="p">,(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span><span class="n">s</span><span class="p">,</span><span class="o">&amp;</span><span class="n">pte_entry</span><span class="p">);</span> 
+        <span class="c1">// 1. 首先检查该指针不能在内核地址空间
+</span><span class="c1"></span>        <span class="c1">// 2. 然后判断是否存在该虚拟地址
+</span><span class="c1"></span>        <span class="c1">// 3. 最后检查读写权限
+</span><span class="c1"></span>		<span class="k">if</span><span class="p">(</span><span class="n">s</span><span class="o">&gt;</span><span class="n">ULIM</span> <span class="o">||</span> <span class="n">pte_entry</span> <span class="o">==</span> <span class="nb">NULL</span> <span class="o">||</span> <span class="p">(</span><span class="n">PGOFF</span><span class="p">(</span><span class="o">*</span><span class="n">pte_entry</span><span class="p">)</span><span class="o">&amp;</span><span class="n">perm</span><span class="p">)</span> <span class="o">!=</span> <span class="n">perm</span><span class="p">){</span>
+			<span class="n">user_mem_check_addr</span> <span class="o">=</span> <span class="n">MAX</span><span class="p">(</span><span class="n">s</span><span class="p">,(</span><span class="n">uintptr_t</span><span class="p">)</span><span class="n">va</span><span class="p">);</span>
+			<span class="k">return</span> <span class="o">-</span><span class="n">E_FAULT</span><span class="p">;</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div>]]></description>
                 
                 
                 
@@ -1003,8 +2076,22 @@ L5: ret #0						# 返回长度0
                 <copyright>[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh)</copyright>
                 
                     <description><![CDATA[<p><a href="https://github.com/chengshuyi/jos-lab/commit/ca384c1373d3a34cfa82435fdd366965a3b4c071">lab2实验代码</a></p>
-<h3 id="physical-page-management">Physical Page Management</h3>
-<p>下面是内核物理内存管理的流程，特别需要注意到在没有初始化内存之前，内核如何为数据结构分配内存。</p>
+<p>lab2的实验主要涉及到物理内存和虚拟内存的管理，其中JOS内核按页对物理内存进行管理，所以其分配、释放的最小内存大小是一个物理页。相应的需要实现三个物理页相关函数：</p>
+<ul>
+<li><code>void page_init(void)</code></li>
+<li><code>struct PageInfo *page_alloc(int alloc_flags)</code></li>
+<li><code>void page_free(struct PageInfo *pp)</code></li>
+</ul>
+<p>JOS内核的虚拟地址空间大小是256MB，x86中包含分段机制和分页机制，JOS分段机制比较固定，占用整个地址空间大小。因此，整个实验比较关注于基于mmu的分页管理机制。针对分页机制需要实现四个函数：</p>
+<ul>
+<li><code>pte_t *pgdir_walk(pde_t *pgdir, const void *va, int create)</code></li>
+<li><code>void page_remove(pde_t *pgdir, void *va)</code></li>
+<li><code>struct PageInfo *page_lookup(pde_t *pgdir, void *va, pte_t **pte_store)</code></li>
+<li><code>int page_insert(pde_t *pgdir, struct PageInfo *pp, void *va, int perm)</code></li>
+</ul>
+<p>本文不会涉及到具体代码，简单记录了比较关键的部分。</p>
+<h3 id="物理页管理">物理页管理</h3>
+<p>JOS的物理内存粒度是页，所有的空闲页通过链表进行管理，下面是内核物理内存管理的流程，特别需要注意到在没有初始化内存之前，内核如何为数据结构分配内存。</p>
 <ol>
 <li>
 <p>通过I/O端口获取物理内存的分布情况，分为两部分，base memory占用640KB，extended memory占用130432KB。可以知道base memory指的是<a href="">lab1</a>讲的low memory；</p>
@@ -1013,10 +2100,12 @@ L5: ret #0						# 返回长度0
 </blockquote>
 </li>
 <li>
-<p>实现<code>boot_alloc</code>函数，该函数主要完成在没有建立页管理机制之前的内存分配工作。其工作流程是：1. 根据链接脚本的end参数获取内核所占内存的终止地址，并将其按页对齐；2. 为调用者分配内存，更新终止位置；</p>
+<p>实现<code>boot_alloc</code>函数，该函数主要完成在没有建立页管理机制之前的内存分配工作。其工作流程是：</p>
+<p>a. 根据链接脚本的end参数获取内核代码所占内存的终止地址，并将其按页对齐；</p>
+<p>b. 为调用者分配内存，更新终止位置；</p>
 </li>
 <li>
-<p>调用<code>boot_alloc</code>函数为内核页目录表<code>kern_pgdir</code>分配内存，大小是PGSIZE；</p>
+<p>调用<code>boot_alloc</code>函数为内核页目录表<code>kern_pgdir</code>分配内存，大小是PGSIZE，二级页表在做映射的时候才进行分配；</p>
 </li>
 <li>
 <p>建立自映射，这个在lab4还会遇到；</p>
@@ -1028,13 +2117,13 @@ L5: ret #0						# 返回长度0
 <p><code>page_init</code>函数初始化<code>struct PageInfo</code>，主要是将空闲页挂在空闲页链表<code>page_free_list</code>上，此时空闲页主要有两部分构成：1. low memory部分； 2. extended memory剩余部分；</p>
 </li>
 <li>
-<p><code>page_alloc</code>从空闲页链表上取出一页；</p>
+<p><code>page_init</code>函数从空闲页链表上取出一页；</p>
 </li>
 <li>
-<p><code>page_free</code>将该页挂在空闲链表上；</p>
+<p><code>page_free</code>函数将该页挂在空闲链表上；</p>
 </li>
 </ol>
-<h3 id="virtual-memory">Virtual Memory</h3>
+<h3 id="虚拟内存">虚拟内存</h3>
 <p>在x86架构中，有三种地址术语，分别是：虚拟地址、线性地址和物理地址。虚拟地址通过分段机制转换得到线性地址，线性地址通过分页机制转换可以得到物理地址。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -1212,7 +2301,7 @@ L5: ret #0						# 返回长度0
 </span><span class="cm"> *    0 ------------&gt;  +------------------------------+                 --+
 </span></code></pre></td></tr></table>
 </div>
-</div><p>下面是虚拟内存地址空间分布的情况，下面是建立映射的大致过程：</p>
+</div><p>上面是虚拟内存地址空间分布的情况，下面是建立映射的大致过程：</p>
 <ol>
 <li>前面已经为页目录表<code>kern_pgdir</code>分配了内存，所以接下来的建立地址映射的过程就是在<code>kern_pgdir</code>插入页表项，以及分配页表；</li>
 <li>将前面分配的<code>sizeof(struct PageInfo) * npage</code>映射到UPAGES；</li>
@@ -1220,12 +2309,23 @@ L5: ret #0						# 返回长度0
 <li>将整个物理内存映射内核虚拟地址空间；</li>
 <li>将<code>kern_pgdir</code>加载到cr3寄存器；</li>
 </ol>
-<p>下面是几个函数的实现原理，描述的比较简单，但实际上有很多的细节需要去考虑：</p>
+<p>下面是几个函数的实现功能，描述的比较简单，但实际上有很多的细节需要去考虑：</p>
 <ol>
-<li><code>pgdir_walk</code>函数查找虚拟地址所对应的页表项，也就是<code>&amp;kern_pgdir[PDX(va)][PTX(va)]</code>；</li>
-<li><code>page_lookup</code>函数查找到对应的物理地址，也就是<code>pa2page(kern_pgdir[PDX(va)][PTX(va)])</code>；</li>
-<li><code>page_remove</code>函数完成两个功能：1. 取消映射；2. 回收物理页。取消映射原理是<code>kern_pgdir[PDX(va)][PTX(va)] = 0</code>，回收物理页将该页插入到空闲页链表即可。</li>
-<li><code>page_insert</code>函数对该页建立映射，也就是<code>kern_pgdir[PDX(va)][PTX(va)]=PGNUM(va)</code>；</li>
+<li>
+<p><code>pgdir_walk</code>函数查找虚拟地址所对应的页表项，返回该页表项的指针，也就是<code>&amp;kern_pgdir[PDX(va)][PTX(va)]</code>；</p>
+</li>
+<li>
+<p><code>page_lookup</code>函数查找虚拟地址对应的物理页，也就是<code>pa2page(kern_pgdir[PDX(va)][PTX(va)])</code>；</p>
+</li>
+<li>
+<p><code>page_remove</code>函数完成两个功能：</p>
+<p>a. 取消虚拟地址映射；</p>
+<p>b. 回收物理页。</p>
+<p>c. 取消映射原理是<code>kern_pgdir[PDX(va)][PTX(va)] = 0</code>，回收物理页原理将该页插入到空闲页链表即可。</p>
+</li>
+<li>
+<p><code>page_insert</code>函数对该页建立映射，也就是<code>kern_pgdir[PDX(va)][PTX(va)]=PGNUM(va)</code>；</p>
+</li>
 </ol>
 ]]></description>
                 
@@ -1268,8 +2368,9 @@ L5: ret #0						# 返回长度0
                 <copyright>[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh)</copyright>
                 
                     <description><![CDATA[<p><a href="https://github.com/chengshuyi/jos-lab/commit/487630546efdc7ecc668ced4508cf6f164c56fd6">lab1的实验代码</a></p>
-<h3 id="getting-started-with-x86-assembly">Getting Started with x86 assembly</h3>
-<p>NASM uses the so-called <strong><em>Intel</em> syntax</strong> while GNU uses the <strong><em>AT&amp;T</em> syntax.</strong> <a href="http://www.delorie.com/djgpp/doc/brennan/brennan_att_inline_djgpp.html">Brennan's Guide to Inline Assembly</a></p>
+<p>lab1的实验主要讲述了x86的物理地址空间的分布，特别需要注意的是BIOS ROM，pc启动后运行的第一条指令就在BIOS ROM中。接着便是BIOS如何从硬盘中加载bootloader，最后是bootloader如何从硬盘中加载内核。</p>
+<p>在bootloader代码中有几个比较难懂的点，一个是使能A20，另外一个是保护模式和实模式。使能A20是为了兼容传统的16位PC的解决方案。保护模式和实模式涉及到CS:IP的计算方式。</p>
+<p>本文不会涉及到具体代码，简单记录了比较关键的部分。特别是较清晰的梳理了BIOS、bootloader和内核之间的关系，以及其各自对应的启动流程。</p>
 <h3 id="the-pcs-physical-address-space">The PC's Physical Address Space</h3>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -1338,37 +2439,30 @@ L5: ret #0						# 返回长度0
 </code></pre></td></tr></table>
 </div>
 </div><ul>
-<li>
-<p>早期的16位的8088处理器能够访问1MB的地址空间，可以知道对应地址总线是20位，数据总线是16位，对应的寄存器也就是16位的，所以intel采用segment:offset来计算物理地址<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>。</p>
-</li>
-<li>
-<p>VGA(video display buffers)：视频显示用的，每隔一定的时间，对应的硬件就会从该区域读取要显示的图像。</p>
-</li>
-<li>
-<p>ROMs：存放固件。</p>
-</li>
-<li>
-<p>BIOS ROM：一般是nor flash，nor flash支持XIP(eXecute In Place)，可以将其数据映射到RAM地址空间。</p>
-</li>
-<li>
-<p>Extended Memory：高于1MB的剩余物理空间，最多到4GB。</p>
-</li>
+<li>low Memory对应的是早期的处理器，只能够访问640KB内存空间；</li>
+<li>然而16位的8088处理器能够访问1MB的地址空间，可以知道对应地址总线是20位，但是由于数据总线是16位，对应的寄存器也就是16位的，所以intel采用segment:offset来计算物理地址<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>；</li>
+<li>VGA(video display buffers)：视频显示用的，每隔一定的时间，对应的硬件就会从该区域读取要显示的图像。</li>
+<li>ROMs：存放固件，非易失存储器。</li>
+<li>BIOS ROM：一般是nor flash，nor flash支持XIP(eXecute In Place)，所以可以在这里存放bios代码。</li>
+<li>Extended Memory：高于1MB的剩余物理空间，最多到4GB。</li>
 </ul>
 <blockquote>
 <p>JOS只能使用前256MB的物理内存？</p>
+<p>JOS内核的虚拟地址空间是[0xf0000000,0xffffffff]，大小是256MB。所以内核在没有高端内存的概念下，只能管理256MB物理内存。</p>
 </blockquote>
-<h3 id="bootloader系统启动">bootloader系统启动</h3>
-<p>下面是biod-&gt;bootloader-&gt;kernel entry的大致流程：</p>
+<h3 id="bios和bootloader">bios和bootloader</h3>
+<p>bios的主要工作内容是：系统初始化和自检、加载bootloader到内存中以及将控制权交给bootloader。下面是bios-&gt;bootloader-&gt;kernel entry的大致流程：</p>
 <ol>
+<li>
+<p>处理器启动时进入real模式，并设置<code>cs=0xf000</code>和<code>ip=0xfff0</code>。物理地址是：<code>physical address = 16 * segment + offset</code>，所以第一条指令的地址是<code>0xffff0</code>，位于BIOS ROM空间；</p>
+</li>
 <li>
 <p>ROM BIOS开机自检，其第一个指令是<code>[f000:fff0] 0xffff0:	ljmp   $0xf000,$0xe05b</code>；</p>
 </li>
 <li>
-<p>ROM BIOS将我们的启动代码加载到物理地址<code>0000:7c00</code>，最后<code>jmp</code>指令跳转到我们的代码处执行；</p>
+<p>ROM BIOS完成初始化后，会将我们的启动代码（bootloader）从硬盘第一个扇区（512字节）加载到物理地址<code>0000:7c00</code>，最后<code>jmp</code>指令跳转到我们的代码处执行，也就是物理地址<code>0000:7c00</code>；</p>
 </li>
-<li>
-<p>处理器启动时进入real模式，并设置<code>cs=0xf000</code>和<code>ip=0xfff0</code>。物理地址是：<code>physical address = 16 * segment + offset</code>；</p>
-</li>
+<li></li>
 <li>
 <p>Enable A20<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>：80286（24根地址线）为了兼容8088（20根地址线）；</p>
 <blockquote>
@@ -1378,7 +2472,7 @@ L5: ret #0						# 返回长度0
 </blockquote>
 </li>
 <li>
-<p>切换模式：从实模式切换到保护模式，保护模式使用gdt和ldt，可以访问到比实模式更多的物理地址空间；</p>
+<p>切换模式：从实模式切换到保护模式，保护模式使用gdt和ldt（段寄存器和偏移从16位到32位），可以访问到比实模式更多的物理地址空间；</p>
 </li>
 <li>
 <p>根据elf的信息将内核代码从硬盘加载到物理内存中；</p>
@@ -1406,9 +2500,11 @@ L5: ret #0						# 返回长度0
 <pre class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
+</span><span class="lnt">4
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-c" data-lang="c"><span class="n">orl</span>     <span class="err">$</span><span class="n">CR0_PE_ON</span><span class="p">,</span> <span class="o">%</span><span class="n">eax</span>
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="cp"># 前面使用lgdt指令将gdt加载到对应的寄存器
+</span><span class="cp"></span><span class="n">orl</span>     <span class="err">$</span><span class="n">CR0_PE_ON</span><span class="p">,</span> <span class="o">%</span><span class="n">eax</span>
 <span class="n">movl</span>    <span class="o">%</span><span class="n">eax</span><span class="p">,</span> <span class="o">%</span><span class="n">cr0</span>
 <span class="n">ljmp</span>    <span class="err">$</span><span class="n">PROT_MODE_CSEG</span><span class="p">,</span> <span class="err">$</span><span class="n">protcseg</span>
 </code></pre></td></tr></table>
@@ -1446,7 +2542,7 @@ L5: ret #0						# 返回长度0
 <p>下面是内核汇编代码的大致运行流程：</p>
 <ol>
 <li>
-<p>此时分页系统还未开启，内核访问位置相关的代码（比如数据），需要使用RELOC，手动将虚拟地址转换成物理地址；</p>
+<p>此时分页系统还未开启，内核访问位置相关的代码（比如数据），需要使用RELOC，手动将虚拟地址转换成物理地址（取数据时需要转换）；</p>
 </li>
 <li>
 <p>将页目录表基地址加载到cr3寄存器，再修改cr0寄存器，开启分页系统；</p>
@@ -1471,7 +2567,7 @@ L5: ret #0						# 返回长度0
 </span><span class="c1"></span> <span class="p">[</span><span class="n">KERNBASE</span><span class="o">&gt;&gt;</span><span class="n">PDXSHIFT</span><span class="p">]</span>
      <span class="o">=</span> <span class="p">((</span><span class="n">uintptr_t</span><span class="p">)</span><span class="n">entry_pgtable</span> <span class="o">-</span> <span class="n">KERNBASE</span><span class="p">)</span> <span class="o">+</span> <span class="n">PTE_P</span> <span class="o">+</span> <span class="n">PTE_W</span>
 <span class="p">};</span>
-<span class="err">讲一下为什么要映射</span><span class="n">VA</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="n">MB</span><span class="p">)</span><span class="err">，因为当前的</span><span class="n">ip处于</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="n">MB</span><span class="p">)</span><span class="err">，所以开启分页系统之后</span><span class="n">ip仍然处于</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="n">MB</span><span class="p">)</span><span class="err">，如果没有</span><span class="n">VA</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="n">MB</span><span class="p">)</span><span class="err">的映射会出现</span><span class="n">page</span> <span class="n">fault</span><span class="err">。</span>                                                     
+<span class="err">可以看到这里映射了两段虚拟地址，分别是</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="n">MB</span><span class="p">)</span> <span class="err">和</span> <span class="p">[</span><span class="n">KERNBASE</span><span class="p">,</span> <span class="n">KERNBASE</span><span class="o">+</span><span class="mi">4</span><span class="n">MB</span><span class="p">)</span><span class="err">。讲一下为什么要映射</span><span class="n">VA</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="n">MB</span><span class="p">)</span><span class="err">？因为当前的</span><span class="n">ip处于</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="n">MB</span><span class="p">)</span><span class="err">，所以开启分页系统之后</span><span class="n">ip仍然处于</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="n">MB</span><span class="p">)</span><span class="err">，如果没有</span><span class="n">VA</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="n">MB</span><span class="p">)</span><span class="err">的映射会出现</span><span class="n">page</span> <span class="n">fault</span><span class="err">。</span>
 </code></pre></td></tr></table>
 </div>
 </div></li>
@@ -1634,8 +2730,8 @@ f0100ade:	e8 b7 ff ff ff       	call   f0100a9a &lt;vcprintf&gt;
         
             <item>
                 <title>嵌入式文件系统</title>
-                <link>https://chengshuyi.github.io/posts/embedded-file-system/%E5%B5%8C%E5%85%A5%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/</link>
-                <guid isPermaLink="true">https://chengshuyi.github.io/posts/embedded-file-system/%E5%B5%8C%E5%85%A5%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/</guid>
+                <link>https://chengshuyi.github.io/posts/filesystem/%E5%B5%8C%E5%85%A5%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/</link>
+                <guid isPermaLink="true">https://chengshuyi.github.io/posts/filesystem/%E5%B5%8C%E5%85%A5%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/</guid>
                 <pubDate>Tue, 21 Apr 2020 14:11:20 +0800</pubDate>
                 
                     <author>c15271843451@outlook.com (程书意)</author>
@@ -1860,7 +2956,7 @@ f0100ade:	e8 b7 ff ff ff       	call   f0100a9a &lt;vcprintf&gt;
                                 
                                 
                                 
-                                    <category domain="https://chengshuyi.github.io/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/">嵌入式文件系统</category>
+                                    <category domain="https://chengshuyi.github.io/categories/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/">文件系统</category>
                                 
                             
                         
@@ -1870,31 +2966,7 @@ f0100ade:	e8 b7 ff ff ff       	call   f0100a9a &lt;vcprintf&gt;
                                 
                                 
                                 
-                                    <category domain="https://chengshuyi.github.io/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/">嵌入式文件系统</category>
-                                
-                            
-                                
-                                
-                                
-                                    <category domain="https://chengshuyi.github.io/tags/flash/">flash</category>
-                                
-                            
-                                
-                                
-                                
-                                    <category domain="https://chengshuyi.github.io/tags/jffs2/">jffs2</category>
-                                
-                            
-                                
-                                
-                                
-                                    <category domain="https://chengshuyi.github.io/tags/yaffs2/">yaffs2</category>
-                                
-                            
-                                
-                                
-                                
-                                    <category domain="https://chengshuyi.github.io/tags/ubifs/">ubifs</category>
+                                    <category domain="https://chengshuyi.github.io/tags/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/">文件系统</category>
                                 
                             
                         
