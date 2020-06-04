@@ -4,7 +4,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom" xml:lang="zh-CN">
     <title type="text">程书意</title>
     <subtitle type="html">MemE 是一个强大且可高度定制的 GoHugo 博客主题，专为个人博客设计。</subtitle>
-    <updated>2020-06-02T14:44:33+00:00</updated>
+    <updated>2020-06-04T09:28:09+00:00</updated>
     <id>https://chengshuyi.github.io/</id>
     <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/" />
     <link rel="self" type="application/atom+xml" href="https://chengshuyi.github.io/atom.xml" />
@@ -20,7 +20,7 @@
             <title type="text">Fat32文件系统详解</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/filesystem/fat/" />
             <id>https://chengshuyi.github.io/posts/filesystem/fat/</id>
-            <updated>2020-06-02T14:44:30+00:00</updated>
+            <updated>2020-06-04T09:28:06+00:00</updated>
             <published>2020-05-14T20:06:37+08:00</published>
             <author>
                     <name>程书意</name>
@@ -145,7 +145,7 @@ CHS:Cylinder Head Sector -->
             <title type="text">The BSD Packet Filter论文笔记及源码解析</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/linux-kernel/bpf-paper/" />
             <id>https://chengshuyi.github.io/posts/linux-kernel/bpf-paper/</id>
-            <updated>2020-06-02T14:44:30+00:00</updated>
+            <updated>2020-06-04T09:28:06+00:00</updated>
             <published>2020-05-09T08:36:36+08:00</published>
             <author>
                     <name>程书意</name>
@@ -967,7 +967,7 @@ L5: ret #0						# 返回长度0
             <title type="text">Lab5 - 实验笔记</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/course/mit6828/lab5/" />
             <id>https://chengshuyi.github.io/posts/course/mit6828/lab5/</id>
-            <updated>2020-06-02T14:44:30+00:00</updated>
+            <updated>2020-06-04T09:28:06+00:00</updated>
             <published>2020-04-25T13:34:18+08:00</published>
             <author>
                     <name>程书意</name>
@@ -1649,7 +1649,7 @@ L5: ret #0						# 返回长度0
             <title type="text">Lab4 - 实验笔记</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/course/mit6828/lab4/" />
             <id>https://chengshuyi.github.io/posts/course/mit6828/lab4/</id>
-            <updated>2020-06-02T14:44:30+00:00</updated>
+            <updated>2020-06-04T09:28:06+00:00</updated>
             <published>2020-04-25T13:34:16+08:00</published>
             <author>
                     <name>程书意</name>
@@ -1658,11 +1658,29 @@ L5: ret #0						# 返回长度0
                     </author>
             <rights>[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh)</rights>
     
-    <summary type="html"><![CDATA[lab4 实验代码：不过最后primes案例没过 lab4实验代码patch1：通过primes案例 lab4实验代码patch2：小bug Multiprocessor Support and Cooperative Multitasking 将设备物理地址映射到内核虚拟地……]]></summary>
+    <summary type="html"><![CDATA[lab4 实验代码：不过最后primes案例没过 lab4实验代码patch1：通过primes案例 lab4实验代码patch2：小bug x86多核系统 JOS支持的是对称多处理器……]]></summary>
             
                 <content type="html"><![CDATA[<p><a href="https://github.com/chengshuyi/jos-lab/commit/287d90ad016d0dbb6d1d275336c4007cc5c14931">lab4 实验代码：不过最后primes案例没过</a></p>
 <p><a href="https://github.com/chengshuyi/jos-lab/commit/d108ac413223571d2417293fe5ce66bda8ca3920">lab4实验代码patch1：通过primes案例</a></p>
 <p><a href="https://github.com/chengshuyi/jos-lab/commit/77e886ae1aeb99c42b604ec0b40bd9e05eb291a0">lab4实验代码patch2：小bug</a></p>
+<h3 id="x86多核系统">x86多核系统</h3>
+<p>JOS支持的是对称多处理器架构，最先启动的核称为bootstrap处理器（BSP），后续启动的核称为application处理器（APs）。下面介绍一下整个的启动流程：</p>
+<ol>
+<li>
+<p><code>mp_init</code>函数：从BIOS中找到多处理器信息配置表；</p>
+</li>
+<li>
+<p><code>boot_aps</code>函数：</p>
+<p>a. 将APs的启动代码移动到0x7000的位置；</p>
+<p>b. 发送核间中断，参数包括：cpu编号和cpu起始运行地址；</p>
+<p>c. 等待该cpu启动完毕；</p>
+</li>
+<li>
+<p>APs执行的代码和BSP差不太多，主要涉及的文件有：<code>kern/mpentry.S</code>和<code>kern/init.c</code>。</p>
+</li>
+</ol>
+<h3 id="per-cpu">per-cpu</h3>
+<p>per-cpu表示的是为每个cpu维护自己的数据结构，其次访问cpu共享的数据结构时需要加锁。</p>
 <h3 id="multiprocessor-support-and-cooperative-multitasking">Multiprocessor Support and Cooperative Multitasking</h3>
 <ol>
 <li>将设备物理地址映射到内核虚拟地址空间（参考lab3的虚拟地址空间分布图）；</li>
@@ -1672,7 +1690,157 @@ L5: ret #0						# 返回长度0
 <li>实现Round-Robin Scheduling；</li>
 <li>利用系统调用实现在用户态创建一个新的进程，也就是<code>fork</code>的方式，jos有两种实现方式，一种是dump_fork实现的，即在fork时为新进程分配内存；另外一种是基于copy-on-write的方式，即将父进程和子进程的页表项置为COW，在修改该页表项对应的物理页时会触发page fault异常，有该异常处理函数分配具体内存；</li>
 </ol>
-<h3 id="copy-on-write-fork">Copy-on-Write Fork</h3>
+<blockquote>
+<p><strong>Exercise 1.</strong> Implement <code>mmio_map_region</code> in <code>kern/pmap.c</code>. To see how this is used, look at the beginning of <code>lapic_init</code> in <code>kern/lapic.c</code>.</p>
+</blockquote>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="o">*</span><span class="nf">mmio_map_region</span><span class="p">(</span><span class="n">physaddr_t</span> <span class="n">pa</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">size</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">static</span> <span class="n">uintptr_t</span> <span class="n">base</span> <span class="o">=</span> <span class="n">MMIOBASE</span><span class="p">;</span>
+    <span class="c1">// 大小取整
+</span><span class="c1"></span>	<span class="n">size</span> <span class="o">=</span> <span class="n">ROUNDUP</span><span class="p">(</span><span class="n">size</span><span class="p">,</span><span class="n">PGSIZE</span><span class="p">);</span>
+	<span class="k">if</span><span class="p">(</span><span class="n">size</span> <span class="o">&gt;</span> <span class="n">MMIOLIM</span><span class="p">)</span> <span class="n">panic</span><span class="p">(</span><span class="s">&#34;error&#34;</span><span class="p">);</span>
+    <span class="c1">// 做映射
+</span><span class="c1"></span>	<span class="n">boot_map_region</span><span class="p">(</span><span class="n">kern_pgdir</span><span class="p">,</span><span class="n">base</span><span class="p">,</span><span class="n">size</span><span class="p">,</span><span class="n">pa</span><span class="p">,</span><span class="n">PTE_PCD</span><span class="o">|</span><span class="n">PTE_PWT</span><span class="o">|</span><span class="n">PTE_W</span><span class="o">|</span><span class="n">PTE_P</span><span class="p">);</span>
+	<span class="n">base</span> <span class="o">+=</span> <span class="n">size</span><span class="p">;</span>
+	<span class="k">return</span> <span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)(</span><span class="n">base</span><span class="o">-</span><span class="n">size</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><blockquote>
+<p><strong>Exercise 2.</strong> Read <code>boot_aps()</code> and <code>mp_main()</code> in <code>kern/init.c</code>, and the assembly code in <code>kern/mpentry.S</code>. Make sure you understand the control flow transfer during the bootstrap of APs. Then modify your implementation of <code>page_init()</code> in <code>kern/pmap.c</code> to avoid adding the page at <code>MPENTRY_PADDR</code> to the free list, so that we can safely copy and run AP bootstrap code at that physical address.</p>
+</blockquote>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c">	<span class="k">extern</span> <span class="kt">char</span> <span class="n">mpentry_start</span><span class="p">[];</span>
+	<span class="k">extern</span> <span class="kt">char</span> <span class="n">mpentry_end</span><span class="p">[];</span>
+	<span class="n">s</span> <span class="o">=</span> <span class="n">MPENTRY_PADDR</span><span class="p">;</span>
+	<span class="n">e</span> <span class="o">=</span> <span class="n">mpentry_end</span><span class="o">-</span><span class="n">mpentry_start</span><span class="o">+</span><span class="n">s</span><span class="p">;</span>
+	<span class="n">s</span> <span class="o">=</span> <span class="n">ROUNDDOWN</span><span class="p">(</span><span class="n">s</span><span class="p">,</span><span class="n">PGSIZE</span><span class="p">);</span>
+	<span class="n">e</span> <span class="o">=</span> <span class="n">ROUNDUP</span><span class="p">(</span><span class="n">e</span><span class="p">,</span><span class="n">PGSIZE</span><span class="p">);</span>
+	<span class="n">s</span> <span class="o">=</span> <span class="n">PGNUM</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
+	<span class="n">e</span> <span class="o">=</span> <span class="n">PGNUM</span><span class="p">(</span><span class="n">e</span><span class="p">);</span>
+	<span class="k">for</span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="n">s</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">e</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">){</span>
+		<span class="n">pages</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">pp_ref</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+		<span class="n">pages</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">pp_link</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+	<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><blockquote>
+<p><strong>Exercise 3.</strong> Modify <code>mem_init_mp()</code> (in <code>kern/pmap.c</code>) to map per-CPU stacks starting at <code>KSTACKTOP</code>, as shown in <code>inc/memlayout.h</code>. The size of each stack is <code>KSTKSIZE</code> bytes plus <code>KSTKGAP</code> bytes of unmapped guard pages.</p>
+</blockquote>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">// 将每个cpu的内核栈映射到指定的虚拟地址上
+</span><span class="c1"></span><span class="k">static</span> <span class="kt">void</span> <span class="nf">mem_init_mp</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+	<span class="n">uintptr_t</span> <span class="n">s</span> <span class="o">=</span> <span class="n">KSTACKTOP</span><span class="p">;</span>
+	<span class="k">for</span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">NCPU</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">){</span>
+		<span class="n">boot_map_region</span><span class="p">(</span><span class="n">kern_pgdir</span><span class="p">,</span><span class="n">s</span><span class="o">-</span><span class="n">KSTKSIZE</span><span class="p">,</span><span class="n">KSTKSIZE</span><span class="p">,</span><span class="n">PADDR</span><span class="p">(</span><span class="n">percpu_kstacks</span><span class="p">[</span><span class="n">i</span><span class="p">]),</span><span class="n">PTE_W</span><span class="o">|</span><span class="n">PTE_P</span><span class="p">);</span>
+		<span class="n">s</span> <span class="o">-=</span> <span class="n">KSTKSIZE</span><span class="o">+</span><span class="n">KSTKGAP</span><span class="p">;</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><blockquote>
+<p><strong>Exercise 4.</strong> The code in <code>trap_init_percpu()</code> (<code>kern/trap.c</code>) initializes the TSS and TSS descriptor for the BSP.</p>
+</blockquote>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="nf">trap_init_percpu</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="c1">// Setup a TSS so that we get the right stack
+</span><span class="c1"></span>	<span class="c1">// when we trap to the kernel.
+</span><span class="c1"></span>	<span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+	<span class="n">thiscpu</span><span class="o">-&gt;</span><span class="n">cpu_ts</span><span class="p">.</span><span class="n">ts_esp0</span> <span class="o">=</span> <span class="n">KSTACKTOP</span><span class="p">;</span>
+	<span class="k">for</span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">thiscpu</span><span class="o">-&gt;</span><span class="n">cpu_id</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">){</span>
+		<span class="n">thiscpu</span><span class="o">-&gt;</span><span class="n">cpu_ts</span><span class="p">.</span><span class="n">ts_esp0</span> <span class="o">-=</span> <span class="p">(</span><span class="n">KSTKSIZE</span><span class="o">+</span><span class="n">KSTKGAP</span><span class="p">);</span>
+	<span class="p">}</span>
+	<span class="n">thiscpu</span><span class="o">-&gt;</span><span class="n">cpu_ts</span><span class="p">.</span><span class="n">ts_ss0</span> <span class="o">=</span> <span class="n">GD_KD</span><span class="p">;</span>
+	<span class="n">thiscpu</span><span class="o">-&gt;</span><span class="n">cpu_ts</span><span class="p">.</span><span class="n">ts_iomb</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span> <span class="n">Taskstate</span><span class="p">);</span>
+
+	<span class="c1">// Initialize the TSS slot of the gdt.
+</span><span class="c1"></span>	<span class="n">gdt</span><span class="p">[(</span><span class="n">GD_TSS0</span> <span class="o">&gt;&gt;</span> <span class="mi">3</span><span class="p">)</span> <span class="o">+</span> <span class="n">thiscpu</span><span class="o">-&gt;</span><span class="n">cpu_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">SEG16</span><span class="p">(</span><span class="n">STS_T32A</span><span class="p">,</span> <span class="p">(</span><span class="n">uint32_t</span><span class="p">)</span> <span class="p">(</span><span class="o">&amp;</span><span class="n">thiscpu</span><span class="o">-&gt;</span><span class="n">cpu_ts</span><span class="p">),</span>
+					<span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span> <span class="n">Taskstate</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+	<span class="n">gdt</span><span class="p">[(</span><span class="n">GD_TSS0</span> <span class="o">&gt;&gt;</span> <span class="mi">3</span><span class="p">)</span> <span class="o">+</span> <span class="n">thiscpu</span><span class="o">-&gt;</span><span class="n">cpu_id</span><span class="p">].</span><span class="n">sd_s</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+	<span class="c1">// Load the TSS selector (like other segment selectors, the
+</span><span class="c1"></span>	<span class="c1">// bottom three bits are special; we leave them 0)
+</span><span class="c1"></span>	<span class="n">ltr</span><span class="p">(</span><span class="n">GD_TSS0</span><span class="o">+</span><span class="p">(</span><span class="n">i</span><span class="o">&lt;&lt;</span><span class="mi">3</span><span class="p">));</span>
+
+	<span class="c1">// Load the IDT
+</span><span class="c1"></span>	<span class="n">lidt</span><span class="p">(</span><span class="o">&amp;</span><span class="n">idt_pd</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="copy-on-write-fork">Copy-on-Write Fork</h3>
 <p>下面是用户空间出现页异常处理流程：</p>
 <ol>
 <li>通过系统调用注册进程自己的处理函数（在fork的时候配置的）；</li>
@@ -1730,7 +1898,7 @@ L5: ret #0						# 返回长度0
             <title type="text">Lab3 - 实验笔记</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/course/mit6828/lab3/" />
             <id>https://chengshuyi.github.io/posts/course/mit6828/lab3/</id>
-            <updated>2020-06-02T14:44:30+00:00</updated>
+            <updated>2020-06-04T09:28:06+00:00</updated>
             <published>2020-04-25T13:34:13+08:00</published>
             <author>
                     <name>程书意</name>
@@ -2082,7 +2250,7 @@ L5: ret #0						# 返回长度0
             <title type="text">Lab2 - 实验笔记</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/course/mit6828/lab2/" />
             <id>https://chengshuyi.github.io/posts/course/mit6828/lab2/</id>
-            <updated>2020-06-02T14:44:30+00:00</updated>
+            <updated>2020-06-04T09:28:06+00:00</updated>
             <published>2020-04-25T13:34:11+08:00</published>
             <author>
                     <name>程书意</name>
@@ -2379,7 +2547,7 @@ L5: ret #0						# 返回长度0
             <title type="text">Lab1 - 实验笔记</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/course/mit6828/lab1/" />
             <id>https://chengshuyi.github.io/posts/course/mit6828/lab1/</id>
-            <updated>2020-06-02T14:44:30+00:00</updated>
+            <updated>2020-06-04T09:28:06+00:00</updated>
             <published>2020-04-24T20:24:40+08:00</published>
             <author>
                     <name>程书意</name>
@@ -2755,7 +2923,7 @@ f0100ade:	e8 b7 ff ff ff       	call   f0100a9a &lt;vcprintf&gt;
             <title type="text">嵌入式文件系统</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/filesystem/%E5%B5%8C%E5%85%A5%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/" />
             <id>https://chengshuyi.github.io/posts/filesystem/%E5%B5%8C%E5%85%A5%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/</id>
-            <updated>2020-06-02T14:44:30+00:00</updated>
+            <updated>2020-06-04T09:28:06+00:00</updated>
             <published>2020-04-21T14:11:20+08:00</published>
             <author>
                     <name>程书意</name>
@@ -3006,7 +3174,7 @@ f0100ade:	e8 b7 ff ff ff       	call   f0100a9a &lt;vcprintf&gt;
             <title type="text">进程虚拟地址空间</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/linux-kernel/%E8%BF%9B%E7%A8%8B%E8%99%9A%E6%8B%9F%E5%9C%B0%E5%9D%80%E7%A9%BA%E9%97%B4/" />
             <id>https://chengshuyi.github.io/posts/linux-kernel/%E8%BF%9B%E7%A8%8B%E8%99%9A%E6%8B%9F%E5%9C%B0%E5%9D%80%E7%A9%BA%E9%97%B4/</id>
-            <updated>2020-06-02T14:44:30+00:00</updated>
+            <updated>2020-06-04T09:28:06+00:00</updated>
             <published>2020-04-04T19:31:04+08:00</published>
             <author>
                     <name>程书意</name>
@@ -3102,7 +3270,7 @@ f0100ade:	e8 b7 ff ff ff       	call   f0100a9a &lt;vcprintf&gt;
             <title type="text">多车编队 人工势场法</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E4%BA%BA%E5%B7%A5%E5%8A%BF%E5%9C%BA%E6%B3%95/" />
             <id>https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E4%BA%BA%E5%B7%A5%E5%8A%BF%E5%9C%BA%E6%B3%95/</id>
-            <updated>2020-06-02T14:44:30+00:00</updated>
+            <updated>2020-06-04T09:28:06+00:00</updated>
             <published>2020-04-04T10:02:06+08:00</published>
             <author>
                     <name>程书意</name>
@@ -3235,7 +3403,7 @@ $$
             <title type="text">多车编队 基于图论的方法</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E5%9B%BE%E8%AE%BA%E7%9A%84%E6%96%B9%E6%B3%95/" />
             <id>https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E5%9B%BE%E8%AE%BA%E7%9A%84%E6%96%B9%E6%B3%95/</id>
-            <updated>2020-06-02T14:44:30+00:00</updated>
+            <updated>2020-06-04T09:28:06+00:00</updated>
             <published>2020-04-04T10:00:47+08:00</published>
             <author>
                     <name>程书意</name>
@@ -3336,7 +3504,7 @@ $$
             <title type="text">多车编队 基于行为的方法</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E8%A1%8C%E4%B8%BA%E7%9A%84%E6%96%B9%E6%B3%95/" />
             <id>https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E8%A1%8C%E4%B8%BA%E7%9A%84%E6%96%B9%E6%B3%95/</id>
-            <updated>2020-06-02T14:44:30+00:00</updated>
+            <updated>2020-06-04T09:28:06+00:00</updated>
             <published>2020-04-04T09:11:07+08:00</published>
             <author>
                     <name>程书意</name>
@@ -3504,7 +3672,7 @@ $$
             <title type="text">c语言运算符</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/c/%E8%BF%90%E7%AE%97%E7%AC%A6/" />
             <id>https://chengshuyi.github.io/posts/c/%E8%BF%90%E7%AE%97%E7%AC%A6/</id>
-            <updated>2020-06-02T14:44:30+00:00</updated>
+            <updated>2020-06-04T09:28:06+00:00</updated>
             <published>2020-04-03T17:25:34+08:00</published>
             <author>
                     <name>程书意</name>
@@ -3715,7 +3883,7 @@ $$</p>
             <title type="text">伙伴系统</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/linux-kernel/%E4%BC%99%E4%BC%B4%E7%B3%BB%E7%BB%9F/" />
             <id>https://chengshuyi.github.io/posts/linux-kernel/%E4%BC%99%E4%BC%B4%E7%B3%BB%E7%BB%9F/</id>
-            <updated>2020-06-02T14:44:30+00:00</updated>
+            <updated>2020-06-04T09:28:06+00:00</updated>
             <published>2020-04-03T15:26:04+08:00</published>
             <author>
                     <name>程书意</name>
@@ -3941,7 +4109,7 @@ $$</p>
             <title type="text">多车编队 领航跟随法</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E9%A2%86%E8%88%AA%E8%B7%9F%E9%9A%8F%E6%B3%95/" />
             <id>https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E9%A2%86%E8%88%AA%E8%B7%9F%E9%9A%8F%E6%B3%95/</id>
-            <updated>2020-06-02T14:44:30+00:00</updated>
+            <updated>2020-06-04T09:28:06+00:00</updated>
             <published>2020-04-03T11:27:11+08:00</published>
             <author>
                     <name>程书意</name>
@@ -4058,7 +4226,7 @@ $$
             <title type="text">Slab分配器</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/linux-kernel/slab/" />
             <id>https://chengshuyi.github.io/posts/linux-kernel/slab/</id>
-            <updated>2020-06-02T14:44:30+00:00</updated>
+            <updated>2020-06-04T09:28:06+00:00</updated>
             <published>2020-04-02T16:24:50+08:00</published>
             <author>
                     <name>程书意</name>
@@ -4170,7 +4338,7 @@ $$
             <title type="text">作用域、链接、存储类型</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/c/%E4%BD%9C%E7%94%A8%E5%9F%9F%E9%93%BE%E6%8E%A5%E5%AD%98%E5%82%A8%E7%B1%BB%E5%9E%8B/" />
             <id>https://chengshuyi.github.io/posts/c/%E4%BD%9C%E7%94%A8%E5%9F%9F%E9%93%BE%E6%8E%A5%E5%AD%98%E5%82%A8%E7%B1%BB%E5%9E%8B/</id>
-            <updated>2020-06-02T14:44:30+00:00</updated>
+            <updated>2020-06-04T09:28:06+00:00</updated>
             <published>2020-04-02T13:41:27+08:00</published>
             <author>
                     <name>程书意</name>
@@ -4447,7 +4615,7 @@ $$
             <title type="text"></title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/computer-network/untitled/" />
             <id>https://chengshuyi.github.io/posts/computer-network/untitled/</id>
-            <updated>2020-06-02T14:44:30+00:00</updated>
+            <updated>2020-06-04T09:28:06+00:00</updated>
             <published>0001-01-01T00:00:00+00:00</published>
             <author>
                     <name>程书意</name>
@@ -4516,7 +4684,7 @@ does not provide: reliability, flow control, congestion control, timing, through
             <title type="text"></title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/cse/" />
             <id>https://chengshuyi.github.io/posts/cse/</id>
-            <updated>2020-06-02T14:44:30+00:00</updated>
+            <updated>2020-06-04T09:28:06+00:00</updated>
             <published>0001-01-01T00:00:00+00:00</published>
             <author>
                     <name>程书意</name>
@@ -4592,7 +4760,7 @@ Soft link can create cycle by SYMLINK(&quot;a&quot;, &quot;a&quot;)
             <title type="text"></title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/leet/" />
             <id>https://chengshuyi.github.io/posts/leet/</id>
-            <updated>2020-06-02T14:44:30+00:00</updated>
+            <updated>2020-06-04T09:28:06+00:00</updated>
             <published>0001-01-01T00:00:00+00:00</published>
             <author>
                     <name>程书意</name>
@@ -4635,7 +4803,7 @@ Relational Algebra</p>
             <title type="text"></title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/linux-kernel/untitled/" />
             <id>https://chengshuyi.github.io/posts/linux-kernel/untitled/</id>
-            <updated>2020-06-02T14:44:30+00:00</updated>
+            <updated>2020-06-04T09:28:06+00:00</updated>
             <published>0001-01-01T00:00:00+00:00</published>
             <author>
                     <name>程书意</name>

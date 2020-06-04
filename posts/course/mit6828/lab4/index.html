@@ -53,7 +53,7 @@
     <meta name="author" content="程书意" />
     
     
-    <meta name="description" content="lab4 实验代码：不过最后primes案例没过 lab4实验代码patch1：通过primes案例 lab4实验代码patch2：小bug Multiprocessor Support and Cooperative Multitasking 将设备物理地址映射到内核虚拟地……" />
+    <meta name="description" content="lab4 实验代码：不过最后primes案例没过 lab4实验代码patch1：通过primes案例 lab4实验代码patch2：小bug x86多核系统 JOS支持的是对称多处理器……" />
 
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
     <link rel="mask-icon" href="/icons/safari-pinned-tab.svg" color="#2a6df4" />
@@ -81,13 +81,13 @@
         "@context": "https://schema.org",
         "@type": "BlogPosting",
         "datePublished": "2020-04-25T13:34:16+08:00",
-        "dateModified": "2020-06-02T14:44:30+00:00",
+        "dateModified": "2020-06-04T09:28:06+00:00",
         "url": "https://chengshuyi.github.io/posts/course/mit6828/lab4/",
         "headline": "Lab4 - 实验笔记",
-        "description": "lab4 实验代码：不过最后primes案例没过 lab4实验代码patch1：通过primes案例 lab4实验代码patch2：小bug Multiprocessor Support and Cooperative Multitasking 将设备物理地址映射到内核虚拟地……",
+        "description": "lab4 实验代码：不过最后primes案例没过 lab4实验代码patch1：通过primes案例 lab4实验代码patch2：小bug x86多核系统 JOS支持的是对称多处理器……",
         "inLanguage" : "zh-CN",
         "articleSection": "posts",
-        "wordCount":  1035 ,
+        "wordCount":  1716 ,
         "image": "https://chengshuyi.github.io/icons/apple-touch-icon.png",
         "author": {
             "@type": "Person",
@@ -130,13 +130,13 @@
 
 
 <meta property="og:title" content="Lab4 - 实验笔记" />
-<meta property="og:description" content="lab4 实验代码：不过最后primes案例没过 lab4实验代码patch1：通过primes案例 lab4实验代码patch2：小bug Multiprocessor Support and Cooperative Multitasking 将设备物理地址映射到内核虚拟地……" />
+<meta property="og:description" content="lab4 实验代码：不过最后primes案例没过 lab4实验代码patch1：通过primes案例 lab4实验代码patch2：小bug x86多核系统 JOS支持的是对称多处理器……" />
 <meta property="og:url" content="https://chengshuyi.github.io/posts/course/mit6828/lab4/" />
 <meta property="og:site_name" content="程书意" />
 <meta property="og:locale" content="zh" /><meta property="og:image" content="https://chengshuyi.github.io/icons/apple-touch-icon.png" />
     <meta property="og:type" content="article" />
     <meta property="article:published_time" content="2020-04-25T13:34:16+08:00" />
-    <meta property="article:modified_time" content="2020-06-02T14:44:30+00:00" />
+    <meta property="article:modified_time" content="2020-06-04T09:28:06+00:00" />
     
     <meta property="article:section" content="posts" />
 
@@ -249,7 +249,7 @@
     
     
         
-        <time datetime="2020-06-02T14:44:30+00:00" class="post-meta-item modified"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="icon post-meta-icon"><path d="M400 64h-48V12c0-6.627-5.373-12-12-12h-40c-6.627 0-12 5.373-12 12v52H160V12c0-6.627-5.373-12-12-12h-40c-6.627 0-12 5.373-12 12v52H48C21.49 64 0 85.49 0 112v352c0 26.51 21.49 48 48 48h352c26.51 0 48-21.49 48-48V112c0-26.51-21.49-48-48-48zm-6 400H54a6 6 0 0 1-6-6V160h352v298a6 6 0 0 1-6 6zm-52.849-200.65L198.842 404.519c-4.705 4.667-12.303 4.637-16.971-.068l-75.091-75.699c-4.667-4.705-4.637-12.303.068-16.971l22.719-22.536c4.705-4.667 12.303-4.637 16.97.069l44.104 44.461 111.072-110.181c4.705-4.667 12.303-4.637 16.971.068l22.536 22.718c4.667 4.705 4.636 12.303-.069 16.97z"/></svg>&nbsp;2020.6.2</time>
+        <time datetime="2020-06-04T09:28:06+00:00" class="post-meta-item modified"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="icon post-meta-icon"><path d="M400 64h-48V12c0-6.627-5.373-12-12-12h-40c-6.627 0-12 5.373-12 12v52H160V12c0-6.627-5.373-12-12-12h-40c-6.627 0-12 5.373-12 12v52H48C21.49 64 0 85.49 0 112v352c0 26.51 21.49 48 48 48h352c26.51 0 48-21.49 48-48V112c0-26.51-21.49-48-48-48zm-6 400H54a6 6 0 0 1-6-6V160h352v298a6 6 0 0 1-6 6zm-52.849-200.65L198.842 404.519c-4.705 4.667-12.303 4.637-16.971-.068l-75.091-75.699c-4.667-4.705-4.637-12.303.068-16.971l22.719-22.536c4.705-4.667 12.303-4.637 16.97.069l44.104 44.461 111.072-110.181c4.705-4.667 12.303-4.637 16.971.068l22.536 22.718c4.667 4.705 4.636 12.303-.069 16.97z"/></svg>&nbsp;2020.6.4</time>
     
     
     
@@ -264,11 +264,11 @@
     
     
         
-        <span class="post-meta-item wordcount"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon post-meta-icon"><path d="M497.9 142.1l-46.1 46.1c-4.7 4.7-12.3 4.7-17 0l-111-111c-4.7-4.7-4.7-12.3 0-17l46.1-46.1c18.7-18.7 49.1-18.7 67.9 0l60.1 60.1c18.8 18.7 18.8 49.1 0 67.9zM284.2 99.8L21.6 362.4.4 483.9c-2.9 16.4 11.4 30.6 27.8 27.8l121.5-21.3 262.6-262.6c4.7-4.7 4.7-12.3 0-17l-111-111c-4.8-4.7-12.4-4.7-17.1 0zM124.1 339.9c-5.5-5.5-5.5-14.3 0-19.8l154-154c5.5-5.5 14.3-5.5 19.8 0s5.5 14.3 0 19.8l-154 154c-5.5 5.5-14.3 5.5-19.8 0zM88 424h48v36.3l-64.5 11.3-31.1-31.1L51.7 376H88v48z"/></svg>&nbsp;1035</span>
+        <span class="post-meta-item wordcount"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon post-meta-icon"><path d="M497.9 142.1l-46.1 46.1c-4.7 4.7-12.3 4.7-17 0l-111-111c-4.7-4.7-4.7-12.3 0-17l46.1-46.1c18.7-18.7 49.1-18.7 67.9 0l60.1 60.1c18.8 18.7 18.8 49.1 0 67.9zM284.2 99.8L21.6 362.4.4 483.9c-2.9 16.4 11.4 30.6 27.8 27.8l121.5-21.3 262.6-262.6c4.7-4.7 4.7-12.3 0-17l-111-111c-4.8-4.7-12.4-4.7-17.1 0zM124.1 339.9c-5.5-5.5-5.5-14.3 0-19.8l154-154c5.5-5.5 14.3-5.5 19.8 0s5.5 14.3 0 19.8l-154 154c-5.5 5.5-14.3 5.5-19.8 0zM88 424h48v36.3l-64.5 11.3-31.1-31.1L51.7 376H88v48z"/></svg>&nbsp;1716</span>
     
     
         
-        <span class="post-meta-item reading-time"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon post-meta-icon"><path d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm0 448c-110.5 0-200-89.5-200-200S145.5 56 256 56s200 89.5 200 200-89.5 200-200 200zm61.8-104.4l-84.9-61.7c-3.1-2.3-4.9-5.9-4.9-9.7V116c0-6.6 5.4-12 12-12h32c6.6 0 12 5.4 12 12v141.7l66.8 48.6c5.4 3.9 6.5 11.4 2.6 16.8L334.6 349c-3.9 5.3-11.4 6.5-16.8 2.6z"/></svg>&nbsp;3&nbsp;分钟</span>
+        <span class="post-meta-item reading-time"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon post-meta-icon"><path d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm0 448c-110.5 0-200-89.5-200-200S145.5 56 256 56s200 89.5 200 200-89.5 200-200 200zm61.8-104.4l-84.9-61.7c-3.1-2.3-4.9-5.9-4.9-9.7V116c0-6.6 5.4-12 12-12h32c6.6 0 12 5.4 12 12v141.7l66.8 48.6c5.4 3.9 6.5 11.4 2.6 16.8L334.6 349c-3.9 5.3-11.4 6.5-16.8 2.6z"/></svg>&nbsp;4&nbsp;分钟</span>
     
     
 </div>
@@ -277,6 +277,24 @@
             <div class="post-body"><p><a href="https://github.com/chengshuyi/jos-lab/commit/287d90ad016d0dbb6d1d275336c4007cc5c14931" target="_blank" rel="noopener">lab4 实验代码：不过最后primes案例没过</a></p>
 <p><a href="https://github.com/chengshuyi/jos-lab/commit/d108ac413223571d2417293fe5ce66bda8ca3920" target="_blank" rel="noopener">lab4实验代码patch1：通过primes案例</a></p>
 <p><a href="https://github.com/chengshuyi/jos-lab/commit/77e886ae1aeb99c42b604ec0b40bd9e05eb291a0" target="_blank" rel="noopener">lab4实验代码patch2：小bug</a></p>
+<h3 id="x86多核系统"><a href="#x86多核系统" class="anchor-link"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon anchor-icon"><path d="M326.612 185.391c59.747 59.809 58.927 155.698.36 214.59-.11.12-.24.25-.36.37l-67.2 67.2c-59.27 59.27-155.699 59.262-214.96 0-59.27-59.26-59.27-155.7 0-214.96l37.106-37.106c9.84-9.84 26.786-3.3 27.294 10.606.648 17.722 3.826 35.527 9.69 52.721 1.986 5.822.567 12.262-3.783 16.612l-13.087 13.087c-28.026 28.026-28.905 73.66-1.155 101.96 28.024 28.579 74.086 28.749 102.325.51l67.2-67.19c28.191-28.191 28.073-73.757 0-101.83-3.701-3.694-7.429-6.564-10.341-8.569a16.037 16.037 0 0 1-6.947-12.606c-.396-10.567 3.348-21.456 11.698-29.806l21.054-21.055c5.521-5.521 14.182-6.199 20.584-1.731a152.482 152.482 0 0 1 20.522 17.197zM467.547 44.449c-59.261-59.262-155.69-59.27-214.96 0l-67.2 67.2c-.12.12-.25.25-.36.37-58.566 58.892-59.387 154.781.36 214.59a152.454 152.454 0 0 0 20.521 17.196c6.402 4.468 15.064 3.789 20.584-1.731l21.054-21.055c8.35-8.35 12.094-19.239 11.698-29.806a16.037 16.037 0 0 0-6.947-12.606c-2.912-2.005-6.64-4.875-10.341-8.569-28.073-28.073-28.191-73.639 0-101.83l67.2-67.19c28.239-28.239 74.3-28.069 102.325.51 27.75 28.3 26.872 73.934-1.155 101.96l-13.087 13.087c-4.35 4.35-5.769 10.79-3.783 16.612 5.864 17.194 9.042 34.999 9.69 52.721.509 13.906 17.454 20.446 27.294 10.606l37.106-37.106c59.271-59.259 59.271-155.699.001-214.959z"/></svg></a>x86多核系统</h3>
+<p>JOS支持的是对称多处理器架构，最先启动的核称为bootstrap处理器（BSP），后续启动的核称为application处理器（APs）。下面介绍一下整个的启动流程：</p>
+<ol>
+<li>
+<p><code>mp_init</code>函数：从BIOS中找到多处理器信息配置表；</p>
+</li>
+<li>
+<p><code>boot_aps</code>函数：</p>
+<p>a. 将APs的启动代码移动到0x7000的位置；</p>
+<p>b. 发送核间中断，参数包括：cpu编号和cpu起始运行地址；</p>
+<p>c. 等待该cpu启动完毕；</p>
+</li>
+<li>
+<p>APs执行的代码和BSP差不太多，主要涉及的文件有：<code>kern/mpentry.S</code>和<code>kern/init.c</code>。</p>
+</li>
+</ol>
+<h3 id="per-cpu"><a href="#per-cpu" class="anchor-link"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon anchor-icon"><path d="M326.612 185.391c59.747 59.809 58.927 155.698.36 214.59-.11.12-.24.25-.36.37l-67.2 67.2c-59.27 59.27-155.699 59.262-214.96 0-59.27-59.26-59.27-155.7 0-214.96l37.106-37.106c9.84-9.84 26.786-3.3 27.294 10.606.648 17.722 3.826 35.527 9.69 52.721 1.986 5.822.567 12.262-3.783 16.612l-13.087 13.087c-28.026 28.026-28.905 73.66-1.155 101.96 28.024 28.579 74.086 28.749 102.325.51l67.2-67.19c28.191-28.191 28.073-73.757 0-101.83-3.701-3.694-7.429-6.564-10.341-8.569a16.037 16.037 0 0 1-6.947-12.606c-.396-10.567 3.348-21.456 11.698-29.806l21.054-21.055c5.521-5.521 14.182-6.199 20.584-1.731a152.482 152.482 0 0 1 20.522 17.197zM467.547 44.449c-59.261-59.262-155.69-59.27-214.96 0l-67.2 67.2c-.12.12-.25.25-.36.37-58.566 58.892-59.387 154.781.36 214.59a152.454 152.454 0 0 0 20.521 17.196c6.402 4.468 15.064 3.789 20.584-1.731l21.054-21.055c8.35-8.35 12.094-19.239 11.698-29.806a16.037 16.037 0 0 0-6.947-12.606c-2.912-2.005-6.64-4.875-10.341-8.569-28.073-28.073-28.191-73.639 0-101.83l67.2-67.19c28.239-28.239 74.3-28.069 102.325.51 27.75 28.3 26.872 73.934-1.155 101.96l-13.087 13.087c-4.35 4.35-5.769 10.79-3.783 16.612 5.864 17.194 9.042 34.999 9.69 52.721.509 13.906 17.454 20.446 27.294 10.606l37.106-37.106c59.271-59.259 59.271-155.699.001-214.959z"/></svg></a>per-cpu</h3>
+<p>per-cpu表示的是为每个cpu维护自己的数据结构，其次访问cpu共享的数据结构时需要加锁。</p>
 <h3 id="multiprocessor-support-and-cooperative-multitasking"><a href="#multiprocessor-support-and-cooperative-multitasking" class="anchor-link"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon anchor-icon"><path d="M326.612 185.391c59.747 59.809 58.927 155.698.36 214.59-.11.12-.24.25-.36.37l-67.2 67.2c-59.27 59.27-155.699 59.262-214.96 0-59.27-59.26-59.27-155.7 0-214.96l37.106-37.106c9.84-9.84 26.786-3.3 27.294 10.606.648 17.722 3.826 35.527 9.69 52.721 1.986 5.822.567 12.262-3.783 16.612l-13.087 13.087c-28.026 28.026-28.905 73.66-1.155 101.96 28.024 28.579 74.086 28.749 102.325.51l67.2-67.19c28.191-28.191 28.073-73.757 0-101.83-3.701-3.694-7.429-6.564-10.341-8.569a16.037 16.037 0 0 1-6.947-12.606c-.396-10.567 3.348-21.456 11.698-29.806l21.054-21.055c5.521-5.521 14.182-6.199 20.584-1.731a152.482 152.482 0 0 1 20.522 17.197zM467.547 44.449c-59.261-59.262-155.69-59.27-214.96 0l-67.2 67.2c-.12.12-.25.25-.36.37-58.566 58.892-59.387 154.781.36 214.59a152.454 152.454 0 0 0 20.521 17.196c6.402 4.468 15.064 3.789 20.584-1.731l21.054-21.055c8.35-8.35 12.094-19.239 11.698-29.806a16.037 16.037 0 0 0-6.947-12.606c-2.912-2.005-6.64-4.875-10.341-8.569-28.073-28.073-28.191-73.639 0-101.83l67.2-67.19c28.239-28.239 74.3-28.069 102.325.51 27.75 28.3 26.872 73.934-1.155 101.96l-13.087 13.087c-4.35 4.35-5.769 10.79-3.783 16.612 5.864 17.194 9.042 34.999 9.69 52.721.509 13.906 17.454 20.446 27.294 10.606l37.106-37.106c59.271-59.259 59.271-155.699.001-214.959z"/></svg></a>Multiprocessor Support and Cooperative Multitasking</h3>
 <ol>
 <li>将设备物理地址映射到内核虚拟地址空间（参考lab3的虚拟地址空间分布图）；</li>
@@ -286,7 +304,157 @@
 <li>实现Round-Robin Scheduling；</li>
 <li>利用系统调用实现在用户态创建一个新的进程，也就是<code>fork</code>的方式，jos有两种实现方式，一种是dump_fork实现的，即在fork时为新进程分配内存；另外一种是基于copy-on-write的方式，即将父进程和子进程的页表项置为COW，在修改该页表项对应的物理页时会触发page fault异常，有该异常处理函数分配具体内存；</li>
 </ol>
-<h3 id="copy-on-write-fork"><a href="#copy-on-write-fork" class="anchor-link"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon anchor-icon"><path d="M326.612 185.391c59.747 59.809 58.927 155.698.36 214.59-.11.12-.24.25-.36.37l-67.2 67.2c-59.27 59.27-155.699 59.262-214.96 0-59.27-59.26-59.27-155.7 0-214.96l37.106-37.106c9.84-9.84 26.786-3.3 27.294 10.606.648 17.722 3.826 35.527 9.69 52.721 1.986 5.822.567 12.262-3.783 16.612l-13.087 13.087c-28.026 28.026-28.905 73.66-1.155 101.96 28.024 28.579 74.086 28.749 102.325.51l67.2-67.19c28.191-28.191 28.073-73.757 0-101.83-3.701-3.694-7.429-6.564-10.341-8.569a16.037 16.037 0 0 1-6.947-12.606c-.396-10.567 3.348-21.456 11.698-29.806l21.054-21.055c5.521-5.521 14.182-6.199 20.584-1.731a152.482 152.482 0 0 1 20.522 17.197zM467.547 44.449c-59.261-59.262-155.69-59.27-214.96 0l-67.2 67.2c-.12.12-.25.25-.36.37-58.566 58.892-59.387 154.781.36 214.59a152.454 152.454 0 0 0 20.521 17.196c6.402 4.468 15.064 3.789 20.584-1.731l21.054-21.055c8.35-8.35 12.094-19.239 11.698-29.806a16.037 16.037 0 0 0-6.947-12.606c-2.912-2.005-6.64-4.875-10.341-8.569-28.073-28.073-28.191-73.639 0-101.83l67.2-67.19c28.239-28.239 74.3-28.069 102.325.51 27.75 28.3 26.872 73.934-1.155 101.96l-13.087 13.087c-4.35 4.35-5.769 10.79-3.783 16.612 5.864 17.194 9.042 34.999 9.69 52.721.509 13.906 17.454 20.446 27.294 10.606l37.106-37.106c59.271-59.259 59.271-155.699.001-214.959z"/></svg></a>Copy-on-Write Fork</h3>
+<blockquote>
+<p><strong>Exercise 1.</strong> Implement <code>mmio_map_region</code> in <code>kern/pmap.c</code>. To see how this is used, look at the beginning of <code>lapic_init</code> in <code>kern/lapic.c</code>.</p>
+</blockquote>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="o">*</span><span class="nf">mmio_map_region</span><span class="p">(</span><span class="n">physaddr_t</span> <span class="n">pa</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">size</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">static</span> <span class="n">uintptr_t</span> <span class="n">base</span> <span class="o">=</span> <span class="n">MMIOBASE</span><span class="p">;</span>
+    <span class="c1">// 大小取整
+</span><span class="c1"></span>	<span class="n">size</span> <span class="o">=</span> <span class="n">ROUNDUP</span><span class="p">(</span><span class="n">size</span><span class="p">,</span><span class="n">PGSIZE</span><span class="p">);</span>
+	<span class="k">if</span><span class="p">(</span><span class="n">size</span> <span class="o">&gt;</span> <span class="n">MMIOLIM</span><span class="p">)</span> <span class="n">panic</span><span class="p">(</span><span class="s">&#34;error&#34;</span><span class="p">);</span>
+    <span class="c1">// 做映射
+</span><span class="c1"></span>	<span class="n">boot_map_region</span><span class="p">(</span><span class="n">kern_pgdir</span><span class="p">,</span><span class="n">base</span><span class="p">,</span><span class="n">size</span><span class="p">,</span><span class="n">pa</span><span class="p">,</span><span class="n">PTE_PCD</span><span class="o">|</span><span class="n">PTE_PWT</span><span class="o">|</span><span class="n">PTE_W</span><span class="o">|</span><span class="n">PTE_P</span><span class="p">);</span>
+	<span class="n">base</span> <span class="o">+=</span> <span class="n">size</span><span class="p">;</span>
+	<span class="k">return</span> <span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)(</span><span class="n">base</span><span class="o">-</span><span class="n">size</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><blockquote>
+<p><strong>Exercise 2.</strong> Read <code>boot_aps()</code> and <code>mp_main()</code> in <code>kern/init.c</code>, and the assembly code in <code>kern/mpentry.S</code>. Make sure you understand the control flow transfer during the bootstrap of APs. Then modify your implementation of <code>page_init()</code> in <code>kern/pmap.c</code> to avoid adding the page at <code>MPENTRY_PADDR</code> to the free list, so that we can safely copy and run AP bootstrap code at that physical address.</p>
+</blockquote>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c">	<span class="k">extern</span> <span class="kt">char</span> <span class="n">mpentry_start</span><span class="p">[];</span>
+	<span class="k">extern</span> <span class="kt">char</span> <span class="n">mpentry_end</span><span class="p">[];</span>
+	<span class="n">s</span> <span class="o">=</span> <span class="n">MPENTRY_PADDR</span><span class="p">;</span>
+	<span class="n">e</span> <span class="o">=</span> <span class="n">mpentry_end</span><span class="o">-</span><span class="n">mpentry_start</span><span class="o">+</span><span class="n">s</span><span class="p">;</span>
+	<span class="n">s</span> <span class="o">=</span> <span class="n">ROUNDDOWN</span><span class="p">(</span><span class="n">s</span><span class="p">,</span><span class="n">PGSIZE</span><span class="p">);</span>
+	<span class="n">e</span> <span class="o">=</span> <span class="n">ROUNDUP</span><span class="p">(</span><span class="n">e</span><span class="p">,</span><span class="n">PGSIZE</span><span class="p">);</span>
+	<span class="n">s</span> <span class="o">=</span> <span class="n">PGNUM</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
+	<span class="n">e</span> <span class="o">=</span> <span class="n">PGNUM</span><span class="p">(</span><span class="n">e</span><span class="p">);</span>
+	<span class="k">for</span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="n">s</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">e</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">){</span>
+		<span class="n">pages</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">pp_ref</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+		<span class="n">pages</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">pp_link</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+	<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><blockquote>
+<p><strong>Exercise 3.</strong> Modify <code>mem_init_mp()</code> (in <code>kern/pmap.c</code>) to map per-CPU stacks starting at <code>KSTACKTOP</code>, as shown in <code>inc/memlayout.h</code>. The size of each stack is <code>KSTKSIZE</code> bytes plus <code>KSTKGAP</code> bytes of unmapped guard pages.</p>
+</blockquote>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">// 将每个cpu的内核栈映射到指定的虚拟地址上
+</span><span class="c1"></span><span class="k">static</span> <span class="kt">void</span> <span class="nf">mem_init_mp</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+	<span class="n">uintptr_t</span> <span class="n">s</span> <span class="o">=</span> <span class="n">KSTACKTOP</span><span class="p">;</span>
+	<span class="k">for</span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">NCPU</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">){</span>
+		<span class="n">boot_map_region</span><span class="p">(</span><span class="n">kern_pgdir</span><span class="p">,</span><span class="n">s</span><span class="o">-</span><span class="n">KSTKSIZE</span><span class="p">,</span><span class="n">KSTKSIZE</span><span class="p">,</span><span class="n">PADDR</span><span class="p">(</span><span class="n">percpu_kstacks</span><span class="p">[</span><span class="n">i</span><span class="p">]),</span><span class="n">PTE_W</span><span class="o">|</span><span class="n">PTE_P</span><span class="p">);</span>
+		<span class="n">s</span> <span class="o">-=</span> <span class="n">KSTKSIZE</span><span class="o">+</span><span class="n">KSTKGAP</span><span class="p">;</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><blockquote>
+<p><strong>Exercise 4.</strong> The code in <code>trap_init_percpu()</code> (<code>kern/trap.c</code>) initializes the TSS and TSS descriptor for the BSP.</p>
+</blockquote>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="nf">trap_init_percpu</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="c1">// Setup a TSS so that we get the right stack
+</span><span class="c1"></span>	<span class="c1">// when we trap to the kernel.
+</span><span class="c1"></span>	<span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+	<span class="n">thiscpu</span><span class="o">-&gt;</span><span class="n">cpu_ts</span><span class="p">.</span><span class="n">ts_esp0</span> <span class="o">=</span> <span class="n">KSTACKTOP</span><span class="p">;</span>
+	<span class="k">for</span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">thiscpu</span><span class="o">-&gt;</span><span class="n">cpu_id</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">){</span>
+		<span class="n">thiscpu</span><span class="o">-&gt;</span><span class="n">cpu_ts</span><span class="p">.</span><span class="n">ts_esp0</span> <span class="o">-=</span> <span class="p">(</span><span class="n">KSTKSIZE</span><span class="o">+</span><span class="n">KSTKGAP</span><span class="p">);</span>
+	<span class="p">}</span>
+	<span class="n">thiscpu</span><span class="o">-&gt;</span><span class="n">cpu_ts</span><span class="p">.</span><span class="n">ts_ss0</span> <span class="o">=</span> <span class="n">GD_KD</span><span class="p">;</span>
+	<span class="n">thiscpu</span><span class="o">-&gt;</span><span class="n">cpu_ts</span><span class="p">.</span><span class="n">ts_iomb</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span> <span class="n">Taskstate</span><span class="p">);</span>
+
+	<span class="c1">// Initialize the TSS slot of the gdt.
+</span><span class="c1"></span>	<span class="n">gdt</span><span class="p">[(</span><span class="n">GD_TSS0</span> <span class="o">&gt;&gt;</span> <span class="mi">3</span><span class="p">)</span> <span class="o">+</span> <span class="n">thiscpu</span><span class="o">-&gt;</span><span class="n">cpu_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">SEG16</span><span class="p">(</span><span class="n">STS_T32A</span><span class="p">,</span> <span class="p">(</span><span class="n">uint32_t</span><span class="p">)</span> <span class="p">(</span><span class="o">&amp;</span><span class="n">thiscpu</span><span class="o">-&gt;</span><span class="n">cpu_ts</span><span class="p">),</span>
+					<span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span> <span class="n">Taskstate</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+	<span class="n">gdt</span><span class="p">[(</span><span class="n">GD_TSS0</span> <span class="o">&gt;&gt;</span> <span class="mi">3</span><span class="p">)</span> <span class="o">+</span> <span class="n">thiscpu</span><span class="o">-&gt;</span><span class="n">cpu_id</span><span class="p">].</span><span class="n">sd_s</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+	<span class="c1">// Load the TSS selector (like other segment selectors, the
+</span><span class="c1"></span>	<span class="c1">// bottom three bits are special; we leave them 0)
+</span><span class="c1"></span>	<span class="n">ltr</span><span class="p">(</span><span class="n">GD_TSS0</span><span class="o">+</span><span class="p">(</span><span class="n">i</span><span class="o">&lt;&lt;</span><span class="mi">3</span><span class="p">));</span>
+
+	<span class="c1">// Load the IDT
+</span><span class="c1"></span>	<span class="n">lidt</span><span class="p">(</span><span class="o">&amp;</span><span class="n">idt_pd</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="copy-on-write-fork"><a href="#copy-on-write-fork" class="anchor-link"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon anchor-icon"><path d="M326.612 185.391c59.747 59.809 58.927 155.698.36 214.59-.11.12-.24.25-.36.37l-67.2 67.2c-59.27 59.27-155.699 59.262-214.96 0-59.27-59.26-59.27-155.7 0-214.96l37.106-37.106c9.84-9.84 26.786-3.3 27.294 10.606.648 17.722 3.826 35.527 9.69 52.721 1.986 5.822.567 12.262-3.783 16.612l-13.087 13.087c-28.026 28.026-28.905 73.66-1.155 101.96 28.024 28.579 74.086 28.749 102.325.51l67.2-67.19c28.191-28.191 28.073-73.757 0-101.83-3.701-3.694-7.429-6.564-10.341-8.569a16.037 16.037 0 0 1-6.947-12.606c-.396-10.567 3.348-21.456 11.698-29.806l21.054-21.055c5.521-5.521 14.182-6.199 20.584-1.731a152.482 152.482 0 0 1 20.522 17.197zM467.547 44.449c-59.261-59.262-155.69-59.27-214.96 0l-67.2 67.2c-.12.12-.25.25-.36.37-58.566 58.892-59.387 154.781.36 214.59a152.454 152.454 0 0 0 20.521 17.196c6.402 4.468 15.064 3.789 20.584-1.731l21.054-21.055c8.35-8.35 12.094-19.239 11.698-29.806a16.037 16.037 0 0 0-6.947-12.606c-2.912-2.005-6.64-4.875-10.341-8.569-28.073-28.073-28.191-73.639 0-101.83l67.2-67.19c28.239-28.239 74.3-28.069 102.325.51 27.75 28.3 26.872 73.934-1.155 101.96l-13.087 13.087c-4.35 4.35-5.769 10.79-3.783 16.612 5.864 17.194 9.042 34.999 9.69 52.721.509 13.906 17.454 20.446 27.294 10.606l37.106-37.106c59.271-59.259 59.271-155.699.001-214.959z"/></svg></a>Copy-on-Write Fork</h3>
 <p>下面是用户空间出现页异常处理流程：</p>
 <ol>
 <li>通过系统调用注册进程自己的处理函数（在fork的时候配置的）；</li>
@@ -337,9 +505,9 @@
 
 
         
-    <div class="updated-badge-container"><div title="Updated @ 2020-06-02 14:44:30 UTC" style="cursor:help;display:inline-block">
+    <div class="updated-badge-container"><div title="Updated @ 2020-06-04 09:28:06 UTC" style="cursor:help;display:inline-block">
 
-<svg xmlns="http://www.w3.org/2000/svg" width="130" height="20" class="updated-badge"><linearGradient id="b" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient><clipPath id="a"><rect width="130" height="20" rx="3" fill="#fff"/></clipPath><g clip-path="url(#a)"><path class="updated-badge-left" d="M0 0h55v20H0z"/><path class="updated-badge-right" d="M55 0h75v20H55z"/><path fill="url(#b)" d="M0 0h130v20H0z"/></g><g fill="#fff" text-anchor="middle" font-size="110"><text x="285" y="150" fill="#010101" fill-opacity=".3" textLength="450" transform="scale(.1)">updated</text><text x="285" y="140" textLength="450" transform="scale(.1)">updated</text><text x="915" y="150" fill="#010101" fill-opacity=".3" textLength="650" transform="scale(.1)">2020-06-02</text><text x="915" y="140" textLength="650" transform="scale(.1)">2020-06-02</text></g></svg></div></div>
+<svg xmlns="http://www.w3.org/2000/svg" width="130" height="20" class="updated-badge"><linearGradient id="b" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient><clipPath id="a"><rect width="130" height="20" rx="3" fill="#fff"/></clipPath><g clip-path="url(#a)"><path class="updated-badge-left" d="M0 0h55v20H0z"/><path class="updated-badge-right" d="M55 0h75v20H55z"/><path fill="url(#b)" d="M0 0h130v20H0z"/></g><g fill="#fff" text-anchor="middle" font-size="110"><text x="285" y="150" fill="#010101" fill-opacity=".3" textLength="450" transform="scale(.1)">updated</text><text x="285" y="140" textLength="450" transform="scale(.1)">updated</text><text x="915" y="150" fill="#010101" fill-opacity=".3" textLength="650" transform="scale(.1)">2020-06-04</text><text x="915" y="140" textLength="650" transform="scale(.1)">2020-06-04</text></g></svg></div></div>
 
 
         
@@ -374,7 +542,7 @@
                 
                 <div class="share-item linkedin">
                     
-                    <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https://chengshuyi.github.io/posts/course/mit6828/lab4/&amp;title=Lab4%20-%20%e5%ae%9e%e9%aa%8c%e7%ac%94%e8%ae%b0&amp;summary=lab4%20%e5%ae%9e%e9%aa%8c%e4%bb%a3%e7%a0%81%ef%bc%9a%e4%b8%8d%e8%bf%87%e6%9c%80%e5%90%8eprimes%e6%a1%88%e4%be%8b%e6%b2%a1%e8%bf%87%20lab4%e5%ae%9e%e9%aa%8c%e4%bb%a3%e7%a0%81patch1%ef%bc%9a%e9%80%9a%e8%bf%87primes%e6%a1%88%e4%be%8b%20lab4%e5%ae%9e%e9%aa%8c%e4%bb%a3%e7%a0%81patch2%ef%bc%9a%e5%b0%8fbug%20Multiprocessor%20Support%20and%20Cooperative%20Multitasking%20%e5%b0%86%e8%ae%be%e5%a4%87%e7%89%a9%e7%90%86%e5%9c%b0%e5%9d%80%e6%98%a0%e5%b0%84%e5%88%b0%e5%86%85%e6%a0%b8%e8%99%9a%e6%8b%9f%e5%9c%b0%e2%80%a6%e2%80%a6&amp;source=%e7%a8%8b%e4%b9%a6%e6%84%8f" title="分享到「LinkedIn」" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="icon linkedin-icon"><path d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3zM135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5zm282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9V416z"/></svg></a>
+                    <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https://chengshuyi.github.io/posts/course/mit6828/lab4/&amp;title=Lab4%20-%20%e5%ae%9e%e9%aa%8c%e7%ac%94%e8%ae%b0&amp;summary=lab4%20%e5%ae%9e%e9%aa%8c%e4%bb%a3%e7%a0%81%ef%bc%9a%e4%b8%8d%e8%bf%87%e6%9c%80%e5%90%8eprimes%e6%a1%88%e4%be%8b%e6%b2%a1%e8%bf%87%20lab4%e5%ae%9e%e9%aa%8c%e4%bb%a3%e7%a0%81patch1%ef%bc%9a%e9%80%9a%e8%bf%87primes%e6%a1%88%e4%be%8b%20lab4%e5%ae%9e%e9%aa%8c%e4%bb%a3%e7%a0%81patch2%ef%bc%9a%e5%b0%8fbug%20x86%e5%a4%9a%e6%a0%b8%e7%b3%bb%e7%bb%9f%20JOS%e6%94%af%e6%8c%81%e7%9a%84%e6%98%af%e5%af%b9%e7%a7%b0%e5%a4%9a%e5%a4%84%e7%90%86%e5%99%a8%e2%80%a6%e2%80%a6&amp;source=%e7%a8%8b%e4%b9%a6%e6%84%8f" title="分享到「LinkedIn」" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="icon linkedin-icon"><path d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3zM135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5zm282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9V416z"/></svg></a>
                 </div>
             
 
@@ -398,7 +566,7 @@
                 
                 <div class="share-item douban">
                     
-                    <a href="https://www.douban.com/share/service?href=https://chengshuyi.github.io/posts/course/mit6828/lab4/&amp;name=Lab4%20-%20%e5%ae%9e%e9%aa%8c%e7%ac%94%e8%ae%b0&amp;text=lab4%20%e5%ae%9e%e9%aa%8c%e4%bb%a3%e7%a0%81%ef%bc%9a%e4%b8%8d%e8%bf%87%e6%9c%80%e5%90%8eprimes%e6%a1%88%e4%be%8b%e6%b2%a1%e8%bf%87%20lab4%e5%ae%9e%e9%aa%8c%e4%bb%a3%e7%a0%81patch1%ef%bc%9a%e9%80%9a%e8%bf%87primes%e6%a1%88%e4%be%8b%20lab4%e5%ae%9e%e9%aa%8c%e4%bb%a3%e7%a0%81patch2%ef%bc%9a%e5%b0%8fbug%20Multiprocessor%20Support%20and%20Cooperative%20Multitasking%20%e5%b0%86%e8%ae%be%e5%a4%87%e7%89%a9%e7%90%86%e5%9c%b0%e5%9d%80%e6%98%a0%e5%b0%84%e5%88%b0%e5%86%85%e6%a0%b8%e8%99%9a%e6%8b%9f%e5%9c%b0%e2%80%a6%e2%80%a6" title="分享到「豆瓣」" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon douban-icon"><path d="M.643.92v2.412h22.714V.92H.643zm1.974 4.926v9.42h18.764v-9.42H2.617zm2.72 2.408H18.69v4.605H5.338V8.254zm1.657 7.412l-2.512.938c1.037 1.461 1.87 2.825 2.512 4.091H0v2.385h24v-2.385h-6.678c.818-1.176 1.589-2.543 2.303-4.091l-2.73-.938a29.952 29.952 0 01-2.479 5.03h-4.75c-.786-1.962-1.677-3.641-2.672-5.03Z"/></svg></a>
+                    <a href="https://www.douban.com/share/service?href=https://chengshuyi.github.io/posts/course/mit6828/lab4/&amp;name=Lab4%20-%20%e5%ae%9e%e9%aa%8c%e7%ac%94%e8%ae%b0&amp;text=lab4%20%e5%ae%9e%e9%aa%8c%e4%bb%a3%e7%a0%81%ef%bc%9a%e4%b8%8d%e8%bf%87%e6%9c%80%e5%90%8eprimes%e6%a1%88%e4%be%8b%e6%b2%a1%e8%bf%87%20lab4%e5%ae%9e%e9%aa%8c%e4%bb%a3%e7%a0%81patch1%ef%bc%9a%e9%80%9a%e8%bf%87primes%e6%a1%88%e4%be%8b%20lab4%e5%ae%9e%e9%aa%8c%e4%bb%a3%e7%a0%81patch2%ef%bc%9a%e5%b0%8fbug%20x86%e5%a4%9a%e6%a0%b8%e7%b3%bb%e7%bb%9f%20JOS%e6%94%af%e6%8c%81%e7%9a%84%e6%98%af%e5%af%b9%e7%a7%b0%e5%a4%9a%e5%a4%84%e7%90%86%e5%99%a8%e2%80%a6%e2%80%a6" title="分享到「豆瓣」" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon douban-icon"><path d="M.643.92v2.412h22.714V.92H.643zm1.974 4.926v9.42h18.764v-9.42H2.617zm2.72 2.408H18.69v4.605H5.338V8.254zm1.657 7.412l-2.512.938c1.037 1.461 1.87 2.825 2.512 4.091H0v2.385h24v-2.385h-6.678c.818-1.176 1.589-2.543 2.303-4.091l-2.73-.938a29.952 29.952 0 01-2.479 5.03h-4.75c-.786-1.962-1.677-3.641-2.672-5.03Z"/></svg></a>
                 </div>
             
 
@@ -406,7 +574,7 @@
                 
                 <div class="share-item qq">
                     
-                    <a href="https://connect.qq.com/widget/shareqq/index.html?url=https://chengshuyi.github.io/posts/course/mit6828/lab4/&amp;title=Lab4%20-%20%e5%ae%9e%e9%aa%8c%e7%ac%94%e8%ae%b0&amp;summary=lab4%20%e5%ae%9e%e9%aa%8c%e4%bb%a3%e7%a0%81%ef%bc%9a%e4%b8%8d%e8%bf%87%e6%9c%80%e5%90%8eprimes%e6%a1%88%e4%be%8b%e6%b2%a1%e8%bf%87%20lab4%e5%ae%9e%e9%aa%8c%e4%bb%a3%e7%a0%81patch1%ef%bc%9a%e9%80%9a%e8%bf%87primes%e6%a1%88%e4%be%8b%20lab4%e5%ae%9e%e9%aa%8c%e4%bb%a3%e7%a0%81patch2%ef%bc%9a%e5%b0%8fbug%20Multiprocessor%20Support%20and%20Cooperative%20Multitasking%20%e5%b0%86%e8%ae%be%e5%a4%87%e7%89%a9%e7%90%86%e5%9c%b0%e5%9d%80%e6%98%a0%e5%b0%84%e5%88%b0%e5%86%85%e6%a0%b8%e8%99%9a%e6%8b%9f%e5%9c%b0%e2%80%a6%e2%80%a6&amp;pics=https://chengshuyi.github.io/icons/apple-touch-icon.png&amp;site=%e7%a8%8b%e4%b9%a6%e6%84%8f" title="分享到「QQ」" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="icon qq-icon"><path d="M433.754 420.445c-11.526 1.393-44.86-52.741-44.86-52.741 0 31.345-16.136 72.247-51.051 101.786 16.842 5.192 54.843 19.167 45.803 34.421-7.316 12.343-125.51 7.881-159.632 4.037-34.122 3.844-152.316 8.306-159.632-4.037-9.045-15.25 28.918-29.214 45.783-34.415-34.92-29.539-51.059-70.445-51.059-101.792 0 0-33.334 54.134-44.859 52.741-5.37-.65-12.424-29.644 9.347-99.704 10.261-33.024 21.995-60.478 40.144-105.779C60.683 98.063 108.982.006 224 0c113.737.006 163.156 96.133 160.264 214.963 18.118 45.223 29.912 72.85 40.144 105.778 21.768 70.06 14.716 99.053 9.346 99.704z"/></svg></a>
+                    <a href="https://connect.qq.com/widget/shareqq/index.html?url=https://chengshuyi.github.io/posts/course/mit6828/lab4/&amp;title=Lab4%20-%20%e5%ae%9e%e9%aa%8c%e7%ac%94%e8%ae%b0&amp;summary=lab4%20%e5%ae%9e%e9%aa%8c%e4%bb%a3%e7%a0%81%ef%bc%9a%e4%b8%8d%e8%bf%87%e6%9c%80%e5%90%8eprimes%e6%a1%88%e4%be%8b%e6%b2%a1%e8%bf%87%20lab4%e5%ae%9e%e9%aa%8c%e4%bb%a3%e7%a0%81patch1%ef%bc%9a%e9%80%9a%e8%bf%87primes%e6%a1%88%e4%be%8b%20lab4%e5%ae%9e%e9%aa%8c%e4%bb%a3%e7%a0%81patch2%ef%bc%9a%e5%b0%8fbug%20x86%e5%a4%9a%e6%a0%b8%e7%b3%bb%e7%bb%9f%20JOS%e6%94%af%e6%8c%81%e7%9a%84%e6%98%af%e5%af%b9%e7%a7%b0%e5%a4%9a%e5%a4%84%e7%90%86%e5%99%a8%e2%80%a6%e2%80%a6&amp;pics=https://chengshuyi.github.io/icons/apple-touch-icon.png&amp;site=%e7%a8%8b%e4%b9%a6%e6%84%8f" title="分享到「QQ」" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="icon qq-icon"><path d="M433.754 420.445c-11.526 1.393-44.86-52.741-44.86-52.741 0 31.345-16.136 72.247-51.051 101.786 16.842 5.192 54.843 19.167 45.803 34.421-7.316 12.343-125.51 7.881-159.632 4.037-34.122 3.844-152.316 8.306-159.632-4.037-9.045-15.25 28.918-29.214 45.783-34.415-34.92-29.539-51.059-70.445-51.059-101.792 0 0-33.334 54.134-44.859 52.741-5.37-.65-12.424-29.644 9.347-99.704 10.261-33.024 21.995-60.478 40.144-105.779C60.683 98.063 108.982.006 224 0c113.737.006 163.156 96.133 160.264 214.963 18.118 45.223 29.912 72.85 40.144 105.778 21.768 70.06 14.716 99.053 9.346 99.704z"/></svg></a>
                 </div>
             
 
@@ -414,7 +582,7 @@
                 
                 <div class="share-item qzone">
                     
-                    <a href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=https://chengshuyi.github.io/posts/course/mit6828/lab4/&amp;title=Lab4%20-%20%e5%ae%9e%e9%aa%8c%e7%ac%94%e8%ae%b0&amp;summary=lab4%20%e5%ae%9e%e9%aa%8c%e4%bb%a3%e7%a0%81%ef%bc%9a%e4%b8%8d%e8%bf%87%e6%9c%80%e5%90%8eprimes%e6%a1%88%e4%be%8b%e6%b2%a1%e8%bf%87%20lab4%e5%ae%9e%e9%aa%8c%e4%bb%a3%e7%a0%81patch1%ef%bc%9a%e9%80%9a%e8%bf%87primes%e6%a1%88%e4%be%8b%20lab4%e5%ae%9e%e9%aa%8c%e4%bb%a3%e7%a0%81patch2%ef%bc%9a%e5%b0%8fbug%20Multiprocessor%20Support%20and%20Cooperative%20Multitasking%20%e5%b0%86%e8%ae%be%e5%a4%87%e7%89%a9%e7%90%86%e5%9c%b0%e5%9d%80%e6%98%a0%e5%b0%84%e5%88%b0%e5%86%85%e6%a0%b8%e8%99%9a%e6%8b%9f%e5%9c%b0%e2%80%a6%e2%80%a6&amp;pics=https://chengshuyi.github.io/icons/apple-touch-icon.png&amp;site=%e7%a8%8b%e4%b9%a6%e6%84%8f" title="分享到「QQ 空间」" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon qzone-icon"><path d="M23.985 9.202c-.032-.099-.127-.223-.334-.258-.207-.036-7.351-1.406-7.351-1.406s-.105-.022-.198-.07c-.092-.047-.127-.167-.127-.167S12.447.956 12.349.77C12.25.583 12.104.532 12 .532c-.104 0-.251.051-.349.238-.098.186-3.626 6.531-3.626 6.531s-.035.12-.128.167c-.092.047-.197.07-.197.07S.556 8.908.348 8.943c-.208.036-.302.16-.333.258a.477.477 0 0 0 .125.449l5.362 5.49s.072.08.119.172c.016.104.005.21.005.21s-1.189 7.242-1.22 7.45.075.369.159.43c.083.062.233.106.421.013.189-.093 6.812-3.261 6.812-3.261s.098-.044.201-.061c.103-.017.201.061.201.061s6.623 3.168 6.812 3.261c.188.094.338.049.421-.013a.463.463 0 0 0 .159-.43c-.021-.14-.93-5.677-.93-5.677.876-.54 1.425-1.039 1.849-1.747-2.594.969-6.006 1.717-9.415 1.866-.915.041-2.41.097-3.473-.015-.678-.071-1.17-.144-1.243-.438-.053-.215.054-.46.545-.831a2640.5 2640.5 0 0 1 2.861-2.155c1.285-.968 3.559-2.47 3.559-2.731 0-.285-2.144-.781-4.037-.781-1.945 0-2.275.132-2.811.168-.488.034-.769.005-.804-.138-.06-.248.183-.389.588-.568.709-.314 1.86-.594 1.984-.626.194-.052 3.082-.805 5.618-.535 1.318.14 3.244.668 3.244 1.276 0 .342-1.721 1.494-3.225 2.597-1.149.843-2.217 1.561-2.217 1.688 0 .342 3.533 1.241 6.689 1.01l.003-.022c.048-.092.119-.172.119-.172l5.362-5.49a.477.477 0 0 0 .127-.449z"/></svg></a>
+                    <a href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=https://chengshuyi.github.io/posts/course/mit6828/lab4/&amp;title=Lab4%20-%20%e5%ae%9e%e9%aa%8c%e7%ac%94%e8%ae%b0&amp;summary=lab4%20%e5%ae%9e%e9%aa%8c%e4%bb%a3%e7%a0%81%ef%bc%9a%e4%b8%8d%e8%bf%87%e6%9c%80%e5%90%8eprimes%e6%a1%88%e4%be%8b%e6%b2%a1%e8%bf%87%20lab4%e5%ae%9e%e9%aa%8c%e4%bb%a3%e7%a0%81patch1%ef%bc%9a%e9%80%9a%e8%bf%87primes%e6%a1%88%e4%be%8b%20lab4%e5%ae%9e%e9%aa%8c%e4%bb%a3%e7%a0%81patch2%ef%bc%9a%e5%b0%8fbug%20x86%e5%a4%9a%e6%a0%b8%e7%b3%bb%e7%bb%9f%20JOS%e6%94%af%e6%8c%81%e7%9a%84%e6%98%af%e5%af%b9%e7%a7%b0%e5%a4%9a%e5%a4%84%e7%90%86%e5%99%a8%e2%80%a6%e2%80%a6&amp;pics=https://chengshuyi.github.io/icons/apple-touch-icon.png&amp;site=%e7%a8%8b%e4%b9%a6%e6%84%8f" title="分享到「QQ 空间」" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon qzone-icon"><path d="M23.985 9.202c-.032-.099-.127-.223-.334-.258-.207-.036-7.351-1.406-7.351-1.406s-.105-.022-.198-.07c-.092-.047-.127-.167-.127-.167S12.447.956 12.349.77C12.25.583 12.104.532 12 .532c-.104 0-.251.051-.349.238-.098.186-3.626 6.531-3.626 6.531s-.035.12-.128.167c-.092.047-.197.07-.197.07S.556 8.908.348 8.943c-.208.036-.302.16-.333.258a.477.477 0 0 0 .125.449l5.362 5.49s.072.08.119.172c.016.104.005.21.005.21s-1.189 7.242-1.22 7.45.075.369.159.43c.083.062.233.106.421.013.189-.093 6.812-3.261 6.812-3.261s.098-.044.201-.061c.103-.017.201.061.201.061s6.623 3.168 6.812 3.261c.188.094.338.049.421-.013a.463.463 0 0 0 .159-.43c-.021-.14-.93-5.677-.93-5.677.876-.54 1.425-1.039 1.849-1.747-2.594.969-6.006 1.717-9.415 1.866-.915.041-2.41.097-3.473-.015-.678-.071-1.17-.144-1.243-.438-.053-.215.054-.46.545-.831a2640.5 2640.5 0 0 1 2.861-2.155c1.285-.968 3.559-2.47 3.559-2.731 0-.285-2.144-.781-4.037-.781-1.945 0-2.275.132-2.811.168-.488.034-.769.005-.804-.138-.06-.248.183-.389.588-.568.709-.314 1.86-.594 1.984-.626.194-.052 3.082-.805 5.618-.535 1.318.14 3.244.668 3.244 1.276 0 .342-1.721 1.494-3.225 2.597-1.149.843-2.217 1.561-2.217 1.688 0 .342 3.533 1.241 6.689 1.01l.003-.022c.048-.092.119-.172.119-.172l5.362-5.49a.477.477 0 0 0 .127-.449z"/></svg></a>
                 </div>
             
 
