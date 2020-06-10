@@ -23,7 +23,7 @@
         
             <copyright>[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh)</copyright>
         
-        <lastBuildDate>Sun, 07 Jun 2020 12:32:20 +0000</lastBuildDate>
+        <lastBuildDate>Wed, 10 Jun 2020 14:36:03 +0000</lastBuildDate>
         
             <atom:link rel="self" type="application/rss+xml" href="https://chengshuyi.github.io/rss.xml" />
         
@@ -4184,28 +4184,18 @@ $$
 <p>伙伴系统对系统的数据和指令高速缓存有影响，slab分配器采用着色降低了这种副作用。</p>
 </li>
 </ol>
-<p>伙伴系统分配的内存大小是页的倍数，不利于CPU的高速缓存：如果每次都将数据存放到从伙伴系统分配的页开始的位置会使得高速缓存的有的行被过度使用，而有的行几乎从不被使用**[cpu的L1 cache一般大小为32KB，采用伙伴系统分配$order\geq5$时就会出现上述的问题**]。slab分配器通过着色使得slab对象能够均匀的使用高速缓存，提高高速缓存的利用率。</p>
+<p>伙伴系统分配的内存大小是页的倍数，不利于CPU的高速缓存：如果每次都将数据存放到从伙伴系统分配的页开始的位置会使得高速缓存的有的行被过度使用，而有的行几乎从不被使用[<strong>cpu的L1 cache一般大小为32KB，采用伙伴系统分配$order\geq5$时就会出现上述的问题</strong>]。slab分配器通过着色使得slab对象能够均匀的使用高速缓存，提高高速缓存的利用率。</p>
 <h3 id="基本数据结构">基本数据结构</h3>
 <p><code>struct kmem_cache</code>、<code>struct array_cache</code>、<code>struct kmem_cache_node</code></p>
 <p>程序经常需要创建一些数据结构，比如进程描述符task_struct，内存描述符mm_struct等。slab分配器把这些需要分配的小块内存区作为对象，类似面向对象的思想。每一类对象分配一个cache，cache有一个或多个slab组成，slab由一个或多个物理页面组成。需要分配对象的时候从slab中空闲的对象取，用完了再放回slab中，而不是释放给物理页分配器，这样下次用的时候就不用重新初始化了，实现了对象的复用。</p>
-<p><img src="../../../static/img/image-20200402195625069.png" alt="image-20200402195625069"></p>
+<p><img src="https://gitee.com/chengshuyi/scripts/raw/master/img/image-20200402195625069.png" alt=""></p>
 <h3 id="鸡和蛋问题">鸡和蛋问题</h3>
 <p>由于slab分配器对象（<code>struct kmem_cache、struct array_cache、struct kmem_cache_node</code>）也需要用slab分配器提供的高速缓存机制，那么问题是：先有高速缓存还是先有slab分配器对象。</p>
 <ol>
 <li>我们知道slab分配器对象用来管理高速缓存：假设先有高速缓存的话，那么谁来管理高速缓存呢？</li>
 <li>我们知道高速缓存用来存放slab分配器对象：假设先有slab分配器对象，那么它存放在哪里呢？</li>
 </ol>
-<p>linux的做法是：静态分配slab分配器对象内存空间，然后利用伙伴算法分配存储对象的页帧，</p>
-<p>static struct kmem_cache kmem_cache_boot</p>
-<p>#define NUM_INIT_LISTS (2 * MAX_NUMNODES)</p>
-<p>static struct kmem_cache_node __initdata init_kmem_cache_node[NUM_INIT_LISTS];</p>
-<p>struct kmem_cache *</p>
-<p>kmalloc_caches[NR_KMALLOC_TYPES][KMALLOC_SHIFT_HIGH + 1]</p>
-<p>每种对象类型对应一个高速缓存，kmalloc使用的是通用高速缓存</p>
-<p>高速缓存划分为slab，slab有一个或多个物理上连续的页组成（一般是一个页），每个告诉缓存由多个slab</p>
-<p>每个slab包含数据结构，</p>
-<p>slab状态：满、部分满、空</p>
-<p>部分满》空》创建一个slab</p>
+<p>linux的做法是：静态分配slab分配器对象内存空间，然后利用伙伴算法分配存储对象的页帧。</p>
 <h3 id="slab着色原理">slab着色原理</h3>
 <p>一般情况下，slab的大小为4KB。我们令cpu的L1 cache为32KB（每一行64B、512行），那么要填充满cpu的L1 cache需要8个slab。那么slab分配器会从伙伴分配系统中分配8个slab，也就是8个页（8个页不一定是物理连续的）。假设获取的8个页对应的的起始地址和终止地址如下：</p>
 <div class="highlight"><div class="chroma">
@@ -4236,7 +4226,7 @@ $$
 <li>当slab的个数超过颜色数，效果甚微；</li>
 <li>slab的着色是用空间换时间，浪费一些空间来提高cache的命中率。</li>
 </ol>
-]]></description>
+<!--http://www.secretmango.com/jimb/Whitepapers/slabs/slab.html-->]]></description>
                 
                 
                 
