@@ -4,7 +4,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom" xml:lang="zh-CN">
     <title type="text">程书意</title>
     <subtitle type="html">MemE 是一个强大且可高度定制的 GoHugo 博客主题，专为个人博客设计。</subtitle>
-    <updated>2020-06-10T14:36:03+00:00</updated>
+    <updated>2020-06-16T03:19:29+00:00</updated>
     <id>https://chengshuyi.github.io/</id>
     <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/" />
     <link rel="self" type="application/atom+xml" href="https://chengshuyi.github.io/atom.xml" />
@@ -20,7 +20,7 @@
             <title type="text">Fat32文件系统详解</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/filesystem/fat/" />
             <id>https://chengshuyi.github.io/posts/filesystem/fat/</id>
-            <updated>2020-06-10T14:36:00+00:00</updated>
+            <updated>2020-06-16T03:19:26+00:00</updated>
             <published>2020-05-14T20:06:37+08:00</published>
             <author>
                     <name>程书意</name>
@@ -142,10 +142,1081 @@ CHS:Cylinder Head Sector -->
         </entry>
     
         <entry>
+            <title type="text">bpf的jit编译器</title>
+            <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/linux-kernel/bpf%E7%9A%84jit%E7%BC%96%E8%AF%91%E5%99%A8/" />
+            <id>https://chengshuyi.github.io/posts/linux-kernel/bpf%E7%9A%84jit%E7%BC%96%E8%AF%91%E5%99%A8/</id>
+            <updated>2020-06-16T03:19:26+00:00</updated>
+            <published>2020-05-10T16:33:22+08:00</published>
+            <author>
+                    <name>程书意</name>
+                    <uri>https://chengshuyi.github.io</uri>
+                    <email>c15271843451@outlook.com</email>
+                    </author>
+            <rights>[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh)</rights>
+    
+    <summary type="html"><![CDATA[2001年，Eric Dumazet往bpf添加了jit（just in time）compiler功能，加速了bpf filter程序运行时间（包含编译+运行）。在上一篇博文，……]]></summary>
+            
+                <content type="html"><![CDATA[<p>2001年，Eric Dumazet往bpf添加了jit（just in time）compiler功能，加速了bpf filter程序运行时间（包含编译+运行）。在<a href="https://chengshuyi.github.io/posts/linux-kernel/bpf-paper/">上一篇博文</a>，我们知道bpf的原始filter程序是通过翻译一条指令也代表着执行一条指令（没有转换成对应机器的机器码的过程），没有编译的过程。jit编译器可以将bpf的filter程序（伪代码）编译成可以直接在主机运行的机器码。该<a href="https://lwn.net/Articles/437884/">patch</a>实现了bfp程序到x86_64机器码的转换。</p>
+<p>本文介绍了jit编译器的原理</p>
+<h3 id="jit编译器">jit编译器</h3>
+<p>jit编译器的出现更多的是为了不同指令集之间的转换，对应着也就是跨平台的实现。以java和c为例，java的运行程序（字节码）可以在任意平台上运行，而c语言运行程序不行。这是因为java在不同的平台都配置有相应的jit编译器。在程序运行的时候，jit编译器会将字节码转换成对应平台的指令，然后执行。</p>
+<ol>
+<li>
+<p>为什么不将程序编译好后运行，而是要运行时编译，再执行？</p>
+<p>静态编译能够对程序做以比jit编译器更大的优化，但是静态编译生成的可执行文件并不能跨平台。jit编译器虽然优化能力有限，但是能够对一条指令在不同的平台实现对应的转换，达到跨平台的目的。</p>
+</li>
+</ol>
+<h3 id="bpf-jit编译器">bpf jit编译器</h3>
+<p>本节介绍了bpf的jit编译器的具体实现，为了更好的了解jit编译器实现的原理。我们先看一个具体示例，即bpf filter程序和编译后的程序对比；最后我们给出jit编译器的源码，分析整个的工作流程。</p>
+<p>bpf filter程序使用的寄存器都是伪寄存器，jit首先要将其与物理寄存器对应起来：</p>
+<ul>
+<li>
+<p>BPF的accumulator寄存器对应着x86_64平台下的eax寄存器；</p>
+</li>
+<li>
+<p>BPF的index寄存器对应着x86_64平台下的ebx寄存器；</p>
+</li>
+<li>
+<p>使用rdi寄存器存放skb的首地址；</p>
+</li>
+<li>
+<p>使用rbp存放frame的首地址；</p>
+</li>
+<li>
+<p>r9存放头部长度；</p>
+</li>
+<li>
+<p>r8存放数据的首地址；</p>
+</li>
+</ul>
+<pre><code># jit filter程序
+(000) ldh      [12]
+(001) jeq      #0x800           jt 2	jf 6
+(002) ld       [26]
+(003) jeq      #0xc0a80001      jt 12	jf 4
+(004) ld       [30]
+(005) jeq      #0xc0a80001      jt 12	jf 13
+(006) jeq      #0x806           jt 8	jf 7
+(007) jeq      #0x8035          jt 8	jf 13
+(008) ld       [28]
+(009) jeq      #0xc0a80001      jt 12	jf 10
+(010) ld       [38]
+(011) jeq      #0xc0a80001      jt 12	jf 13
+(012) ret      #65535
+(013) ret      #0
+# jit编译后的机器码
+JIT code: ffffffffa00d5000: 55 48 89 e5 48 83 ec 60 48 89 5d f8 44 8b 4f 60
+JIT code: ffffffffa00d5010: 44 2b 4f 64 4c 8b 87 b8 00 00 00 be 0c 00 00 00
+JIT code: ffffffffa00d5020: e8 24 1b 2f e1 3d 00 08 00 00 75 24 be 1a 00 00
+JIT code: ffffffffa00d5030: 00 e8 fe 1a 2f e1 3d 01 00 a8 c0 74 43 be 1e 00
+JIT code: ffffffffa00d5040: 00 00 e8 ed 1a 2f e1 3d 01 00 a8 c0 74 32 eb 37
+JIT code: ffffffffa00d5050: 3d 06 08 00 00 74 07 3d 35 80 00 00 75 29 be 1c
+JIT code: ffffffffa00d5060: 00 00 00 e8 cc 1a 2f e1 3d 01 00 a8 c0 74 11 be
+JIT code: ffffffffa00d5070: 26 00 00 00 e8 bb 1a 2f e1 3d 01 00 a8 c0 75 07
+JIT code: ffffffffa00d5080: b8 ff ff 00 00 eb 02 31 c0 c9 c3
+# 机器码转换成便于分析的汇编代码
+0000: push %rbp
+	  mov %rsp,%rbp
+0004: subq $96,%rsp
+0008: mov %rbx, -8(%rbp)
+000c: mov off8(%rdi),%r9d
+0010: sub off8(%rdi),%r9d
+0014: mov off32(%rdi),%r8   b8 00 00 00
+001c: mov 0x0c,%esi
+0020: call function(addr is 0xe12f1b24)
+0025: cmp #0x800,%eax
+002a: jne 0x24
+002c: mov $26,%esi
+0031: call function(addr is 0xe12f1afe)
+0036: cmp $0xc0a80001,%eax
+003b: je 0x43
+003d: mov $30,%esi
+0042: call function(addr is 0xe12f1aed)
+0047: cmp $0xc0a80001,%eax
+004c: je 0x32
+004e: jmp 0x37
+0050: cmp $0x806,%eax
+0055: je 0x07
+0057: cmp $0x8035,%eax
+005d: jne 0x29
+005e: jmp 0x1c
+0063: call function(addr is 0xe12f1acc)
+0068: cmp $0xc0a80001,%eax
+006d: je 0x11
+006f: mov 0x26,%esi 
+0074: call function(addr is 0xe12f1abb)
+0079: cmp $0xc0a80001,%eax
+007e: jne 0x07
+mov $65535,%eax 
+jmp 02
+xor %eax,%eax
+leaveq
+ret
+</code></pre><p>源码有删除一部分</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span><span class="lnt">101
+</span><span class="lnt">102
+</span><span class="lnt">103
+</span><span class="lnt">104
+</span><span class="lnt">105
+</span><span class="lnt">106
+</span><span class="lnt">107
+</span><span class="lnt">108
+</span><span class="lnt">109
+</span><span class="lnt">110
+</span><span class="lnt">111
+</span><span class="lnt">112
+</span><span class="lnt">113
+</span><span class="lnt">114
+</span><span class="lnt">115
+</span><span class="lnt">116
+</span><span class="lnt">117
+</span><span class="lnt">118
+</span><span class="lnt">119
+</span><span class="lnt">120
+</span><span class="lnt">121
+</span><span class="lnt">122
+</span><span class="lnt">123
+</span><span class="lnt">124
+</span><span class="lnt">125
+</span><span class="lnt">126
+</span><span class="lnt">127
+</span><span class="lnt">128
+</span><span class="lnt">129
+</span><span class="lnt">130
+</span><span class="lnt">131
+</span><span class="lnt">132
+</span><span class="lnt">133
+</span><span class="lnt">134
+</span><span class="lnt">135
+</span><span class="lnt">136
+</span><span class="lnt">137
+</span><span class="lnt">138
+</span><span class="lnt">139
+</span><span class="lnt">140
+</span><span class="lnt">141
+</span><span class="lnt">142
+</span><span class="lnt">143
+</span><span class="lnt">144
+</span><span class="lnt">145
+</span><span class="lnt">146
+</span><span class="lnt">147
+</span><span class="lnt">148
+</span><span class="lnt">149
+</span><span class="lnt">150
+</span><span class="lnt">151
+</span><span class="lnt">152
+</span><span class="lnt">153
+</span><span class="lnt">154
+</span><span class="lnt">155
+</span><span class="lnt">156
+</span><span class="lnt">157
+</span><span class="lnt">158
+</span><span class="lnt">159
+</span><span class="lnt">160
+</span><span class="lnt">161
+</span><span class="lnt">162
+</span><span class="lnt">163
+</span><span class="lnt">164
+</span><span class="lnt">165
+</span><span class="lnt">166
+</span><span class="lnt">167
+</span><span class="lnt">168
+</span><span class="lnt">169
+</span><span class="lnt">170
+</span><span class="lnt">171
+</span><span class="lnt">172
+</span><span class="lnt">173
+</span><span class="lnt">174
+</span><span class="lnt">175
+</span><span class="lnt">176
+</span><span class="lnt">177
+</span><span class="lnt">178
+</span><span class="lnt">179
+</span><span class="lnt">180
+</span><span class="lnt">181
+</span><span class="lnt">182
+</span><span class="lnt">183
+</span><span class="lnt">184
+</span><span class="lnt">185
+</span><span class="lnt">186
+</span><span class="lnt">187
+</span><span class="lnt">188
+</span><span class="lnt">189
+</span><span class="lnt">190
+</span><span class="lnt">191
+</span><span class="lnt">192
+</span><span class="lnt">193
+</span><span class="lnt">194
+</span><span class="lnt">195
+</span><span class="lnt">196
+</span><span class="lnt">197
+</span><span class="lnt">198
+</span><span class="lnt">199
+</span><span class="lnt">200
+</span><span class="lnt">201
+</span><span class="lnt">202
+</span><span class="lnt">203
+</span><span class="lnt">204
+</span><span class="lnt">205
+</span><span class="lnt">206
+</span><span class="lnt">207
+</span><span class="lnt">208
+</span><span class="lnt">209
+</span><span class="lnt">210
+</span><span class="lnt">211
+</span><span class="lnt">212
+</span><span class="lnt">213
+</span><span class="lnt">214
+</span><span class="lnt">215
+</span><span class="lnt">216
+</span><span class="lnt">217
+</span><span class="lnt">218
+</span><span class="lnt">219
+</span><span class="lnt">220
+</span><span class="lnt">221
+</span><span class="lnt">222
+</span><span class="lnt">223
+</span><span class="lnt">224
+</span><span class="lnt">225
+</span><span class="lnt">226
+</span><span class="lnt">227
+</span><span class="lnt">228
+</span><span class="lnt">229
+</span><span class="lnt">230
+</span><span class="lnt">231
+</span><span class="lnt">232
+</span><span class="lnt">233
+</span><span class="lnt">234
+</span><span class="lnt">235
+</span><span class="lnt">236
+</span><span class="lnt">237
+</span><span class="lnt">238
+</span><span class="lnt">239
+</span><span class="lnt">240
+</span><span class="lnt">241
+</span><span class="lnt">242
+</span><span class="lnt">243
+</span><span class="lnt">244
+</span><span class="lnt">245
+</span><span class="lnt">246
+</span><span class="lnt">247
+</span><span class="lnt">248
+</span><span class="lnt">249
+</span><span class="lnt">250
+</span><span class="lnt">251
+</span><span class="lnt">252
+</span><span class="lnt">253
+</span><span class="lnt">254
+</span><span class="lnt">255
+</span><span class="lnt">256
+</span><span class="lnt">257
+</span><span class="lnt">258
+</span><span class="lnt">259
+</span><span class="lnt">260
+</span><span class="lnt">261
+</span><span class="lnt">262
+</span><span class="lnt">263
+</span><span class="lnt">264
+</span><span class="lnt">265
+</span><span class="lnt">266
+</span><span class="lnt">267
+</span><span class="lnt">268
+</span><span class="lnt">269
+</span><span class="lnt">270
+</span><span class="lnt">271
+</span><span class="lnt">272
+</span><span class="lnt">273
+</span><span class="lnt">274
+</span><span class="lnt">275
+</span><span class="lnt">276
+</span><span class="lnt">277
+</span><span class="lnt">278
+</span><span class="lnt">279
+</span><span class="lnt">280
+</span><span class="lnt">281
+</span><span class="lnt">282
+</span><span class="lnt">283
+</span><span class="lnt">284
+</span><span class="lnt">285
+</span><span class="lnt">286
+</span><span class="lnt">287
+</span><span class="lnt">288
+</span><span class="lnt">289
+</span><span class="lnt">290
+</span><span class="lnt">291
+</span><span class="lnt">292
+</span><span class="lnt">293
+</span><span class="lnt">294
+</span><span class="lnt">295
+</span><span class="lnt">296
+</span><span class="lnt">297
+</span><span class="lnt">298
+</span><span class="lnt">299
+</span><span class="lnt">300
+</span><span class="lnt">301
+</span><span class="lnt">302
+</span><span class="lnt">303
+</span><span class="lnt">304
+</span><span class="lnt">305
+</span><span class="lnt">306
+</span><span class="lnt">307
+</span><span class="lnt">308
+</span><span class="lnt">309
+</span><span class="lnt">310
+</span><span class="lnt">311
+</span><span class="lnt">312
+</span><span class="lnt">313
+</span><span class="lnt">314
+</span><span class="lnt">315
+</span><span class="lnt">316
+</span><span class="lnt">317
+</span><span class="lnt">318
+</span><span class="lnt">319
+</span><span class="lnt">320
+</span><span class="lnt">321
+</span><span class="lnt">322
+</span><span class="lnt">323
+</span><span class="lnt">324
+</span><span class="lnt">325
+</span><span class="lnt">326
+</span><span class="lnt">327
+</span><span class="lnt">328
+</span><span class="lnt">329
+</span><span class="lnt">330
+</span><span class="lnt">331
+</span><span class="lnt">332
+</span><span class="lnt">333
+</span><span class="lnt">334
+</span><span class="lnt">335
+</span><span class="lnt">336
+</span><span class="lnt">337
+</span><span class="lnt">338
+</span><span class="lnt">339
+</span><span class="lnt">340
+</span><span class="lnt">341
+</span><span class="lnt">342
+</span><span class="lnt">343
+</span><span class="lnt">344
+</span><span class="lnt">345
+</span><span class="lnt">346
+</span><span class="lnt">347
+</span><span class="lnt">348
+</span><span class="lnt">349
+</span><span class="lnt">350
+</span><span class="lnt">351
+</span><span class="lnt">352
+</span><span class="lnt">353
+</span><span class="lnt">354
+</span><span class="lnt">355
+</span><span class="lnt">356
+</span><span class="lnt">357
+</span><span class="lnt">358
+</span><span class="lnt">359
+</span><span class="lnt">360
+</span><span class="lnt">361
+</span><span class="lnt">362
+</span><span class="lnt">363
+</span><span class="lnt">364
+</span><span class="lnt">365
+</span><span class="lnt">366
+</span><span class="lnt">367
+</span><span class="lnt">368
+</span><span class="lnt">369
+</span><span class="lnt">370
+</span><span class="lnt">371
+</span><span class="lnt">372
+</span><span class="lnt">373
+</span><span class="lnt">374
+</span><span class="lnt">375
+</span><span class="lnt">376
+</span><span class="lnt">377
+</span><span class="lnt">378
+</span><span class="lnt">379
+</span><span class="lnt">380
+</span><span class="lnt">381
+</span><span class="lnt">382
+</span><span class="lnt">383
+</span><span class="lnt">384
+</span><span class="lnt">385
+</span><span class="lnt">386
+</span><span class="lnt">387
+</span><span class="lnt">388
+</span><span class="lnt">389
+</span><span class="lnt">390
+</span><span class="lnt">391
+</span><span class="lnt">392
+</span><span class="lnt">393
+</span><span class="lnt">394
+</span><span class="lnt">395
+</span><span class="lnt">396
+</span><span class="lnt">397
+</span><span class="lnt">398
+</span><span class="lnt">399
+</span><span class="lnt">400
+</span><span class="lnt">401
+</span><span class="lnt">402
+</span><span class="lnt">403
+</span><span class="lnt">404
+</span><span class="lnt">405
+</span><span class="lnt">406
+</span><span class="lnt">407
+</span><span class="lnt">408
+</span><span class="lnt">409
+</span><span class="lnt">410
+</span><span class="lnt">411
+</span><span class="lnt">412
+</span><span class="lnt">413
+</span><span class="lnt">414
+</span><span class="lnt">415
+</span><span class="lnt">416
+</span><span class="lnt">417
+</span><span class="lnt">418
+</span><span class="lnt">419
+</span><span class="lnt">420
+</span><span class="lnt">421
+</span><span class="lnt">422
+</span><span class="lnt">423
+</span><span class="lnt">424
+</span><span class="lnt">425
+</span><span class="lnt">426
+</span><span class="lnt">427
+</span><span class="lnt">428
+</span><span class="lnt">429
+</span><span class="lnt">430
+</span><span class="lnt">431
+</span><span class="lnt">432
+</span><span class="lnt">433
+</span><span class="lnt">434
+</span><span class="lnt">435
+</span><span class="lnt">436
+</span><span class="lnt">437
+</span><span class="lnt">438
+</span><span class="lnt">439
+</span><span class="lnt">440
+</span><span class="lnt">441
+</span><span class="lnt">442
+</span><span class="lnt">443
+</span><span class="lnt">444
+</span><span class="lnt">445
+</span><span class="lnt">446
+</span><span class="lnt">447
+</span><span class="lnt">448
+</span><span class="lnt">449
+</span><span class="lnt">450
+</span><span class="lnt">451
+</span><span class="lnt">452
+</span><span class="lnt">453
+</span><span class="lnt">454
+</span><span class="lnt">455
+</span><span class="lnt">456
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c">
+<span class="cm">/* bpf_jit_comp.c : BPF JIT compiler
+</span><span class="cm"> *
+</span><span class="cm"> * Copyright (C) 2011 Eric Dumazet (eric.dumazet@gmail.com)
+</span><span class="cm"> *
+</span><span class="cm"> * This program is free software; you can redistribute it and/or
+</span><span class="cm"> * modify it under the terms of the GNU General Public License
+</span><span class="cm"> * as published by the Free Software Foundation; version 2
+</span><span class="cm"> * of the License.
+</span><span class="cm"> */</span>
+<span class="cp">#include</span> <span class="cpf">&lt;linux/moduleloader.h&gt;</span><span class="cp">
+</span><span class="cp">#include</span> <span class="cpf">&lt;asm/cacheflush.h&gt;</span><span class="cp">
+</span><span class="cp">#include</span> <span class="cpf">&lt;linux/netdevice.h&gt;</span><span class="cp">
+</span><span class="cp">#include</span> <span class="cpf">&lt;linux/filter.h&gt;</span><span class="cp">
+</span><span class="cp"></span>
+<span class="cm">/*
+</span><span class="cm"> * Conventions :
+</span><span class="cm"> *  EAX : BPF A accumulator
+</span><span class="cm"> *  EBX : BPF X accumulator
+</span><span class="cm"> *  RDI : pointer to skb   (first argument given to JIT function)
+</span><span class="cm"> *  RBP : frame pointer (even if CONFIG_FRAME_POINTER=n)
+</span><span class="cm"> *  r9d : skb-&gt;len - skb-&gt;data_len (headlen)
+</span><span class="cm"> *  r8  : skb-&gt;data
+</span><span class="cm"> */</span>
+<span class="kt">int</span> <span class="n">bpf_jit_enable</span> <span class="n">__read_mostly</span><span class="p">;</span>
+
+<span class="cm">/*
+</span><span class="cm"> * assembly code in net/core/bpf_jit.S
+</span><span class="cm"> */</span>
+<span class="k">extern</span> <span class="n">u8</span> <span class="n">sk_load_word</span><span class="p">[],</span> <span class="n">sk_load_half</span><span class="p">[],</span> <span class="n">sk_load_byte</span><span class="p">[],</span> <span class="n">sk_load_byte_msh</span><span class="p">[];</span>
+<span class="k">extern</span> <span class="n">u8</span> <span class="n">sk_load_word_ind</span><span class="p">[],</span> <span class="n">sk_load_half_ind</span><span class="p">[],</span> <span class="n">sk_load_byte_ind</span><span class="p">[];</span>
+
+<span class="k">static</span> <span class="kr">inline</span> <span class="n">u8</span> <span class="o">*</span><span class="nf">emit_code</span><span class="p">(</span><span class="n">u8</span> <span class="o">*</span><span class="n">ptr</span><span class="p">,</span> <span class="n">u32</span> <span class="n">bytes</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">len</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">len</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+		<span class="o">*</span><span class="n">ptr</span> <span class="o">=</span> <span class="n">bytes</span><span class="p">;</span>
+	<span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">len</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span>
+		<span class="o">*</span><span class="p">(</span><span class="n">u16</span> <span class="o">*</span><span class="p">)</span><span class="n">ptr</span> <span class="o">=</span> <span class="n">bytes</span><span class="p">;</span>
+	<span class="k">else</span> <span class="p">{</span>
+		<span class="o">*</span><span class="p">(</span><span class="n">u32</span> <span class="o">*</span><span class="p">)</span><span class="n">ptr</span> <span class="o">=</span> <span class="n">bytes</span><span class="p">;</span>
+		<span class="n">barrier</span><span class="p">();</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">ptr</span> <span class="o">+</span> <span class="n">len</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="cp">#define EMIT(bytes, len)	do { prog = emit_code(prog, bytes, len); } while (0)
+</span><span class="cp"></span>
+<span class="cp">#define EMIT1(b1)		EMIT(b1, 1)
+</span><span class="cp">#define EMIT2(b1, b2)		EMIT((b1) + ((b2) &lt;&lt; 8), 2)
+</span><span class="cp">#define EMIT3(b1, b2, b3)	EMIT((b1) + ((b2) &lt;&lt; 8) + ((b3) &lt;&lt; 16), 3)
+</span><span class="cp">#define EMIT4(b1, b2, b3, b4)   EMIT((b1) + ((b2) &lt;&lt; 8) + ((b3) &lt;&lt; 16) + ((b4) &lt;&lt; 24), 4)
+</span><span class="cp">#define EMIT1_off32(b1, off)	do { EMIT1(b1); EMIT(off, 4);} while (0)
+</span><span class="cp"></span>
+<span class="cp">#define CLEAR_A() EMIT2(0x31, 0xc0) </span><span class="cm">/* xor %eax,%eax */</span><span class="cp">
+</span><span class="cp">#define CLEAR_X() EMIT2(0x31, 0xdb) </span><span class="cm">/* xor %ebx,%ebx */</span><span class="cp">
+</span><span class="cp"></span>
+<span class="k">static</span> <span class="kr">inline</span> <span class="kt">bool</span> <span class="nf">is_imm8</span><span class="p">(</span><span class="kt">int</span> <span class="n">value</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">return</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="mi">127</span> <span class="o">&amp;&amp;</span> <span class="n">value</span> <span class="o">&gt;=</span> <span class="o">-</span><span class="mi">128</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">static</span> <span class="kr">inline</span> <span class="kt">bool</span> <span class="nf">is_near</span><span class="p">(</span><span class="kt">int</span> <span class="n">offset</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">return</span> <span class="n">offset</span> <span class="o">&lt;=</span> <span class="mi">127</span> <span class="o">&amp;&amp;</span> <span class="n">offset</span> <span class="o">&gt;=</span> <span class="o">-</span><span class="mi">128</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="cp">#define EMIT_JMP(offset)						\
+</span><span class="cp">do {									\
+</span><span class="cp">	if (offset) {							\
+</span><span class="cp">		if (is_near(offset))					\
+</span><span class="cp">			EMIT2(0xeb, offset); </span><span class="cm">/* jmp .+off8 */</span><span class="cp">		\
+</span><span class="cp">		else							\
+</span><span class="cp">			EMIT1_off32(0xe9, offset); </span><span class="cm">/* jmp .+off32 */</span><span class="cp">	\
+</span><span class="cp">	}								\
+</span><span class="cp">} while (0)
+</span><span class="cp"></span>
+<span class="cm">/* list of x86 cond jumps (. + s8)
+</span><span class="cm"> * Add 0x10 (and an extra 0x0f) to generate far jumps (. + s32)
+</span><span class="cm"> */</span>
+<span class="cp">#define X86_JB  0x72
+</span><span class="cp">#define X86_JAE 0x73
+</span><span class="cp">#define X86_JE  0x74
+</span><span class="cp">#define X86_JNE 0x75
+</span><span class="cp">#define X86_JBE 0x76
+</span><span class="cp">#define X86_JA  0x77
+</span><span class="cp"></span>
+<span class="cp">#define EMIT_COND_JMP(op, offset)				\
+</span><span class="cp">do {								\
+</span><span class="cp">	if (is_near(offset))					\
+</span><span class="cp">		EMIT2(op, offset); </span><span class="cm">/* jxx .+off8 */</span><span class="cp">		\
+</span><span class="cp">	else {							\
+</span><span class="cp">		EMIT2(0x0f, op + 0x10);				\
+</span><span class="cp">		EMIT(offset, 4); </span><span class="cm">/* jxx .+off32 */</span><span class="cp">		\
+</span><span class="cp">	}							\
+</span><span class="cp">} while (0)
+</span><span class="cp"></span>
+<span class="cp">#define COND_SEL(CODE, TOP, FOP)	\
+</span><span class="cp">	case CODE:			\
+</span><span class="cp">		t_op = TOP;		\
+</span><span class="cp">		f_op = FOP;		\
+</span><span class="cp">		goto cond_branch
+</span><span class="cp"></span>
+
+<span class="kt">void</span> <span class="nf">bpf_jit_compile</span><span class="p">(</span><span class="k">struct</span> <span class="n">sk_filter</span> <span class="o">*</span><span class="n">fp</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="n">u8</span> <span class="n">temp</span><span class="p">[</span><span class="mi">64</span><span class="p">];</span>
+	<span class="c1">// 编译后生成的机器码
+</span><span class="c1"></span>	<span class="n">u8</span> <span class="o">*</span><span class="n">prog</span><span class="p">;</span>
+	<span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">proglen</span><span class="p">,</span> <span class="n">oldproglen</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="kt">int</span> <span class="n">ilen</span><span class="p">,</span> <span class="n">i</span><span class="p">;</span>
+	<span class="kt">int</span> <span class="n">t_offset</span><span class="p">,</span> <span class="n">f_offset</span><span class="p">;</span>
+	<span class="n">u8</span> <span class="n">t_op</span><span class="p">,</span> <span class="n">f_op</span><span class="p">,</span> <span class="n">seen</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">pass</span><span class="p">;</span>
+	<span class="n">u8</span> <span class="o">*</span><span class="n">image</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+	<span class="n">u8</span> <span class="o">*</span><span class="n">func</span><span class="p">;</span>
+	<span class="kt">int</span> <span class="n">pc_ret0</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span> <span class="cm">/* bpf index of first RET #0 instruction (if any) */</span>
+	<span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">cleanup_addr</span><span class="p">;</span>
+	<span class="kt">unsigned</span> <span class="kt">int</span> <span class="o">*</span><span class="n">addrs</span><span class="p">;</span>
+	<span class="k">const</span> <span class="k">struct</span> <span class="n">sock_filter</span> <span class="o">*</span><span class="n">filter</span> <span class="o">=</span> <span class="n">fp</span><span class="o">-&gt;</span><span class="n">insns</span><span class="p">;</span>
+	<span class="c1">// filter程序的指令个数
+</span><span class="c1"></span>	<span class="kt">int</span> <span class="n">flen</span> <span class="o">=</span> <span class="n">fp</span><span class="o">-&gt;</span><span class="n">len</span><span class="p">;</span>
+
+	<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">bpf_jit_enable</span><span class="p">)</span>
+		<span class="k">return</span><span class="p">;</span>
+	<span class="n">addrs</span> <span class="o">=</span> <span class="n">kmalloc</span><span class="p">(</span><span class="n">flen</span> <span class="o">*</span> <span class="k">sizeof</span><span class="p">(</span><span class="o">*</span><span class="n">addrs</span><span class="p">),</span> <span class="n">GFP_KERNEL</span><span class="p">);</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">addrs</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span>
+		<span class="k">return</span><span class="p">;</span>
+
+	<span class="cm">/* Before first pass, make a rough estimation of addrs[]
+</span><span class="cm">	 * each bpf instruction is translated to less than 64 bytes
+</span><span class="cm">	 */</span>
+	<span class="k">for</span> <span class="p">(</span><span class="n">proglen</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">flen</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">proglen</span> <span class="o">+=</span> <span class="mi">64</span><span class="p">;</span>
+		<span class="n">addrs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">proglen</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="n">cleanup_addr</span> <span class="o">=</span> <span class="n">proglen</span><span class="p">;</span> <span class="cm">/* epilogue address */</span>
+
+	<span class="k">for</span> <span class="p">(</span><span class="n">pass</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">pass</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="n">pass</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+		<span class="cm">/* no prologue/epilogue for trivial filters (RET something) */</span>
+		<span class="n">proglen</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+		<span class="n">prog</span> <span class="o">=</span> <span class="n">temp</span><span class="p">;</span>
+
+		<span class="c1">// 第一遍不做翻译，只是浏览整个程序是否包含某些指令，主要是为了处理prologue和epilogue
+</span><span class="c1"></span>		<span class="k">if</span> <span class="p">(</span><span class="n">seen</span><span class="p">)</span> <span class="p">{</span>
+		    <span class="c1">// prologue
+</span><span class="c1"></span>			<span class="n">EMIT4</span><span class="p">(</span><span class="mh">0x55</span><span class="p">,</span> <span class="mh">0x48</span><span class="p">,</span> <span class="mh">0x89</span><span class="p">,</span> <span class="mh">0xe5</span><span class="p">);</span> <span class="cm">/* push %rbp; mov %rsp,%rbp */</span>
+			<span class="n">EMIT4</span><span class="p">(</span><span class="mh">0x48</span><span class="p">,</span> <span class="mh">0x83</span><span class="p">,</span> <span class="mh">0xec</span><span class="p">,</span> <span class="mi">96</span><span class="p">);</span>	<span class="cm">/* subq  $96,%rsp	*/</span>
+			<span class="cm">/* note : must save %rbx in case bpf_error is hit */</span>
+			<span class="c1">// 保存callee register
+</span><span class="c1"></span>			<span class="k">if</span> <span class="p">(</span><span class="n">seen</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">SEEN_XREG</span> <span class="o">|</span> <span class="n">SEEN_DATAREF</span><span class="p">))</span>
+				<span class="n">EMIT4</span><span class="p">(</span><span class="mh">0x48</span><span class="p">,</span> <span class="mh">0x89</span><span class="p">,</span> <span class="mh">0x5d</span><span class="p">,</span> <span class="mh">0xf8</span><span class="p">);</span> <span class="cm">/* mov %rbx, -8(%rbp) */</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">seen</span> <span class="o">&amp;</span> <span class="n">SEEN_XREG</span><span class="p">)</span>
+				<span class="n">CLEAR_X</span><span class="p">();</span> <span class="cm">/* make sure we dont leek kernel memory */</span>
+			<span class="c1">// 传递参数
+</span><span class="c1"></span>			<span class="k">if</span> <span class="p">(</span><span class="n">seen</span> <span class="o">&amp;</span> <span class="n">SEEN_DATAREF</span><span class="p">)</span> <span class="p">{</span>
+				<span class="k">if</span> <span class="p">(</span><span class="n">offsetof</span><span class="p">(</span><span class="k">struct</span> <span class="n">sk_buff</span><span class="p">,</span> <span class="n">len</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">127</span><span class="p">)</span>
+					<span class="cm">/* mov    off8(%rdi),%r9d */</span>
+					<span class="n">EMIT4</span><span class="p">(</span><span class="mh">0x44</span><span class="p">,</span> <span class="mh">0x8b</span><span class="p">,</span> <span class="mh">0x4f</span><span class="p">,</span> <span class="n">offsetof</span><span class="p">(</span><span class="k">struct</span> <span class="n">sk_buff</span><span class="p">,</span> <span class="n">len</span><span class="p">));</span>
+				<span class="k">else</span> <span class="p">{</span>
+					<span class="cm">/* mov    off32(%rdi),%r9d */</span>
+					<span class="n">EMIT3</span><span class="p">(</span><span class="mh">0x44</span><span class="p">,</span> <span class="mh">0x8b</span><span class="p">,</span> <span class="mh">0x8f</span><span class="p">);</span>
+					<span class="n">EMIT</span><span class="p">(</span><span class="n">offsetof</span><span class="p">(</span><span class="k">struct</span> <span class="n">sk_buff</span><span class="p">,</span> <span class="n">len</span><span class="p">),</span> <span class="mi">4</span><span class="p">);</span>
+				<span class="p">}</span>
+				<span class="k">if</span> <span class="p">(</span><span class="n">is_imm8</span><span class="p">(</span><span class="n">offsetof</span><span class="p">(</span><span class="k">struct</span> <span class="n">sk_buff</span><span class="p">,</span> <span class="n">data_len</span><span class="p">)))</span>
+					<span class="cm">/* sub    off8(%rdi),%r9d */</span>
+					<span class="n">EMIT4</span><span class="p">(</span><span class="mh">0x44</span><span class="p">,</span> <span class="mh">0x2b</span><span class="p">,</span> <span class="mh">0x4f</span><span class="p">,</span> <span class="n">offsetof</span><span class="p">(</span><span class="k">struct</span> <span class="n">sk_buff</span><span class="p">,</span> <span class="n">data_len</span><span class="p">));</span>
+				<span class="k">else</span> <span class="p">{</span>
+					<span class="n">EMIT3</span><span class="p">(</span><span class="mh">0x44</span><span class="p">,</span> <span class="mh">0x2b</span><span class="p">,</span> <span class="mh">0x8f</span><span class="p">);</span>
+					<span class="n">EMIT</span><span class="p">(</span><span class="n">offsetof</span><span class="p">(</span><span class="k">struct</span> <span class="n">sk_buff</span><span class="p">,</span> <span class="n">data_len</span><span class="p">),</span> <span class="mi">4</span><span class="p">);</span>
+				<span class="p">}</span>
+
+				<span class="k">if</span> <span class="p">(</span><span class="n">is_imm8</span><span class="p">(</span><span class="n">offsetof</span><span class="p">(</span><span class="k">struct</span> <span class="n">sk_buff</span><span class="p">,</span> <span class="n">data</span><span class="p">)))</span>
+					<span class="cm">/* mov off8(%rdi),%r8 */</span>
+					<span class="n">EMIT4</span><span class="p">(</span><span class="mh">0x4c</span><span class="p">,</span> <span class="mh">0x8b</span><span class="p">,</span> <span class="mh">0x47</span><span class="p">,</span> <span class="n">offsetof</span><span class="p">(</span><span class="k">struct</span> <span class="n">sk_buff</span><span class="p">,</span> <span class="n">data</span><span class="p">));</span>
+				<span class="k">else</span> <span class="p">{</span>
+					<span class="cm">/* mov off32(%rdi),%r8 */</span>
+					<span class="n">EMIT3</span><span class="p">(</span><span class="mh">0x4c</span><span class="p">,</span> <span class="mh">0x8b</span><span class="p">,</span> <span class="mh">0x87</span><span class="p">);</span>
+					<span class="n">EMIT</span><span class="p">(</span><span class="n">offsetof</span><span class="p">(</span><span class="k">struct</span> <span class="n">sk_buff</span><span class="p">,</span> <span class="n">data</span><span class="p">),</span> <span class="mi">4</span><span class="p">);</span>
+				<span class="p">}</span>
+			<span class="p">}</span>
+		<span class="p">}</span>
+        <span class="c1">// 解析bpf的第一条指令
+</span><span class="c1"></span>		<span class="k">switch</span> <span class="p">(</span><span class="n">filter</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">code</span><span class="p">)</span> <span class="p">{</span>
+		<span class="k">case</span> <span class="nl">BPF_S_RET_K</span><span class="p">:</span>
+		<span class="k">case</span> <span class="nl">BPF_S_LD_W_LEN</span><span class="p">:</span>
+		<span class="k">case</span> <span class="nl">BPF_S_ANC_PROTOCOL</span><span class="p">:</span>
+		<span class="k">case</span> <span class="nl">BPF_S_ANC_IFINDEX</span><span class="p">:</span>
+		<span class="k">case</span> <span class="nl">BPF_S_ANC_MARK</span><span class="p">:</span>
+		<span class="k">case</span> <span class="nl">BPF_S_ANC_RXHASH</span><span class="p">:</span>
+		<span class="k">case</span> <span class="nl">BPF_S_ANC_CPU</span><span class="p">:</span>
+		<span class="k">case</span> <span class="nl">BPF_S_LD_W_ABS</span><span class="p">:</span>
+		<span class="k">case</span> <span class="nl">BPF_S_LD_H_ABS</span><span class="p">:</span>
+		<span class="k">case</span> <span class="nl">BPF_S_LD_B_ABS</span><span class="p">:</span>
+			<span class="cm">/* first instruction sets A register (or is RET &#39;constant&#39;) */</span>
+			<span class="k">break</span><span class="p">;</span>
+		<span class="k">default</span><span class="o">:</span>
+			<span class="n">CLEAR_A</span><span class="p">();</span> <span class="cm">/* A = 0 */</span>
+		<span class="p">}</span>
+        <span class="c1">// 编译每一条bpf filter程序指令
+</span><span class="c1"></span>		<span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">flen</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+			<span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">K</span> <span class="o">=</span> <span class="n">filter</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">k</span><span class="p">;</span>
+            <span class="c1">// 解析bpf指令的操作码
+</span><span class="c1"></span>			<span class="k">switch</span> <span class="p">(</span><span class="n">filter</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">code</span><span class="p">)</span> <span class="p">{</span>
+			<span class="k">case</span> <span class="nl">BPF_S_ALU_ADD_X</span><span class="p">:</span> <span class="cm">/* A += X; */</span>
+				<span class="n">seen</span> <span class="o">|=</span> <span class="n">SEEN_XREG</span><span class="p">;</span>
+				<span class="n">EMIT2</span><span class="p">(</span><span class="mh">0x01</span><span class="p">,</span> <span class="mh">0xd8</span><span class="p">);</span>		<span class="cm">/* add %ebx,%eax */</span>
+				<span class="k">break</span><span class="p">;</span>
+			<span class="k">case</span> <span class="nl">BPF_S_ALU_ADD_K</span><span class="p">:</span> <span class="cm">/* A += K; */</span>
+				<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">K</span><span class="p">)</span>
+					<span class="k">break</span><span class="p">;</span>
+				<span class="k">if</span> <span class="p">(</span><span class="n">is_imm8</span><span class="p">(</span><span class="n">K</span><span class="p">))</span>
+					<span class="n">EMIT3</span><span class="p">(</span><span class="mh">0x83</span><span class="p">,</span> <span class="mh">0xc0</span><span class="p">,</span> <span class="n">K</span><span class="p">);</span>	<span class="cm">/* add imm8,%eax */</span>
+				<span class="k">else</span>
+					<span class="n">EMIT1_off32</span><span class="p">(</span><span class="mh">0x05</span><span class="p">,</span> <span class="n">K</span><span class="p">);</span>	<span class="cm">/* add imm32,%eax */</span>
+				<span class="k">break</span><span class="p">;</span>
+			<span class="k">case</span> <span class="nl">BPF_S_ALU_MUL_X</span><span class="p">:</span> <span class="cm">/* A *= X; */</span>
+				<span class="n">seen</span> <span class="o">|=</span> <span class="n">SEEN_XREG</span><span class="p">;</span>
+				<span class="n">EMIT3</span><span class="p">(</span><span class="mh">0x0f</span><span class="p">,</span> <span class="mh">0xaf</span><span class="p">,</span> <span class="mh">0xc3</span><span class="p">);</span>	<span class="cm">/* imul %ebx,%eax */</span>
+				<span class="k">break</span><span class="p">;</span>
+
+			<span class="k">case</span> <span class="nl">BPF_S_RET_K</span><span class="p">:</span>
+				<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">K</span><span class="p">)</span> <span class="p">{</span>
+					<span class="k">if</span> <span class="p">(</span><span class="n">pc_ret0</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+						<span class="n">pc_ret0</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+					<span class="n">CLEAR_A</span><span class="p">();</span>
+				<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+					<span class="n">EMIT1_off32</span><span class="p">(</span><span class="mh">0xb8</span><span class="p">,</span> <span class="n">K</span><span class="p">);</span>	<span class="cm">/* mov $imm32,%eax */</span>
+				<span class="p">}</span>
+				<span class="cm">/* fallinto */</span>
+			<span class="k">case</span> <span class="nl">BPF_S_RET_A</span><span class="p">:</span>
+				<span class="k">if</span> <span class="p">(</span><span class="n">seen</span><span class="p">)</span> <span class="p">{</span>
+					<span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">!=</span> <span class="n">flen</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+						<span class="n">EMIT_JMP</span><span class="p">(</span><span class="n">cleanup_addr</span> <span class="o">-</span> <span class="n">addrs</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+						<span class="k">break</span><span class="p">;</span>
+					<span class="p">}</span>
+					<span class="k">if</span> <span class="p">(</span><span class="n">seen</span> <span class="o">&amp;</span> <span class="n">SEEN_XREG</span><span class="p">)</span>
+						<span class="n">EMIT4</span><span class="p">(</span><span class="mh">0x48</span><span class="p">,</span> <span class="mh">0x8b</span><span class="p">,</span> <span class="mh">0x5d</span><span class="p">,</span> <span class="mh">0xf8</span><span class="p">);</span>  <span class="cm">/* mov  -8(%rbp),%rbx */</span>
+					<span class="n">EMIT1</span><span class="p">(</span><span class="mh">0xc9</span><span class="p">);</span>		<span class="cm">/* leaveq */</span>
+				<span class="p">}</span>
+				<span class="n">EMIT1</span><span class="p">(</span><span class="mh">0xc3</span><span class="p">);</span>		<span class="cm">/* ret */</span>
+				<span class="k">break</span><span class="p">;</span>
+			<span class="k">case</span> <span class="nl">BPF_S_LD_MEM</span><span class="p">:</span> <span class="cm">/* A = mem[K] : mov off8(%rbp),%eax */</span>
+				<span class="n">seen</span> <span class="o">|=</span> <span class="n">SEEN_MEM</span><span class="p">;</span>
+				<span class="n">EMIT3</span><span class="p">(</span><span class="mh">0x8b</span><span class="p">,</span> <span class="mh">0x45</span><span class="p">,</span> <span class="mh">0xf0</span> <span class="o">-</span> <span class="n">K</span><span class="o">*</span><span class="mi">4</span><span class="p">);</span>
+				<span class="k">break</span><span class="p">;</span>
+			<span class="k">case</span> <span class="nl">BPF_S_LDX_MEM</span><span class="p">:</span> <span class="cm">/* X = mem[K] : mov off8(%rbp),%ebx */</span>
+				<span class="n">seen</span> <span class="o">|=</span> <span class="n">SEEN_XREG</span> <span class="o">|</span> <span class="n">SEEN_MEM</span><span class="p">;</span>
+				<span class="n">EMIT3</span><span class="p">(</span><span class="mh">0x8b</span><span class="p">,</span> <span class="mh">0x5d</span><span class="p">,</span> <span class="mh">0xf0</span> <span class="o">-</span> <span class="n">K</span><span class="o">*</span><span class="mi">4</span><span class="p">);</span>
+				<span class="k">break</span><span class="p">;</span>
+			<span class="k">case</span> <span class="nl">BPF_S_LD_W_LEN</span><span class="p">:</span> <span class="cm">/*	A = skb-&gt;len; */</span>
+				<span class="n">BUILD_BUG_ON</span><span class="p">(</span><span class="n">FIELD_SIZEOF</span><span class="p">(</span><span class="k">struct</span> <span class="n">sk_buff</span><span class="p">,</span> <span class="n">len</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">4</span><span class="p">);</span>
+				<span class="k">if</span> <span class="p">(</span><span class="n">is_imm8</span><span class="p">(</span><span class="n">offsetof</span><span class="p">(</span><span class="k">struct</span> <span class="n">sk_buff</span><span class="p">,</span> <span class="n">len</span><span class="p">)))</span>
+					<span class="cm">/* mov    off8(%rdi),%eax */</span>
+					<span class="n">EMIT3</span><span class="p">(</span><span class="mh">0x8b</span><span class="p">,</span> <span class="mh">0x47</span><span class="p">,</span> <span class="n">offsetof</span><span class="p">(</span><span class="k">struct</span> <span class="n">sk_buff</span><span class="p">,</span> <span class="n">len</span><span class="p">));</span>
+				<span class="k">else</span> <span class="p">{</span>
+					<span class="n">EMIT2</span><span class="p">(</span><span class="mh">0x8b</span><span class="p">,</span> <span class="mh">0x87</span><span class="p">);</span>
+					<span class="n">EMIT</span><span class="p">(</span><span class="n">offsetof</span><span class="p">(</span><span class="k">struct</span> <span class="n">sk_buff</span><span class="p">,</span> <span class="n">len</span><span class="p">),</span> <span class="mi">4</span><span class="p">);</span>
+				<span class="p">}</span>
+				<span class="k">break</span><span class="p">;</span>
+			<span class="k">case</span> <span class="nl">BPF_S_LDX_W_LEN</span><span class="p">:</span> <span class="cm">/* X = skb-&gt;len; */</span>
+				<span class="n">seen</span> <span class="o">|=</span> <span class="n">SEEN_XREG</span><span class="p">;</span>
+				<span class="k">if</span> <span class="p">(</span><span class="n">is_imm8</span><span class="p">(</span><span class="n">offsetof</span><span class="p">(</span><span class="k">struct</span> <span class="n">sk_buff</span><span class="p">,</span> <span class="n">len</span><span class="p">)))</span>
+					<span class="cm">/* mov off8(%rdi),%ebx */</span>
+					<span class="n">EMIT3</span><span class="p">(</span><span class="mh">0x8b</span><span class="p">,</span> <span class="mh">0x5f</span><span class="p">,</span> <span class="n">offsetof</span><span class="p">(</span><span class="k">struct</span> <span class="n">sk_buff</span><span class="p">,</span> <span class="n">len</span><span class="p">));</span>
+				<span class="k">else</span> <span class="p">{</span>
+					<span class="n">EMIT2</span><span class="p">(</span><span class="mh">0x8b</span><span class="p">,</span> <span class="mh">0x9f</span><span class="p">);</span>
+					<span class="n">EMIT</span><span class="p">(</span><span class="n">offsetof</span><span class="p">(</span><span class="k">struct</span> <span class="n">sk_buff</span><span class="p">,</span> <span class="n">len</span><span class="p">),</span> <span class="mi">4</span><span class="p">);</span>
+				<span class="p">}</span>
+				<span class="k">break</span><span class="p">;</span>
+			<span class="k">case</span> <span class="nl">BPF_S_ANC_CPU</span><span class="p">:</span>
+<span class="cp">#ifdef CONFIG_SMP
+</span><span class="cp"></span>				<span class="n">EMIT4</span><span class="p">(</span><span class="mh">0x65</span><span class="p">,</span> <span class="mh">0x8b</span><span class="p">,</span> <span class="mh">0x04</span><span class="p">,</span> <span class="mh">0x25</span><span class="p">);</span> <span class="cm">/* mov %gs:off32,%eax */</span>
+				<span class="n">EMIT</span><span class="p">((</span><span class="n">u32</span><span class="p">)</span><span class="o">&amp;</span><span class="n">cpu_number</span><span class="p">,</span> <span class="mi">4</span><span class="p">);</span> <span class="cm">/* A = smp_processor_id(); */</span>
+<span class="cp">#else
+</span><span class="cp"></span>				<span class="n">CLEAR_A</span><span class="p">();</span>
+<span class="cp">#endif
+</span><span class="cp"></span>				<span class="k">break</span><span class="p">;</span>
+			<span class="k">case</span> <span class="nl">BPF_S_LD_W_ABS</span><span class="p">:</span>
+				<span class="n">func</span> <span class="o">=</span> <span class="n">sk_load_word</span><span class="p">;</span>
+<span class="nl">common_load</span><span class="p">:</span>			<span class="n">seen</span> <span class="o">|=</span> <span class="n">SEEN_DATAREF</span><span class="p">;</span>
+				<span class="k">if</span> <span class="p">((</span><span class="kt">int</span><span class="p">)</span><span class="n">K</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
+					<span class="k">goto</span> <span class="n">out</span><span class="p">;</span>
+				<span class="n">t_offset</span> <span class="o">=</span> <span class="n">func</span> <span class="o">-</span> <span class="p">(</span><span class="n">image</span> <span class="o">+</span> <span class="n">addrs</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+				<span class="n">EMIT1_off32</span><span class="p">(</span><span class="mh">0xbe</span><span class="p">,</span> <span class="n">K</span><span class="p">);</span> <span class="cm">/* mov imm32,%esi */</span>
+				<span class="n">EMIT1_off32</span><span class="p">(</span><span class="mh">0xe8</span><span class="p">,</span> <span class="n">t_offset</span><span class="p">);</span> <span class="cm">/* call */</span>
+				<span class="k">break</span><span class="p">;</span>
+			<span class="k">case</span> <span class="nl">BPF_S_LD_H_ABS</span><span class="p">:</span>
+				<span class="n">func</span> <span class="o">=</span> <span class="n">sk_load_half</span><span class="p">;</span>
+				<span class="k">goto</span> <span class="n">common_load</span><span class="p">;</span>
+			<span class="k">case</span> <span class="nl">BPF_S_LD_B_ABS</span><span class="p">:</span>
+				<span class="n">func</span> <span class="o">=</span> <span class="n">sk_load_byte</span><span class="p">;</span>
+				<span class="k">goto</span> <span class="n">common_load</span><span class="p">;</span>
+			<span class="k">case</span> <span class="nl">BPF_S_LDX_B_MSH</span><span class="p">:</span>
+				<span class="k">if</span> <span class="p">((</span><span class="kt">int</span><span class="p">)</span><span class="n">K</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+					<span class="k">if</span> <span class="p">(</span><span class="n">pc_ret0</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+						<span class="n">EMIT_JMP</span><span class="p">(</span><span class="n">addrs</span><span class="p">[</span><span class="n">pc_ret0</span><span class="p">]</span> <span class="o">-</span> <span class="n">addrs</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+						<span class="k">break</span><span class="p">;</span>
+					<span class="p">}</span>
+					<span class="n">CLEAR_A</span><span class="p">();</span>
+					<span class="n">EMIT_JMP</span><span class="p">(</span><span class="n">cleanup_addr</span> <span class="o">-</span> <span class="n">addrs</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+					<span class="k">break</span><span class="p">;</span>
+				<span class="p">}</span>
+				<span class="n">seen</span> <span class="o">|=</span> <span class="n">SEEN_DATAREF</span> <span class="o">|</span> <span class="n">SEEN_XREG</span><span class="p">;</span>
+				<span class="n">t_offset</span> <span class="o">=</span> <span class="n">sk_load_byte_msh</span> <span class="o">-</span> <span class="p">(</span><span class="n">image</span> <span class="o">+</span> <span class="n">addrs</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+				<span class="n">EMIT1_off32</span><span class="p">(</span><span class="mh">0xbe</span><span class="p">,</span> <span class="n">K</span><span class="p">);</span>	<span class="cm">/* mov imm32,%esi */</span>
+				<span class="n">EMIT1_off32</span><span class="p">(</span><span class="mh">0xe8</span><span class="p">,</span> <span class="n">t_offset</span><span class="p">);</span> <span class="cm">/* call sk_load_byte_msh */</span>
+				<span class="k">break</span><span class="p">;</span>
+			<span class="k">case</span> <span class="nl">BPF_S_LD_W_IND</span><span class="p">:</span>
+				<span class="n">func</span> <span class="o">=</span> <span class="n">sk_load_word_ind</span><span class="p">;</span>
+<span class="nl">common_load_ind</span><span class="p">:</span>		<span class="n">seen</span> <span class="o">|=</span> <span class="n">SEEN_DATAREF</span> <span class="o">|</span> <span class="n">SEEN_XREG</span><span class="p">;</span>
+				<span class="n">t_offset</span> <span class="o">=</span> <span class="n">func</span> <span class="o">-</span> <span class="p">(</span><span class="n">image</span> <span class="o">+</span> <span class="n">addrs</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+				<span class="n">EMIT1_off32</span><span class="p">(</span><span class="mh">0xbe</span><span class="p">,</span> <span class="n">K</span><span class="p">);</span>	<span class="cm">/* mov imm32,%esi   */</span>
+				<span class="n">EMIT1_off32</span><span class="p">(</span><span class="mh">0xe8</span><span class="p">,</span> <span class="n">t_offset</span><span class="p">);</span>	<span class="cm">/* call sk_load_xxx_ind */</span>
+				<span class="k">break</span><span class="p">;</span>
+			<span class="k">case</span> <span class="nl">BPF_S_LD_H_IND</span><span class="p">:</span>
+				<span class="n">func</span> <span class="o">=</span> <span class="n">sk_load_half_ind</span><span class="p">;</span>
+				<span class="k">goto</span> <span class="n">common_load_ind</span><span class="p">;</span>
+			<span class="k">case</span> <span class="nl">BPF_S_LD_B_IND</span><span class="p">:</span>
+				<span class="n">func</span> <span class="o">=</span> <span class="n">sk_load_byte_ind</span><span class="p">;</span>
+				<span class="k">goto</span> <span class="n">common_load_ind</span><span class="p">;</span>
+			<span class="k">case</span> <span class="nl">BPF_S_JMP_JA</span><span class="p">:</span>
+				<span class="n">t_offset</span> <span class="o">=</span> <span class="n">addrs</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="n">K</span><span class="p">]</span> <span class="o">-</span> <span class="n">addrs</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+				<span class="n">EMIT_JMP</span><span class="p">(</span><span class="n">t_offset</span><span class="p">);</span>
+				<span class="k">break</span><span class="p">;</span>
+			<span class="n">COND_SEL</span><span class="p">(</span><span class="n">BPF_S_JMP_JGT_K</span><span class="p">,</span> <span class="n">X86_JA</span><span class="p">,</span> <span class="n">X86_JBE</span><span class="p">);</span>
+			<span class="n">COND_SEL</span><span class="p">(</span><span class="n">BPF_S_JMP_JGE_K</span><span class="p">,</span> <span class="n">X86_JAE</span><span class="p">,</span> <span class="n">X86_JB</span><span class="p">);</span>
+			<span class="n">COND_SEL</span><span class="p">(</span><span class="n">BPF_S_JMP_JEQ_K</span><span class="p">,</span> <span class="n">X86_JE</span><span class="p">,</span> <span class="n">X86_JNE</span><span class="p">);</span>
+			<span class="n">COND_SEL</span><span class="p">(</span><span class="n">BPF_S_JMP_JSET_K</span><span class="p">,</span><span class="n">X86_JNE</span><span class="p">,</span> <span class="n">X86_JE</span><span class="p">);</span>
+			<span class="n">COND_SEL</span><span class="p">(</span><span class="n">BPF_S_JMP_JGT_X</span><span class="p">,</span> <span class="n">X86_JA</span><span class="p">,</span> <span class="n">X86_JBE</span><span class="p">);</span>
+			<span class="n">COND_SEL</span><span class="p">(</span><span class="n">BPF_S_JMP_JGE_X</span><span class="p">,</span> <span class="n">X86_JAE</span><span class="p">,</span> <span class="n">X86_JB</span><span class="p">);</span>
+			<span class="n">COND_SEL</span><span class="p">(</span><span class="n">BPF_S_JMP_JEQ_X</span><span class="p">,</span> <span class="n">X86_JE</span><span class="p">,</span> <span class="n">X86_JNE</span><span class="p">);</span>
+			<span class="n">COND_SEL</span><span class="p">(</span><span class="n">BPF_S_JMP_JSET_X</span><span class="p">,</span><span class="n">X86_JNE</span><span class="p">,</span> <span class="n">X86_JE</span><span class="p">);</span>
+
+<span class="nl">cond_branch</span><span class="p">:</span>
+			    <span class="n">f_offset</span> <span class="o">=</span> <span class="n">addrs</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="n">filter</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">jf</span><span class="p">]</span> <span class="o">-</span> <span class="n">addrs</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+				<span class="n">t_offset</span> <span class="o">=</span> <span class="n">addrs</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="n">filter</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">jt</span><span class="p">]</span> <span class="o">-</span> <span class="n">addrs</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+
+				<span class="cm">/* same targets, can avoid doing the test :) */</span>
+				<span class="k">if</span> <span class="p">(</span><span class="n">filter</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">jt</span> <span class="o">==</span> <span class="n">filter</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">jf</span><span class="p">)</span> <span class="p">{</span>
+					<span class="n">EMIT_JMP</span><span class="p">(</span><span class="n">t_offset</span><span class="p">);</span>
+					<span class="k">break</span><span class="p">;</span>
+				<span class="p">}</span>
+
+				<span class="k">switch</span> <span class="p">(</span><span class="n">filter</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">code</span><span class="p">)</span> <span class="p">{</span>
+				<span class="k">case</span> <span class="nl">BPF_S_JMP_JGT_X</span><span class="p">:</span>
+				<span class="k">case</span> <span class="nl">BPF_S_JMP_JGE_X</span><span class="p">:</span>
+				<span class="k">case</span> <span class="nl">BPF_S_JMP_JEQ_X</span><span class="p">:</span>
+					<span class="n">seen</span> <span class="o">|=</span> <span class="n">SEEN_XREG</span><span class="p">;</span>
+					<span class="n">EMIT2</span><span class="p">(</span><span class="mh">0x39</span><span class="p">,</span> <span class="mh">0xd8</span><span class="p">);</span> <span class="cm">/* cmp %ebx,%eax */</span>
+					<span class="k">break</span><span class="p">;</span>
+				<span class="k">case</span> <span class="nl">BPF_S_JMP_JSET_X</span><span class="p">:</span>
+					<span class="n">seen</span> <span class="o">|=</span> <span class="n">SEEN_XREG</span><span class="p">;</span>
+					<span class="n">EMIT2</span><span class="p">(</span><span class="mh">0x85</span><span class="p">,</span> <span class="mh">0xd8</span><span class="p">);</span> <span class="cm">/* test %ebx,%eax */</span>
+					<span class="k">break</span><span class="p">;</span>
+				<span class="k">case</span> <span class="nl">BPF_S_JMP_JEQ_K</span><span class="p">:</span>
+					<span class="k">if</span> <span class="p">(</span><span class="n">K</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+						<span class="n">EMIT2</span><span class="p">(</span><span class="mh">0x85</span><span class="p">,</span> <span class="mh">0xc0</span><span class="p">);</span> <span class="cm">/* test   %eax,%eax */</span>
+						<span class="k">break</span><span class="p">;</span>
+					<span class="p">}</span>
+				<span class="k">case</span> <span class="nl">BPF_S_JMP_JGT_K</span><span class="p">:</span>
+				<span class="k">case</span> <span class="nl">BPF_S_JMP_JGE_K</span><span class="p">:</span>
+					<span class="k">if</span> <span class="p">(</span><span class="n">K</span> <span class="o">&lt;=</span> <span class="mi">127</span><span class="p">)</span>
+						<span class="n">EMIT3</span><span class="p">(</span><span class="mh">0x83</span><span class="p">,</span> <span class="mh">0xf8</span><span class="p">,</span> <span class="n">K</span><span class="p">);</span> <span class="cm">/* cmp imm8,%eax */</span>
+					<span class="k">else</span>
+						<span class="n">EMIT1_off32</span><span class="p">(</span><span class="mh">0x3d</span><span class="p">,</span> <span class="n">K</span><span class="p">);</span> <span class="cm">/* cmp imm32,%eax */</span>
+					<span class="k">break</span><span class="p">;</span>
+				<span class="k">case</span> <span class="nl">BPF_S_JMP_JSET_K</span><span class="p">:</span>
+					<span class="k">if</span> <span class="p">(</span><span class="n">K</span> <span class="o">&lt;=</span> <span class="mh">0xFF</span><span class="p">)</span>
+						<span class="n">EMIT2</span><span class="p">(</span><span class="mh">0xa8</span><span class="p">,</span> <span class="n">K</span><span class="p">);</span> <span class="cm">/* test imm8,%al */</span>
+					<span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">K</span> <span class="o">&amp;</span> <span class="mh">0xFFFF00FF</span><span class="p">))</span>
+						<span class="n">EMIT3</span><span class="p">(</span><span class="mh">0xf6</span><span class="p">,</span> <span class="mh">0xc4</span><span class="p">,</span> <span class="n">K</span> <span class="o">&gt;&gt;</span> <span class="mi">8</span><span class="p">);</span> <span class="cm">/* test imm8,%ah */</span>
+					<span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">K</span> <span class="o">&lt;=</span> <span class="mh">0xFFFF</span><span class="p">)</span> <span class="p">{</span>
+						<span class="n">EMIT2</span><span class="p">(</span><span class="mh">0x66</span><span class="p">,</span> <span class="mh">0xa9</span><span class="p">);</span> <span class="cm">/* test imm16,%ax */</span>
+						<span class="n">EMIT</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
+					<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+						<span class="n">EMIT1_off32</span><span class="p">(</span><span class="mh">0xa9</span><span class="p">,</span> <span class="n">K</span><span class="p">);</span> <span class="cm">/* test imm32,%eax */</span>
+					<span class="p">}</span>
+					<span class="k">break</span><span class="p">;</span>
+				<span class="p">}</span>
+				<span class="k">if</span> <span class="p">(</span><span class="n">filter</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">jt</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+					<span class="k">if</span> <span class="p">(</span><span class="n">filter</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">jf</span><span class="p">)</span>
+						<span class="n">t_offset</span> <span class="o">+=</span> <span class="n">is_near</span><span class="p">(</span><span class="n">f_offset</span><span class="p">)</span> <span class="o">?</span> <span class="mi">2</span> <span class="o">:</span> <span class="mi">6</span><span class="p">;</span>
+					<span class="n">EMIT_COND_JMP</span><span class="p">(</span><span class="n">t_op</span><span class="p">,</span> <span class="n">t_offset</span><span class="p">);</span>
+					<span class="k">if</span> <span class="p">(</span><span class="n">filter</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">jf</span><span class="p">)</span>
+						<span class="n">EMIT_JMP</span><span class="p">(</span><span class="n">f_offset</span><span class="p">);</span>
+					<span class="k">break</span><span class="p">;</span>
+				<span class="p">}</span>
+				<span class="n">EMIT_COND_JMP</span><span class="p">(</span><span class="n">f_op</span><span class="p">,</span> <span class="n">f_offset</span><span class="p">);</span>
+				<span class="k">break</span><span class="p">;</span>
+			<span class="k">default</span><span class="o">:</span>
+				<span class="cm">/* hmm, too complex filter, give up with jit compiler */</span>
+				<span class="k">goto</span> <span class="n">out</span><span class="p">;</span>
+			<span class="p">}</span>
+			<span class="c1">// bpf一条指令编译后的指令长度
+</span><span class="c1"></span>			<span class="n">ilen</span> <span class="o">=</span> <span class="n">prog</span> <span class="o">-</span> <span class="n">temp</span><span class="p">;</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">image</span><span class="p">)</span> <span class="p">{</span>
+				<span class="k">if</span> <span class="p">(</span><span class="n">unlikely</span><span class="p">(</span><span class="n">proglen</span> <span class="o">+</span> <span class="n">ilen</span> <span class="o">&gt;</span> <span class="n">oldproglen</span><span class="p">))</span> <span class="p">{</span>
+					<span class="n">pr_err</span><span class="p">(</span><span class="s">&#34;bpb_jit_compile fatal error</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+					<span class="n">kfree</span><span class="p">(</span><span class="n">addrs</span><span class="p">);</span>
+					<span class="n">module_free</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="n">image</span><span class="p">);</span>
+					<span class="k">return</span><span class="p">;</span>
+				<span class="p">}</span>
+				<span class="n">memcpy</span><span class="p">(</span><span class="n">image</span> <span class="o">+</span> <span class="n">proglen</span><span class="p">,</span> <span class="n">temp</span><span class="p">,</span> <span class="n">ilen</span><span class="p">);</span>
+			<span class="p">}</span>
+			<span class="n">proglen</span> <span class="o">+=</span> <span class="n">ilen</span><span class="p">;</span>
+			<span class="n">addrs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">proglen</span><span class="p">;</span>
+			<span class="n">prog</span> <span class="o">=</span> <span class="n">temp</span><span class="p">;</span>
+		<span class="p">}</span>
+		<span class="cm">/* last bpf instruction is always a RET :
+</span><span class="cm">		 * use it to give the cleanup instruction(s) addr
+</span><span class="cm">		 */</span>
+		<span class="c1">// 处理epilogue
+</span><span class="c1"></span>		<span class="n">cleanup_addr</span> <span class="o">=</span> <span class="n">proglen</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span> <span class="cm">/* ret */</span>
+		<span class="c1">// 恢复上一个函数的rbp和rsp
+</span><span class="c1"></span>		<span class="c1">// movq %rbp, %rsp
+</span><span class="c1"></span>        <span class="c1">// popq %rbp
+</span><span class="c1"></span>		<span class="k">if</span> <span class="p">(</span><span class="n">seen</span><span class="p">)</span>
+			<span class="n">cleanup_addr</span> <span class="o">-=</span> <span class="mi">1</span><span class="p">;</span> <span class="cm">/* leaveq */</span>
+        <span class="c1">// 恢复rbx寄存器的值
+</span><span class="c1"></span>		<span class="k">if</span> <span class="p">(</span><span class="n">seen</span> <span class="o">&amp;</span> <span class="n">SEEN_XREG</span><span class="p">)</span>
+			<span class="n">cleanup_addr</span> <span class="o">-=</span> <span class="mi">4</span><span class="p">;</span> <span class="cm">/* mov  -8(%rbp),%rbx */</span>
+
+		<span class="k">if</span> <span class="p">(</span><span class="n">image</span><span class="p">)</span> <span class="p">{</span>
+		    <span class="c1">// 编译完成，退出
+</span><span class="c1"></span>		    <span class="c1">// pass = 2
+</span><span class="c1"></span>			<span class="n">WARN_ON</span><span class="p">(</span><span class="n">proglen</span> <span class="o">!=</span> <span class="n">oldproglen</span><span class="p">);</span>
+			<span class="k">break</span><span class="p">;</span>
+		<span class="p">}</span>
+		<span class="c1">// pass = 1
+</span><span class="c1"></span>		<span class="k">if</span> <span class="p">(</span><span class="n">proglen</span> <span class="o">==</span> <span class="n">oldproglen</span><span class="p">)</span> <span class="p">{</span>
+		    <span class="c1">// 为代码分配内存（主要是设置page的属性为可执行，也就是指令而非数据）
+</span><span class="c1"></span>		    <span class="c1">// 这也是动态模块加载可以运行的基本条件
+</span><span class="c1"></span>			<span class="n">image</span> <span class="o">=</span> <span class="n">module_alloc</span><span class="p">(</span><span class="n">max_t</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">int</span><span class="p">,</span><span class="n">proglen</span><span class="p">,</span><span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span> <span class="n">work_struct</span><span class="p">)));</span>
+			<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">image</span><span class="p">)</span>
+				<span class="k">goto</span> <span class="n">out</span><span class="p">;</span>
+		<span class="p">}</span>
+		<span class="c1">// pass = 0
+</span><span class="c1"></span>		<span class="n">oldproglen</span> <span class="o">=</span> <span class="n">proglen</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">bpf_jit_enable</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span>
+		<span class="n">pr_err</span><span class="p">(</span><span class="s">&#34;flen=%d proglen=%u pass=%d image=%p</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span>
+		       <span class="n">flen</span><span class="p">,</span> <span class="n">proglen</span><span class="p">,</span> <span class="n">pass</span><span class="p">,</span> <span class="n">image</span><span class="p">);</span>
+
+	<span class="k">if</span> <span class="p">(</span><span class="n">image</span><span class="p">)</span> <span class="p">{</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">bpf_jit_enable</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span>
+			<span class="n">print_hex_dump</span><span class="p">(</span><span class="n">KERN_ERR</span><span class="p">,</span> <span class="s">&#34;JIT code: &#34;</span><span class="p">,</span> <span class="n">DUMP_PREFIX_ADDRESS</span><span class="p">,</span>
+				       <span class="mi">16</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">proglen</span><span class="p">,</span> <span class="nb">false</span><span class="p">);</span>
+        <span class="c1">// 刷新代码到内存
+</span><span class="c1"></span>		<span class="n">bpf_flush_icache</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">image</span> <span class="o">+</span> <span class="n">proglen</span><span class="p">);</span>
+
+		<span class="n">fp</span><span class="o">-&gt;</span><span class="n">bpf_func</span> <span class="o">=</span> <span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span><span class="n">image</span><span class="p">;</span>
+	<span class="p">}</span>
+<span class="nl">out</span><span class="p">:</span>
+	<span class="n">kfree</span><span class="p">(</span><span class="n">addrs</span><span class="p">);</span>
+	<span class="k">return</span><span class="p">;</span>
+<span class="p">}</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="参考文章">参考文章</h3>
+<p>[1]. Mccanne S , Jacobson V . The BSD Packet Filter: A New Architecture for User-level Packet Capture[C]// Proceedings of the USENIX Winter 1993 Conference Proceedings on USENIX Winter 1993 Conference Proceedings. USENIX Association, 1993.
+[2]. A JIT for packet filters. <a href="https://lwn.net/Articles/437981/">https://lwn.net/Articles/437981/</a>.
+[3]. net: filter: Just In Time compiler. <a href="https://lwn.net/Articles/437884/">https://lwn.net/Articles/437884/</a>.</p>
+<p>[4]. Understanding JIT compiler (just-in-time compiler) for java. <a href="https://aboullaite.me/understanding-jit-compiler-just-in-time-compiler/">https://aboullaite.me/understanding-jit-compiler-just-in-time-compiler/</a>.</p>
+]]></content>
+            
+            
+            
+            
+            
+                
+                    
+                        
+                            
+                            
+                            
+                                <category scheme="https://chengshuyi.github.io/categories/linux%E5%86%85%E6%A0%B8/" term="linux内核" label="linux内核" />
+                            
+                        
+                    
+                
+                    
+                        
+                            
+                            
+                            
+                                <category scheme="https://chengshuyi.github.io/tags/linux%E5%86%85%E6%A0%B8/" term="linux内核" label="linux内核" />
+                            
+                        
+                            
+                            
+                            
+                                <category scheme="https://chengshuyi.github.io/tags/bpf/" term="bpf" label="bpf" />
+                            
+                        
+                    
+                
+            
+        </entry>
+    
+        <entry>
             <title type="text">The BSD Packet Filter论文笔记及源码解析</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/linux-kernel/bpf-paper/" />
             <id>https://chengshuyi.github.io/posts/linux-kernel/bpf-paper/</id>
-            <updated>2020-06-10T14:36:00+00:00</updated>
+            <updated>2020-06-16T03:19:26+00:00</updated>
             <published>2020-05-09T08:36:36+08:00</published>
             <author>
                     <name>程书意</name>
@@ -964,10 +2035,563 @@ L5: ret #0						# 返回长度0
         </entry>
     
         <entry>
+            <title type="text">Waitqueue简介</title>
+            <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/linux-kernel/waitqueue/" />
+            <id>https://chengshuyi.github.io/posts/linux-kernel/waitqueue/</id>
+            <updated>2020-06-16T03:19:26+00:00</updated>
+            <published>2020-05-06T20:00:07+08:00</published>
+            <author>
+                    <name>程书意</name>
+                    <uri>https://chengshuyi.github.io</uri>
+                    <email>c15271843451@outlook.com</email>
+                    </author>
+            <rights>[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh)</rights>
+    
+    <summary type="html"><![CDATA[wait queue思想比较简单，但是涉及到的多核和锁的问题比较多，这些问题也很复杂，因此本文并不会涉及这些内容。本文主要梳理wait queue的基本思想，以及一些驱动程序如何……]]></summary>
+            
+                <content type="html"><![CDATA[<p>wait queue思想比较简单，但是涉及到的多核和锁的问题比较多，这些问题也很复杂，因此本文并不会涉及这些内容。本文主要梳理wait queue的基本思想，以及一些驱动程序如何使用wait queue，包括常见的epoll驱动和uio驱动。</p>
+<p>文章<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>提出了filtered wakeups方法，该方法需要进程被加入到wait queue时提供一个key，同时wakeup唤醒时也需要传入一个key，通过比较key是否相同来决定唤醒哪一个进程。该方案主要用于解决大量的进程在等待同一事件时，一起唤醒会导致惊群效应（在此之前采用hash的方法，将事件进行hash来决定将进程加入哪个wait queue中，但是<a href="https://lwn.net/Articles/83635/">实验显示</a>hash方法很容易导致冲突，也会出现惊群效应）。</p>
+<p>文章<sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup>提出在rt-kernel中使用simple wait queues，也就是当前的waitqueues机制中删除exclusive wakeup特性和回调函数特性，采用遍历的方法，一一唤醒每一个等待的进程。</p>
+<p>文章<sup id="fnref:3"><a href="#fn:3" class="footnote-ref" role="doc-noteref">3</a></sup>在文章<sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup>的基础上谈到了waitqueue中的custom  wakeup callbacks是否会被加入到rt-kernel中。其指出custom wakeup callbacks在IO复用中会有很大的好处，特别是poll、epoll和select。但是custom wakeup callbacks会带来的问题就是回调函数的执行时间无法确定，无法满足实时性的要求。而且custom wakeup callbacks需要使用spinlock，spinlock在rt-kernel内可休眠的。所以，在rt-kernel内引入custom wakeup callbacks是比较困难的。</p>
+<h3 id="简介">简介</h3>
+<p>wait queue采用双向链表的方式管理等待的进程，当事件发生的时候，会调用<code>wake up</code>函数，该函数会从等待队列中唤醒进程。<code>wait queue</code>主要提供了以下几个结构体和方法：</p>
+<p><code>wait queue</code>主要提供了两个结构体：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">// 队列元素
+</span><span class="c1"></span><span class="k">struct</span> <span class="n">wait_queue_entry</span> <span class="p">{</span>
+	<span class="kt">unsigned</span> <span class="kt">int</span>		<span class="n">flags</span><span class="p">;</span>
+	<span class="kt">void</span>			<span class="o">*</span><span class="n">private</span><span class="p">;</span>	<span class="c1">//等待进程
+</span><span class="c1"></span>	<span class="n">wait_queue_func_t</span>	<span class="n">func</span><span class="p">;</span>	<span class="c1">//回调函数，用于唤醒进程，一般采用默认的default_wake_function
+</span><span class="c1"></span>	<span class="k">struct</span> <span class="n">list_head</span>	<span class="n">entry</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="c1">// 队首，一个队首往往代表着一个事件，该队首代表的队列中的队列元素就是等待该事件发生的进程
+</span><span class="c1"></span><span class="k">struct</span> <span class="n">wait_queue_head</span> <span class="p">{</span>
+	<span class="n">spinlock_t</span>		<span class="n">lock</span><span class="p">;</span>
+	<span class="k">struct</span> <span class="n">list_head</span>	<span class="n">head</span><span class="p">;</span>
+<span class="p">};</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><code>wait queue</code>主要提供了八个基本方法：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">// 创建一个新的wait queue entry，包含声明和初始化
+</span><span class="c1"></span><span class="cp">#define DECLARE_WAITQUEUE(name, tsk)
+</span><span class="cp"></span><span class="c1">// 创建一个新的wait queue，包含声明和初始化
+</span><span class="c1"></span><span class="cp">#define DECLARE_WAIT_QUEUE_HEAD(name)
+</span><span class="cp"></span><span class="c1">// 初始化wait queue
+</span><span class="c1"></span><span class="cp">#define init_waitqueue_head(wq_head)
+</span><span class="cp"></span><span class="c1">// 初始化wait queue entry
+</span><span class="c1"></span><span class="k">static</span> <span class="kr">inline</span> <span class="kt">void</span> <span class="n">init_waitqueue_entry</span><span class="p">(</span><span class="k">struct</span> <span class="n">wait_queue_entry</span> <span class="o">*</span><span class="n">wq_entry</span><span class="p">,</span> <span class="k">struct</span> <span class="n">task_struct</span> <span class="o">*</span><span class="n">p</span><span class="p">)</span>
+
+<span class="c1">// 向wait queue添加wait queue entry
+</span><span class="c1"></span><span class="kt">void</span> <span class="n">add_wait_queue</span><span class="p">(</span><span class="k">struct</span> <span class="n">wait_queue_head</span> <span class="o">*</span><span class="n">wq_head</span><span class="p">,</span> <span class="k">struct</span> <span class="n">wait_queue_entry</span> <span class="o">*</span><span class="n">wq_entry</span><span class="p">)</span>
+<span class="c1">// 向wait queue添加wait queue entry，该entry带有WQ_FLAG_EXCLUSIVE特性，防止惊群问题，导致性能下降
+</span><span class="c1"></span><span class="kt">void</span> <span class="n">add_wait_queue_exclusive</span><span class="p">(</span><span class="k">struct</span> <span class="n">wait_queue_head</span> <span class="o">*</span><span class="n">wq_head</span><span class="p">,</span> <span class="k">struct</span> <span class="n">wait_queue_entry</span> <span class="o">*</span><span class="n">wq_entry</span><span class="p">)</span>
+<span class="c1">// 从wait queue移除一个entry，一般是唤醒之后的操作
+</span><span class="c1"></span><span class="kt">void</span> <span class="n">remove_wait_queue</span><span class="p">(</span><span class="k">struct</span> <span class="n">wait_queue_head</span> <span class="o">*</span><span class="n">wq_head</span><span class="p">,</span> <span class="k">struct</span> <span class="n">wait_queue_entry</span> <span class="o">*</span><span class="n">wq_entry</span><span class="p">)</span>
+<span class="c1">// 遍历wait queue，唤醒nr_exclusive个进程：回调函数default_wake_function，调用关系比较复杂，主要是将该进程挂载到run_queue以及将其状态置为TASK_RUNNING
+</span><span class="c1"></span><span class="k">static</span> <span class="kt">int</span> <span class="n">__wake_up_common</span><span class="p">(</span><span class="k">struct</span> <span class="n">wait_queue_head</span> <span class="o">*</span><span class="n">wq_head</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">mode</span><span class="p">,</span> <span class="kt">int</span> <span class="n">nr_exclusive</span><span class="p">,</span> <span class="kt">int</span> <span class="n">wake_flags</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span><span class="n">key</span><span class="p">,</span> <span class="n">wait_queue_entry_t</span> <span class="o">*</span><span class="n">bookmark</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="历史">历史</h3>
+<p>wait queue早期的策略比较简单。当事件发生时，调用<code>wake_up</code>函数唤醒所有的在该事件的阻塞进程。但是会有一个严重的问题，就是惊群问题。惊群问题是指多个被唤醒的进程竞争<strong>同一个临界资源</strong>。wait queue添加<code>exclusive wait</code>特性，使得每次只有一个进程被唤醒（如果不是临界资源可以不使用<code>exclusive wait</code>特性）。随着逐渐发展，wait queue变得越来越复杂，尤其是其回调函数</p>
+<p>Waiting / Blocking in Linux Driver Part – 3 <a href="https://sysplay.in/blog/linux-kernel-internals/2015/12/waiting-blocking-in-linux-driver-part-3/">https://sysplay.in/blog/linux-kernel-internals/2015/12/waiting-blocking-in-linux-driver-part-3/</a></p>
+<!-- 
+### epoll wait queue的使用 -->
+<h3 id="uio-wait-queue的使用">uio wait queue的使用</h3>
+<p>uio使用wait queue机制完成向用户驱动通知某个中断号的中断事件，当用户驱动程序读<code>/proc/irq/irq num/irq</code>文件时，如果中断没有发生时会被阻塞。当中断发生时，中断处理函数会唤醒该进程：</p>
+<pre><code>global wqh
+global condition
+func init
+	register_irq(irq,irq_handler)
+	wqh = init_wait_queue_head
+	condition = false
+
+func irq_handler
+	condition = true
+	wake_up(wqh)
+
+func read:
+	add_wait_queue(current, wqh)
+	while
+		set_current_state(TASK_INTERRUPTIBLE)
+		if condition is true
+			set_current_state(TASK_RUNNING)
+			break
+		schedule
+	set_current_state(TASK_RUNNING)
+	remove_wait_queue(current)
+</code></pre><p>当调用<code>int __uio_register_device(struct module *owner, struct device *parent, struct uio_info *info)</code>函数注册一个uio驱动时，初始化该wait queue，并注册中断处理函数，下面是代码片段：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">int</span> <span class="nf">__uio_register_device</span><span class="p">(</span><span class="k">struct</span> <span class="n">module</span> <span class="o">*</span><span class="n">owner</span><span class="p">,</span>
+			  <span class="k">struct</span> <span class="n">device</span> <span class="o">*</span><span class="n">parent</span><span class="p">,</span>
+			  <span class="k">struct</span> <span class="n">uio_info</span> <span class="o">*</span><span class="n">info</span><span class="p">)</span>
+	<span class="k">struct</span> <span class="n">uio_device</span> <span class="o">*</span><span class="n">idev</span><span class="p">;</span>
+	<span class="n">idev</span> <span class="o">=</span> <span class="n">kzalloc</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="o">*</span><span class="n">idev</span><span class="p">),</span> <span class="n">GFP_KERNEL</span><span class="p">);</span>
+	<span class="c1">// 初始化一个wait queue head
+</span><span class="c1"></span>	<span class="n">init_waitqueue_head</span><span class="p">(</span><span class="o">&amp;</span><span class="n">idev</span><span class="o">-&gt;</span><span class="n">wait</span><span class="p">);</span>
+	<span class="c1">// wait queue head和中断事件绑定
+</span><span class="c1"></span>	<span class="n">ret</span> <span class="o">=</span> <span class="n">request_irq</span><span class="p">(</span><span class="n">info</span><span class="o">-&gt;</span><span class="n">irq</span><span class="p">,</span> <span class="n">uio_interrupt</span><span class="p">,</span>
+				  <span class="n">info</span><span class="o">-&gt;</span><span class="n">irq_flags</span><span class="p">,</span> <span class="n">info</span><span class="o">-&gt;</span><span class="n">name</span><span class="p">,</span> <span class="n">idev</span><span class="p">);</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>用户驱动需要自己开一个单独的线程去接收中断事件，避免整个进程被阻塞。该线程通过读<code>/proc/irq/irq number/irq</code>文件，下面时读时执行的代码。流程如下：</p>
+<ol>
+<li>首先通过<code>add_wait_queue</code>将自己挂载到wait queue上；</li>
+<li><code>set_current_state</code>将自己的状态设置为TASK_INTERRUPTIBLE，避免自己在事件没到来之前就被唤醒，导致无用的上下文切换；</li>
+<li>当前仍然处于该进程的上下文，通过<code>event_count</code>是否增加来判断中断是否发生，如果发生了则重新将进程挂载到run queue，否则发起调度，等待通知，即<code>wake_up</code>；</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="k">static</span> <span class="n">ssize_t</span> <span class="nf">uio_read</span><span class="p">(</span><span class="k">struct</span> <span class="n">file</span> <span class="o">*</span><span class="n">filep</span><span class="p">,</span> <span class="kt">char</span> <span class="n">__user</span> <span class="o">*</span><span class="n">buf</span><span class="p">,</span>
+			<span class="n">size_t</span> <span class="n">count</span><span class="p">,</span> <span class="n">loff_t</span> <span class="o">*</span><span class="n">ppos</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">struct</span> <span class="n">uio_listener</span> <span class="o">*</span><span class="n">listener</span> <span class="o">=</span> <span class="n">filep</span><span class="o">-&gt;</span><span class="n">private_data</span><span class="p">;</span>
+	<span class="k">struct</span> <span class="n">uio_device</span> <span class="o">*</span><span class="n">idev</span> <span class="o">=</span> <span class="n">listener</span><span class="o">-&gt;</span><span class="n">dev</span><span class="p">;</span>
+	<span class="n">DECLARE_WAITQUEUE</span><span class="p">(</span><span class="n">wait</span><span class="p">,</span> <span class="n">current</span><span class="p">);</span>
+	<span class="n">ssize_t</span> <span class="n">retval</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="n">s32</span> <span class="n">event_count</span><span class="p">;</span>
+
+	<span class="n">add_wait_queue</span><span class="p">(</span><span class="o">&amp;</span><span class="n">idev</span><span class="o">-&gt;</span><span class="n">wait</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">wait</span><span class="p">);</span>
+
+	<span class="k">do</span> <span class="p">{</span>
+		<span class="c1">// 将当前进程状态设置为TASK_INTERRUPTIBLE，可被信号唤醒
+</span><span class="c1"></span>		<span class="n">set_current_state</span><span class="p">(</span><span class="n">TASK_INTERRUPTIBLE</span><span class="p">);</span>
+		<span class="c1">// 读取当前事件次数
+</span><span class="c1"></span>		<span class="n">event_count</span> <span class="o">=</span> <span class="n">atomic_read</span><span class="p">(</span><span class="o">&amp;</span><span class="n">idev</span><span class="o">-&gt;</span><span class="n">event</span><span class="p">);</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">event_count</span> <span class="o">!=</span> <span class="n">listener</span><span class="o">-&gt;</span><span class="n">event_count</span><span class="p">)</span> <span class="p">{</span>
+			<span class="c1">// 说明发生了新的事件，可以通知进程去处理
+</span><span class="c1"></span>			<span class="n">__set_current_state</span><span class="p">(</span><span class="n">TASK_RUNNING</span><span class="p">);</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">copy_to_user</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">event_count</span><span class="p">,</span> <span class="n">count</span><span class="p">))</span>
+				<span class="n">retval</span> <span class="o">=</span> <span class="o">-</span><span class="n">EFAULT</span><span class="p">;</span>
+			<span class="k">else</span> <span class="p">{</span>
+				<span class="n">listener</span><span class="o">-&gt;</span><span class="n">event_count</span> <span class="o">=</span> <span class="n">event_count</span><span class="p">;</span>
+				<span class="n">retval</span> <span class="o">=</span> <span class="n">count</span><span class="p">;</span>
+			<span class="p">}</span>
+			<span class="k">break</span><span class="p">;</span>
+		<span class="p">}</span>
+		<span class="c1">// 如果是非阻塞读，则直接返回
+</span><span class="c1"></span>		<span class="k">if</span> <span class="p">(</span><span class="n">filep</span><span class="o">-&gt;</span><span class="n">f_flags</span> <span class="o">&amp;</span> <span class="n">O_NONBLOCK</span><span class="p">)</span> <span class="p">{</span>
+			<span class="n">retval</span> <span class="o">=</span> <span class="o">-</span><span class="n">EAGAIN</span><span class="p">;</span>
+			<span class="k">break</span><span class="p">;</span>
+		<span class="p">}</span>
+		<span class="c1">// 被信号唤醒
+</span><span class="c1"></span>		<span class="k">if</span> <span class="p">(</span><span class="n">signal_pending</span><span class="p">(</span><span class="n">current</span><span class="p">))</span> <span class="p">{</span>
+			<span class="n">retval</span> <span class="o">=</span> <span class="o">-</span><span class="n">ERESTARTSYS</span><span class="p">;</span>
+			<span class="k">break</span><span class="p">;</span>
+		<span class="p">}</span>
+		<span class="c1">// 调度，等待irq_handler将自己唤醒
+</span><span class="c1"></span>		<span class="n">schedule</span><span class="p">();</span>
+	<span class="p">}</span> <span class="k">while</span> <span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+	<span class="c1">// 发生新的事件，将进程挂载到run queue
+</span><span class="c1"></span>	<span class="n">__set_current_state</span><span class="p">(</span><span class="n">TASK_RUNNING</span><span class="p">);</span>
+	<span class="c1">// 将该进程从wait queue移除
+</span><span class="c1"></span>	<span class="n">remove_wait_queue</span><span class="p">(</span><span class="o">&amp;</span><span class="n">idev</span><span class="o">-&gt;</span><span class="n">wait</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">wait</span><span class="p">);</span>
+
+	<span class="k">return</span> <span class="n">retval</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>因为是捕捉中断事件，所以需要像该中断号注册中断处理函数，然后在中断处理函数中唤醒wait queue上的等待进程。中断处理函数注册是在<code>__uio_register_device</code>函数完成的，下面我们关注中断发生时中断处理函数的动作：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="k">static</span> <span class="n">irqreturn_t</span> <span class="nf">uio_interrupt</span><span class="p">(</span><span class="kt">int</span> <span class="n">irq</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span><span class="n">dev_id</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">struct</span> <span class="n">uio_device</span> <span class="o">*</span><span class="n">idev</span> <span class="o">=</span> <span class="p">(</span><span class="k">struct</span> <span class="n">uio_device</span> <span class="o">*</span><span class="p">)</span><span class="n">dev_id</span><span class="p">;</span>
+	<span class="c1">// 增加中断发生的次数，因为在wake_up后，进程是通过event次数来判断是否发生中断
+</span><span class="c1"></span>	<span class="n">atomic_inc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">idev</span><span class="o">-&gt;</span><span class="n">event</span><span class="p">);</span>
+	<span class="c1">// 唤醒该进程
+</span><span class="c1"></span>	<span class="n">wake_up_interruptible</span><span class="p">(</span><span class="o">&amp;</span><span class="n">idev</span><span class="o">-&gt;</span><span class="n">wait</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="使用wait-queue提供的wait_events">使用wait queue提供的wait_events</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span><span class="lnt">101
+</span><span class="lnt">102
+</span><span class="lnt">103
+</span><span class="lnt">104
+</span><span class="lnt">105
+</span><span class="lnt">106
+</span><span class="lnt">107
+</span><span class="lnt">108
+</span><span class="lnt">109
+</span><span class="lnt">110
+</span><span class="lnt">111
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="cp">#include</span> <span class="cpf">&lt;linux/module.h&gt;</span><span class="cp">
+</span><span class="cp">#include</span> <span class="cpf">&lt;linux/kernel.h&gt;</span><span class="cp">
+</span><span class="cp">#include</span> <span class="cpf">&lt;linux/fs.h&gt;</span><span class="cp">
+</span><span class="cp">#include</span> <span class="cpf">&lt;linux/cdev.h&gt;</span><span class="cp">
+</span><span class="cp">#include</span> <span class="cpf">&lt;linux/device.h&gt;</span><span class="cp">
+</span><span class="cp">#include</span> <span class="cpf">&lt;linux/errno.h&gt;</span><span class="cp">
+</span><span class="cp">#include</span> <span class="cpf">&lt;asm/uaccess.h&gt;</span><span class="cp">
+</span><span class="cp">#include</span> <span class="cpf">&lt;linux/wait.h&gt;</span><span class="cp">
+</span><span class="cp">#include</span> <span class="cpf">&lt;linux/sched.h&gt;</span><span class="cp">
+</span><span class="cp">#include</span> <span class="cpf">&lt;linux/delay.h&gt;</span><span class="cp">
+</span><span class="cp"></span>
+<span class="cp">#define FIRST_MINOR 0
+</span><span class="cp">#define MINOR_CNT 1
+</span><span class="cp"></span>
+<span class="k">static</span> <span class="kt">char</span> <span class="n">flag</span> <span class="o">=</span> <span class="sc">&#39;n&#39;</span><span class="p">;</span>
+<span class="k">static</span> <span class="n">dev_t</span> <span class="n">dev</span><span class="p">;</span>
+<span class="k">static</span> <span class="k">struct</span> <span class="n">cdev</span> <span class="n">c_dev</span><span class="p">;</span>
+<span class="k">static</span> <span class="k">struct</span> <span class="n">class</span> <span class="o">*</span><span class="n">cl</span><span class="p">;</span>
+<span class="k">static</span> <span class="nf">DECLARE_WAIT_QUEUE_HEAD</span><span class="p">(</span><span class="n">wq</span><span class="p">);</span>
+
+<span class="kt">int</span> <span class="nf">open</span><span class="p">(</span><span class="k">struct</span> <span class="n">inode</span> <span class="o">*</span><span class="n">inode</span><span class="p">,</span> <span class="k">struct</span> <span class="n">file</span> <span class="o">*</span><span class="n">filp</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="n">printk</span><span class="p">(</span><span class="n">KERN_INFO</span> <span class="s">&#34;Inside open</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+	<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">release</span><span class="p">(</span><span class="k">struct</span> <span class="n">inode</span> <span class="o">*</span><span class="n">inode</span><span class="p">,</span> <span class="k">struct</span> <span class="n">file</span> <span class="o">*</span><span class="n">filp</span><span class="p">)</span> 
+<span class="p">{</span>
+	<span class="n">printk</span> <span class="p">(</span><span class="n">KERN_INFO</span> <span class="s">&#34;Inside close</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+	<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">ssize_t</span> <span class="nf">read</span><span class="p">(</span><span class="k">struct</span> <span class="n">file</span> <span class="o">*</span><span class="n">filp</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">buff</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">count</span><span class="p">,</span> <span class="n">loff_t</span> <span class="o">*</span><span class="n">offp</span><span class="p">)</span> 
+<span class="p">{</span>
+	<span class="n">printk</span><span class="p">(</span><span class="n">KERN_INFO</span> <span class="s">&#34;Inside read</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+	<span class="n">printk</span><span class="p">(</span><span class="n">KERN_INFO</span> <span class="s">&#34;Scheduling Out</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+	<span class="n">wait_event_interruptible</span><span class="p">(</span><span class="n">wq</span><span class="p">,</span> <span class="n">flag</span> <span class="o">==</span> <span class="sc">&#39;y&#39;</span><span class="p">);</span>
+	<span class="n">flag</span> <span class="o">=</span> <span class="sc">&#39;n&#39;</span><span class="p">;</span>
+	<span class="n">printk</span><span class="p">(</span><span class="n">KERN_INFO</span> <span class="s">&#34;Woken Up</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+	<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">ssize_t</span> <span class="nf">write</span><span class="p">(</span><span class="k">struct</span> <span class="n">file</span> <span class="o">*</span><span class="n">filp</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">buff</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">count</span><span class="p">,</span> <span class="n">loff_t</span> <span class="o">*</span><span class="n">offp</span><span class="p">)</span> 
+<span class="p">{</span>   
+	<span class="n">printk</span><span class="p">(</span><span class="n">KERN_INFO</span> <span class="s">&#34;Inside write</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">copy_from_user</span><span class="p">(</span><span class="o">&amp;</span><span class="n">flag</span><span class="p">,</span> <span class="n">buff</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+	<span class="p">{</span>
+		<span class="k">return</span> <span class="o">-</span><span class="n">EFAULT</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="n">printk</span><span class="p">(</span><span class="n">KERN_INFO</span> <span class="s">&#34;%c&#34;</span><span class="p">,</span> <span class="n">flag</span><span class="p">);</span>
+	<span class="n">wake_up_interruptible</span><span class="p">(</span><span class="o">&amp;</span><span class="n">wq</span><span class="p">);</span>
+	<span class="k">return</span> <span class="n">count</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">struct</span> <span class="n">file_operations</span> <span class="n">pra_fops</span> <span class="o">=</span> <span class="p">{</span>
+	<span class="nl">read</span><span class="p">:</span>        <span class="n">read</span><span class="p">,</span>
+	<span class="nl">write</span><span class="p">:</span>       <span class="n">write</span><span class="p">,</span>
+	<span class="nl">open</span><span class="p">:</span>        <span class="n">open</span><span class="p">,</span>
+	<span class="nl">release</span><span class="p">:</span>     <span class="n">release</span>
+<span class="p">};</span>
+
+<span class="kt">int</span> <span class="nf">wq_init</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="kt">int</span> <span class="n">ret</span><span class="p">;</span>
+	<span class="k">struct</span> <span class="n">device</span> <span class="o">*</span><span class="n">dev_ret</span><span class="p">;</span>
+
+	<span class="k">if</span> <span class="p">((</span><span class="n">ret</span> <span class="o">=</span> <span class="n">alloc_chrdev_region</span><span class="p">(</span><span class="o">&amp;</span><span class="n">dev</span><span class="p">,</span> <span class="n">FIRST_MINOR</span><span class="p">,</span> <span class="n">MINOR_CNT</span><span class="p">,</span> <span class="s">&#34;SCD&#34;</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="k">return</span> <span class="n">ret</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="n">printk</span><span class="p">(</span><span class="s">&#34;Major Nr: %d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">MAJOR</span><span class="p">(</span><span class="n">dev</span><span class="p">));</span>
+
+	<span class="n">cdev_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">c_dev</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">pra_fops</span><span class="p">);</span>
+
+	<span class="k">if</span> <span class="p">((</span><span class="n">ret</span> <span class="o">=</span> <span class="n">cdev_add</span><span class="p">(</span><span class="o">&amp;</span><span class="n">c_dev</span><span class="p">,</span> <span class="n">dev</span><span class="p">,</span> <span class="n">MINOR_CNT</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="n">unregister_chrdev_region</span><span class="p">(</span><span class="n">dev</span><span class="p">,</span> <span class="n">MINOR_CNT</span><span class="p">);</span>
+		<span class="k">return</span> <span class="n">ret</span><span class="p">;</span>
+	<span class="p">}</span>
+
+	<span class="k">if</span> <span class="p">(</span><span class="n">IS_ERR</span><span class="p">(</span><span class="n">cl</span> <span class="o">=</span> <span class="n">class_create</span><span class="p">(</span><span class="n">THIS_MODULE</span><span class="p">,</span> <span class="s">&#34;chardrv&#34;</span><span class="p">)))</span>
+	<span class="p">{</span>
+		<span class="n">cdev_del</span><span class="p">(</span><span class="o">&amp;</span><span class="n">c_dev</span><span class="p">);</span>
+		<span class="n">unregister_chrdev_region</span><span class="p">(</span><span class="n">dev</span><span class="p">,</span> <span class="n">MINOR_CNT</span><span class="p">);</span>
+		<span class="k">return</span> <span class="n">PTR_ERR</span><span class="p">(</span><span class="n">cl</span><span class="p">);</span>
+	<span class="p">}</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">IS_ERR</span><span class="p">(</span><span class="n">dev_ret</span> <span class="o">=</span> <span class="n">device_create</span><span class="p">(</span><span class="n">cl</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">dev</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="s">&#34;mychar%d&#34;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)))</span>
+	<span class="p">{</span>
+		<span class="n">class_destroy</span><span class="p">(</span><span class="n">cl</span><span class="p">);</span>
+		<span class="n">cdev_del</span><span class="p">(</span><span class="o">&amp;</span><span class="n">c_dev</span><span class="p">);</span>
+		<span class="n">unregister_chrdev_region</span><span class="p">(</span><span class="n">dev</span><span class="p">,</span> <span class="n">MINOR_CNT</span><span class="p">);</span>
+		<span class="k">return</span> <span class="n">PTR_ERR</span><span class="p">(</span><span class="n">dev_ret</span><span class="p">);</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">wq_cleanup</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="n">printk</span><span class="p">(</span><span class="n">KERN_INFO</span> <span class="s">&#34;Inside cleanup_module</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+	<span class="n">device_destroy</span><span class="p">(</span><span class="n">cl</span><span class="p">,</span> <span class="n">dev</span><span class="p">);</span>
+	<span class="n">class_destroy</span><span class="p">(</span><span class="n">cl</span><span class="p">);</span>
+	<span class="n">cdev_del</span><span class="p">(</span><span class="o">&amp;</span><span class="n">c_dev</span><span class="p">);</span>
+	<span class="n">unregister_chrdev_region</span><span class="p">(</span><span class="n">dev</span><span class="p">,</span> <span class="n">MINOR_CNT</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="n">module_init</span><span class="p">(</span><span class="n">wq_init</span><span class="p">);</span>
+<span class="n">module_exit</span><span class="p">(</span><span class="n">wq_cleanup</span><span class="p">);</span>
+
+<span class="n">MODULE_LICENSE</span><span class="p">(</span><span class="s">&#34;GPL&#34;</span><span class="p">);</span>
+<span class="n">MODULE_AUTHOR</span><span class="p">(</span><span class="s">&#34;Pradeep&#34;</span><span class="p">);</span>
+<span class="n">MODULE_DESCRIPTION</span><span class="p">(</span><span class="s">&#34;Waiting Process Demo&#34;</span><span class="p">);</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="参考文献">参考文献</h3>
+<section class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1" role="doc-endnote">
+<p>Filtered wakeups. <a href="https://lwn.net/Articles/83633/">https://lwn.net/Articles/83633/</a>. <a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:2" role="doc-endnote">
+<p>Simple wait queues. <a href="https://lwn.net/Articles/577370/">https://lwn.net/Articles/577370/</a>. <a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:3" role="doc-endnote">
+<p>The return of simple wait queues. <a href="https://lwn.net/Articles/661424/">https://lwn.net/Articles/661424/</a> <a href="#fnref:3" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</section>
+]]></content>
+            
+            
+            
+            
+            
+                
+                    
+                        
+                            
+                            
+                            
+                                <category scheme="https://chengshuyi.github.io/categories/linux%E5%86%85%E6%A0%B8/" term="linux内核" label="linux内核" />
+                            
+                        
+                    
+                
+                    
+                        
+                            
+                            
+                            
+                                <category scheme="https://chengshuyi.github.io/tags/linux%E5%86%85%E6%A0%B8/" term="linux内核" label="linux内核" />
+                            
+                        
+                    
+                
+            
+        </entry>
+    
+        <entry>
             <title type="text">Lab5 - 实验笔记</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/course/mit6828/lab5/" />
             <id>https://chengshuyi.github.io/posts/course/mit6828/lab5/</id>
-            <updated>2020-06-10T14:36:00+00:00</updated>
+            <updated>2020-06-16T03:19:26+00:00</updated>
             <published>2020-04-25T13:34:18+08:00</published>
             <author>
                     <name>程书意</name>
@@ -1649,7 +3273,7 @@ L5: ret #0						# 返回长度0
             <title type="text">Lab4 - 实验笔记</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/course/mit6828/lab4/" />
             <id>https://chengshuyi.github.io/posts/course/mit6828/lab4/</id>
-            <updated>2020-06-10T14:36:00+00:00</updated>
+            <updated>2020-06-16T03:19:26+00:00</updated>
             <published>2020-04-25T13:34:16+08:00</published>
             <author>
                     <name>程书意</name>
@@ -1681,15 +3305,8 @@ L5: ret #0						# 返回长度0
 </ol>
 <h3 id="per-cpu">per-cpu</h3>
 <p>per-cpu表示的是为每个cpu维护自己的数据结构，其次访问cpu共享的数据结构时需要加锁。</p>
-<h3 id="multiprocessor-support-and-cooperative-multitasking">Multiprocessor Support and Cooperative Multitasking</h3>
-<ol>
-<li>将设备物理地址映射到内核虚拟地址空间（参考lab3的虚拟地址空间分布图）；</li>
-<li>通过核间终端启动其它的CPU，并告诉该CPU第一条指令的首地址；</li>
-<li>设置相关<code>per-cpu</code>变量，包括：Per-CPU kernel stack、Per-CPU TSS and TSS descriptor、Per-CPU current environment pointer和Per-CPU system registers（每个cpu独有的寄存器）；</li>
-<li>实现大内核锁；</li>
-<li>实现Round-Robin Scheduling；</li>
-<li>利用系统调用实现在用户态创建一个新的进程，也就是<code>fork</code>的方式，jos有两种实现方式，一种是dump_fork实现的，即在fork时为新进程分配内存；另外一种是基于copy-on-write的方式，即将父进程和子进程的页表项置为COW，在修改该页表项对应的物理页时会触发page fault异常，有该异常处理函数分配具体内存；</li>
-</ol>
+<h3 id="copy-on-write">copy on write</h3>
+<p>利用系统调用实现在用户态创建一个新的进程，也就是<code>fork</code>的方式，jos有两种实现方式，一种是dump_fork实现的，即在fork时为新进程分配内存；另外一种是基于copy-on-write的方式，即将父进程和子进程的页表项置为COW，在修改该页表项对应的物理页时会触发page fault异常，有该异常处理函数分配具体内存；</p>
 <blockquote>
 <p><strong>Exercise 1.</strong> Implement <code>mmio_map_region</code> in <code>kern/pmap.c</code>. To see how this is used, look at the beginning of <code>lapic_init</code> in <code>kern/lapic.c</code>.</p>
 </blockquote>
@@ -1840,7 +3457,19 @@ L5: ret #0						# 返回长度0
 <span class="p">}</span>
 </code></pre></td></tr></table>
 </div>
-</div><h3 id="copy-on-write-fork">Copy-on-Write Fork</h3>
+</div><blockquote>
+<p><strong>Exercise 5.</strong> Apply the big kernel lock as described above, by calling <code>lock_kernel()</code> and <code>unlock_kernel()</code> at the proper locations.</p>
+</blockquote>
+<p>实现大内核锁。</p>
+<blockquote>
+<p><strong>Exercise 6.</strong> Implement round-robin scheduling in <code>sched_yield()</code> as described above.</p>
+</blockquote>
+<p>实现轮转法调度。</p>
+<blockquote>
+<p><strong>Exercise 7.</strong> Implement the system calls described above in <code>kern/syscall.c</code> and make sure <code>syscall()</code> calls them. You will need to use various functions in <code>kern/pmap.c</code> and <code>kern/env.c</code>, particularly <code>envid2env()</code>.</p>
+</blockquote>
+<p>实现<code>sys_exofork</code>、<code>sys_env_set_status</code>、<code>sys_page_alloc</code>、<code>sys_page_map</code>和<code>sys_page_unmap</code>函数。</p>
+<h3 id="copy-on-write-fork">Copy-on-Write Fork</h3>
 <p>下面是用户空间出现页异常处理流程：</p>
 <ol>
 <li>通过系统调用注册进程自己的处理函数（在fork的时候配置的）；</li>
@@ -1898,7 +3527,7 @@ L5: ret #0						# 返回长度0
             <title type="text">Lab3 - 实验笔记</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/course/mit6828/lab3/" />
             <id>https://chengshuyi.github.io/posts/course/mit6828/lab3/</id>
-            <updated>2020-06-10T14:36:00+00:00</updated>
+            <updated>2020-06-16T03:19:26+00:00</updated>
             <published>2020-04-25T13:34:13+08:00</published>
             <author>
                     <name>程书意</name>
@@ -2250,7 +3879,7 @@ L5: ret #0						# 返回长度0
             <title type="text">Lab2 - 实验笔记</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/course/mit6828/lab2/" />
             <id>https://chengshuyi.github.io/posts/course/mit6828/lab2/</id>
-            <updated>2020-06-10T14:36:00+00:00</updated>
+            <updated>2020-06-16T03:19:26+00:00</updated>
             <published>2020-04-25T13:34:11+08:00</published>
             <author>
                     <name>程书意</name>
@@ -2547,7 +4176,7 @@ L5: ret #0						# 返回长度0
             <title type="text">Lab1 - 实验笔记</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/course/mit6828/lab1/" />
             <id>https://chengshuyi.github.io/posts/course/mit6828/lab1/</id>
-            <updated>2020-06-10T14:36:00+00:00</updated>
+            <updated>2020-06-16T03:19:26+00:00</updated>
             <published>2020-04-24T20:24:40+08:00</published>
             <author>
                     <name>程书意</name>
@@ -2923,7 +4552,7 @@ f0100ade:	e8 b7 ff ff ff       	call   f0100a9a &lt;vcprintf&gt;
             <title type="text">嵌入式文件系统</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/filesystem/%E5%B5%8C%E5%85%A5%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/" />
             <id>https://chengshuyi.github.io/posts/filesystem/%E5%B5%8C%E5%85%A5%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/</id>
-            <updated>2020-06-10T14:36:00+00:00</updated>
+            <updated>2020-06-16T03:19:26+00:00</updated>
             <published>2020-04-21T14:11:20+08:00</published>
             <author>
                     <name>程书意</name>
@@ -3174,7 +4803,7 @@ f0100ade:	e8 b7 ff ff ff       	call   f0100a9a &lt;vcprintf&gt;
             <title type="text">进程虚拟地址空间</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/linux-kernel/%E8%BF%9B%E7%A8%8B%E8%99%9A%E6%8B%9F%E5%9C%B0%E5%9D%80%E7%A9%BA%E9%97%B4/" />
             <id>https://chengshuyi.github.io/posts/linux-kernel/%E8%BF%9B%E7%A8%8B%E8%99%9A%E6%8B%9F%E5%9C%B0%E5%9D%80%E7%A9%BA%E9%97%B4/</id>
-            <updated>2020-06-10T14:36:00+00:00</updated>
+            <updated>2020-06-16T03:19:26+00:00</updated>
             <published>2020-04-04T19:31:04+08:00</published>
             <author>
                     <name>程书意</name>
@@ -3270,7 +4899,7 @@ f0100ade:	e8 b7 ff ff ff       	call   f0100a9a &lt;vcprintf&gt;
             <title type="text">多车编队 人工势场法</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E4%BA%BA%E5%B7%A5%E5%8A%BF%E5%9C%BA%E6%B3%95/" />
             <id>https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E4%BA%BA%E5%B7%A5%E5%8A%BF%E5%9C%BA%E6%B3%95/</id>
-            <updated>2020-06-10T14:36:00+00:00</updated>
+            <updated>2020-06-16T03:19:26+00:00</updated>
             <published>2020-04-04T10:02:06+08:00</published>
             <author>
                     <name>程书意</name>
@@ -3403,7 +5032,7 @@ $$
             <title type="text">多车编队 基于图论的方法</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E5%9B%BE%E8%AE%BA%E7%9A%84%E6%96%B9%E6%B3%95/" />
             <id>https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E5%9B%BE%E8%AE%BA%E7%9A%84%E6%96%B9%E6%B3%95/</id>
-            <updated>2020-06-10T14:36:00+00:00</updated>
+            <updated>2020-06-16T03:19:26+00:00</updated>
             <published>2020-04-04T10:00:47+08:00</published>
             <author>
                     <name>程书意</name>
@@ -3504,7 +5133,7 @@ $$
             <title type="text">多车编队 基于行为的方法</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E8%A1%8C%E4%B8%BA%E7%9A%84%E6%96%B9%E6%B3%95/" />
             <id>https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E8%A1%8C%E4%B8%BA%E7%9A%84%E6%96%B9%E6%B3%95/</id>
-            <updated>2020-06-10T14:36:00+00:00</updated>
+            <updated>2020-06-16T03:19:26+00:00</updated>
             <published>2020-04-04T09:11:07+08:00</published>
             <author>
                     <name>程书意</name>
@@ -3672,7 +5301,7 @@ $$
             <title type="text">c语言运算符</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/c/%E8%BF%90%E7%AE%97%E7%AC%A6/" />
             <id>https://chengshuyi.github.io/posts/c/%E8%BF%90%E7%AE%97%E7%AC%A6/</id>
-            <updated>2020-06-10T14:36:00+00:00</updated>
+            <updated>2020-06-16T03:19:26+00:00</updated>
             <published>2020-04-03T17:25:34+08:00</published>
             <author>
                     <name>程书意</name>
@@ -3883,7 +5512,7 @@ $$</p>
             <title type="text">伙伴系统</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/linux-kernel/%E4%BC%99%E4%BC%B4%E7%B3%BB%E7%BB%9F/" />
             <id>https://chengshuyi.github.io/posts/linux-kernel/%E4%BC%99%E4%BC%B4%E7%B3%BB%E7%BB%9F/</id>
-            <updated>2020-06-10T14:36:00+00:00</updated>
+            <updated>2020-06-16T03:19:26+00:00</updated>
             <published>2020-04-03T15:26:04+08:00</published>
             <author>
                     <name>程书意</name>
@@ -4109,7 +5738,7 @@ $$</p>
             <title type="text">多车编队 领航跟随法</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E9%A2%86%E8%88%AA%E8%B7%9F%E9%9A%8F%E6%B3%95/" />
             <id>https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E9%A2%86%E8%88%AA%E8%B7%9F%E9%9A%8F%E6%B3%95/</id>
-            <updated>2020-06-10T14:36:00+00:00</updated>
+            <updated>2020-06-16T03:19:26+00:00</updated>
             <published>2020-04-03T11:27:11+08:00</published>
             <author>
                     <name>程书意</name>
@@ -4226,7 +5855,7 @@ $$
             <title type="text">Slab分配器</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/linux-kernel/slab/" />
             <id>https://chengshuyi.github.io/posts/linux-kernel/slab/</id>
-            <updated>2020-06-10T14:36:00+00:00</updated>
+            <updated>2020-06-16T03:19:26+00:00</updated>
             <published>2020-04-02T16:24:50+08:00</published>
             <author>
                     <name>程书意</name>
@@ -4328,7 +5957,7 @@ $$
             <title type="text">作用域、链接、存储类型</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/c/%E4%BD%9C%E7%94%A8%E5%9F%9F%E9%93%BE%E6%8E%A5%E5%AD%98%E5%82%A8%E7%B1%BB%E5%9E%8B/" />
             <id>https://chengshuyi.github.io/posts/c/%E4%BD%9C%E7%94%A8%E5%9F%9F%E9%93%BE%E6%8E%A5%E5%AD%98%E5%82%A8%E7%B1%BB%E5%9E%8B/</id>
-            <updated>2020-06-10T14:36:00+00:00</updated>
+            <updated>2020-06-16T03:19:26+00:00</updated>
             <published>2020-04-02T13:41:27+08:00</published>
             <author>
                     <name>程书意</name>
@@ -4605,7 +6234,7 @@ $$
             <title type="text"></title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/computer-network/untitled/" />
             <id>https://chengshuyi.github.io/posts/computer-network/untitled/</id>
-            <updated>2020-06-10T14:36:00+00:00</updated>
+            <updated>2020-06-16T03:19:26+00:00</updated>
             <published>0001-01-01T00:00:00+00:00</published>
             <author>
                     <name>程书意</name>
@@ -4674,7 +6303,7 @@ does not provide: reliability, flow control, congestion control, timing, through
             <title type="text"></title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/cse/" />
             <id>https://chengshuyi.github.io/posts/cse/</id>
-            <updated>2020-06-10T14:36:00+00:00</updated>
+            <updated>2020-06-16T03:19:26+00:00</updated>
             <published>0001-01-01T00:00:00+00:00</published>
             <author>
                     <name>程书意</name>
@@ -4750,7 +6379,7 @@ Soft link can create cycle by SYMLINK(&quot;a&quot;, &quot;a&quot;)
             <title type="text"></title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/leet/" />
             <id>https://chengshuyi.github.io/posts/leet/</id>
-            <updated>2020-06-10T14:36:00+00:00</updated>
+            <updated>2020-06-16T03:19:26+00:00</updated>
             <published>0001-01-01T00:00:00+00:00</published>
             <author>
                     <name>程书意</name>
@@ -4793,7 +6422,7 @@ Relational Algebra</p>
             <title type="text"></title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/linux-kernel/untitled/" />
             <id>https://chengshuyi.github.io/posts/linux-kernel/untitled/</id>
-            <updated>2020-06-10T14:36:00+00:00</updated>
+            <updated>2020-06-16T03:19:26+00:00</updated>
             <published>0001-01-01T00:00:00+00:00</published>
             <author>
                     <name>程书意</name>
