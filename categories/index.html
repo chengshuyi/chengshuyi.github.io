@@ -1,39 +1,10 @@
 <!DOCTYPE html>
-<html lang="zh-CN" data-theme="light">
+<html lang="zh-CN">
     <head prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article#">
     <meta charset="UTF-8" />
 
     <meta name="generator" content="Hugo 0.68.3" /><meta name="theme-color" content="#fff" />
-        <script>
-            const userPrefers = localStorage.getItem('theme');
-            const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-            const lightModeMediaQuery = window.matchMedia('(prefers-color-scheme: light)');
-            if (userPrefers === 'dark') {
-                changeModeMeta('dark');
-            } else if (userPrefers === 'light') {
-                changeModeMeta('light');
-            } else if (darkModeMediaQuery.matches) {
-                changeModeMeta('dark');
-            } else if (lightModeMediaQuery.matches) {
-                changeModeMeta('light');
-            }
-            function changeModeMeta(theme) {
-                document.documentElement.setAttribute('data-theme', theme);
-                if (theme === 'dark') {
-                    changeThemeColor('#282a36');
-                } else {
-                    changeThemeColor('#fff');
-                }
-            }
-            function changeThemeColor(themeColor) {
-                document.querySelector('meta[name="theme-color"]').setAttribute('content', themeColor);
-            }
-        </script>
-
-    
-
-    
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
     <meta name="format-detection" content="telephone=no, date=no, address=no, email=no" />
     
@@ -43,15 +14,20 @@
 
     <title>Categories | 程书意</title>
 
-    <link rel="stylesheet" href="/css/meme.min.7017b47455e4b6bed857c02833f6d06f858f9a254053e88aca9d919df7fa0b9c.css" integrity="sha256-cBe0dFXktr7YV8AoM/bQb4WPmiVAU+iKyp2Rnff6C5w=" />
+    <link rel="stylesheet" href="/css/meme.min.25c235fe53774c6f49063a329310b074b04069831a0ffaf31d47af95671a18d4.css" integrity="sha256-JcI1/lN3TG9JBjoykxCwdLBAaYMaD/rzHUevlWcaGNQ=" />
+
+    
+    
+        <script src="https://cdn.jsdelivr.net/npm/lunr@2.3.8/lunr.min.js" defer></script><script src="/js/meme.min.d94e1f221f2b0088d9516f30448753dc1ebf3cd677e34502afff6594f4fc688b.js" integrity="sha256-2U4fIh8rAIjZUW8wRIdT3B6/PNZ340UCr/9llPT8aIs="></script>
+
+    
 
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB&#43;Garamond:ital,wght@0,400;0,500;0,700;1,400;1,700&amp;family=Noto&#43;Serif&#43;SC:wght@400;500;700&amp;family=Source&#43;Code&#43;Pro:ital,wght@0,400;0,700;1,400;1,700&amp;display=swap" media="print" onload="this.media='all'" />
         <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB&#43;Garamond:ital,wght@0,400;0,500;0,700;1,400;1,700&amp;family=Noto&#43;Serif&#43;SC:wght@400;500;700&amp;family=Source&#43;Code&#43;Pro:ital,wght@0,400;0,700;1,400;1,700&amp;display=swap" /></noscript>
 
-    <meta name="author" content="程书意" />
-    <meta name="description" content="MemE 是一个强大且可高度定制的 GoHugo 博客主题，专为个人博客设计。" />
+    <meta name="author" content="程书意" /><meta name="description" content="MemE 是一个强大且可高度定制的 GoHugo 博客主题，专为个人博客设计。" />
 
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
     <link rel="mask-icon" href="/icons/safari-pinned-tab.svg" color="#2a6df4" />
@@ -71,15 +47,14 @@
 
     
     <link rel="canonical" href="https://chengshuyi.github.io/categories/" />
-
-
+    
 
 <script type="application/ld+json">
     {
         "@context": "https://schema.org",
         "@type": "WebPage",
         "datePublished": "2019-07-20T20:17:43+00:00",
-        "dateModified": "2020-06-17T14:09:03+00:00",
+        "dateModified": "2020-06-17T14:11:50+00:00",
         "url": "https://chengshuyi.github.io/categories/",
         "name": "Categories",
         "description": "MemE 是一个强大且可高度定制的 GoHugo 博客主题，专为个人博客设计。",
@@ -103,15 +78,11 @@
 
     
 
-
-
 <meta name="twitter:card" content="summary" />
 
 <meta name="twitter:creator" content="@无" />
 
     
-
-
 
 
 
@@ -132,7 +103,7 @@
     <header class="header" data-scroll-header>
         
             <div class="header-wrapper">
-                <div class="header-inner">
+                <div class="header-inner list">
                     
     <div class="site-brand">
         
@@ -149,53 +120,65 @@
         
         
             
-                <li class="menu-item"><a href="/posts/"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon "><path d="M32 448c0 17.7 14.3 32 32 32h384c17.7 0 32-14.3 32-32V160H32v288zm160-212c0-6.6 5.4-12 12-12h104c6.6 0 12 5.4 12 12v8c0 6.6-5.4 12-12 12H204c-6.6 0-12-5.4-12-12v-8zM480 32H32C14.3 32 0 46.3 0 64v48c0 8.8 7.2 16 16 16h480c8.8 0 16-7.2 16-16V64c0-17.7-14.3-32-32-32z"/></svg><span class="menu-item-name">文章</span></a>
+                <li class="menu-item"><a href="/posts/"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon archive"><path d="M32 448c0 17.7 14.3 32 32 32h384c17.7 0 32-14.3 32-32V160H32v288zm160-212c0-6.6 5.4-12 12-12h104c6.6 0 12 5.4 12 12v8c0 6.6-5.4 12-12 12H204c-6.6 0-12-5.4-12-12v-8zM480 32H32C14.3 32 0 46.3 0 64v48c0 8.8 7.2 16 16 16h480c8.8 0 16-7.2 16-16V64c0-17.7-14.3-32-32-32z"/></svg><span class="menu-item-name">文章</span></a>
                 </li>
             
         
             
-                <li class="menu-item active"><a href="/categories/"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon "><path d="M149.333 56v80c0 13.255-10.745 24-24 24H24c-13.255 0-24-10.745-24-24V56c0-13.255 10.745-24 24-24h101.333c13.255 0 24 10.745 24 24zm181.334 240v-80c0-13.255-10.745-24-24-24H205.333c-13.255 0-24 10.745-24 24v80c0 13.255 10.745 24 24 24h101.333c13.256 0 24.001-10.745 24.001-24zm32-240v80c0 13.255 10.745 24 24 24H488c13.255 0 24-10.745 24-24V56c0-13.255-10.745-24-24-24H386.667c-13.255 0-24 10.745-24 24zm-32 80V56c0-13.255-10.745-24-24-24H205.333c-13.255 0-24 10.745-24 24v80c0 13.255 10.745 24 24 24h101.333c13.256 0 24.001-10.745 24.001-24zm-205.334 56H24c-13.255 0-24 10.745-24 24v80c0 13.255 10.745 24 24 24h101.333c13.255 0 24-10.745 24-24v-80c0-13.255-10.745-24-24-24zM0 376v80c0 13.255 10.745 24 24 24h101.333c13.255 0 24-10.745 24-24v-80c0-13.255-10.745-24-24-24H24c-13.255 0-24 10.745-24 24zm386.667-56H488c13.255 0 24-10.745 24-24v-80c0-13.255-10.745-24-24-24H386.667c-13.255 0-24 10.745-24 24v80c0 13.255 10.745 24 24 24zm0 160H488c13.255 0 24-10.745 24-24v-80c0-13.255-10.745-24-24-24H386.667c-13.255 0-24 10.745-24 24v80c0 13.255 10.745 24 24 24zM181.333 376v80c0 13.255 10.745 24 24 24h101.333c13.255 0 24-10.745 24-24v-80c0-13.255-10.745-24-24-24H205.333c-13.255 0-24 10.745-24 24z"/></svg><span class="menu-item-name">分类</span></a>
+                <li class="menu-item active"><a href="/categories/"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon th"><path d="M149.333 56v80c0 13.255-10.745 24-24 24H24c-13.255 0-24-10.745-24-24V56c0-13.255 10.745-24 24-24h101.333c13.255 0 24 10.745 24 24zm181.334 240v-80c0-13.255-10.745-24-24-24H205.333c-13.255 0-24 10.745-24 24v80c0 13.255 10.745 24 24 24h101.333c13.256 0 24.001-10.745 24.001-24zm32-240v80c0 13.255 10.745 24 24 24H488c13.255 0 24-10.745 24-24V56c0-13.255-10.745-24-24-24H386.667c-13.255 0-24 10.745-24 24zm-32 80V56c0-13.255-10.745-24-24-24H205.333c-13.255 0-24 10.745-24 24v80c0 13.255 10.745 24 24 24h101.333c13.256 0 24.001-10.745 24.001-24zm-205.334 56H24c-13.255 0-24 10.745-24 24v80c0 13.255 10.745 24 24 24h101.333c13.255 0 24-10.745 24-24v-80c0-13.255-10.745-24-24-24zM0 376v80c0 13.255 10.745 24 24 24h101.333c13.255 0 24-10.745 24-24v-80c0-13.255-10.745-24-24-24H24c-13.255 0-24 10.745-24 24zm386.667-56H488c13.255 0 24-10.745 24-24v-80c0-13.255-10.745-24-24-24H386.667c-13.255 0-24 10.745-24 24v80c0 13.255 10.745 24 24 24zm0 160H488c13.255 0 24-10.745 24-24v-80c0-13.255-10.745-24-24-24H386.667c-13.255 0-24 10.745-24 24v80c0 13.255 10.745 24 24 24zM181.333 376v80c0 13.255 10.745 24 24 24h101.333c13.255 0 24-10.745 24-24v-80c0-13.255-10.745-24-24-24H205.333c-13.255 0-24 10.745-24 24z"/></svg><span class="menu-item-name">分类</span></a>
                 </li>
             
         
             
-                <li class="menu-item"><a href="/tags/"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" class="icon "><path d="M497.941 225.941L286.059 14.059A48 48 0 0 0 252.118 0H48C21.49 0 0 21.49 0 48v204.118a48 48 0 0 0 14.059 33.941l211.882 211.882c18.744 18.745 49.136 18.746 67.882 0l204.118-204.118c18.745-18.745 18.745-49.137 0-67.882zM112 160c-26.51 0-48-21.49-48-48s21.49-48 48-48 48 21.49 48 48-21.49 48-48 48zm513.941 133.823L421.823 497.941c-18.745 18.745-49.137 18.745-67.882 0l-.36-.36L527.64 323.522c16.999-16.999 26.36-39.6 26.36-63.64s-9.362-46.641-26.36-63.64L331.397 0h48.721a48 48 0 0 1 33.941 14.059l211.882 211.882c18.745 18.745 18.745 49.137 0 67.882z"/></svg><span class="menu-item-name">标签</span></a>
+                <li class="menu-item"><a href="/tags/"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" class="icon tags"><path d="M497.941 225.941L286.059 14.059A48 48 0 0 0 252.118 0H48C21.49 0 0 21.49 0 48v204.118a48 48 0 0 0 14.059 33.941l211.882 211.882c18.744 18.745 49.136 18.746 67.882 0l204.118-204.118c18.745-18.745 18.745-49.137 0-67.882zM112 160c-26.51 0-48-21.49-48-48s21.49-48 48-48 48 21.49 48 48-21.49 48-48 48zm513.941 133.823L421.823 497.941c-18.745 18.745-49.137 18.745-67.882 0l-.36-.36L527.64 323.522c16.999-16.999 26.36-39.6 26.36-63.64s-9.362-46.641-26.36-63.64L331.397 0h48.721a48 48 0 0 1 33.941 14.059l211.882 211.882c18.745 18.745 18.745 49.137 0 67.882z"/></svg><span class="menu-item-name">标签</span></a>
                 </li>
             
         
             
-                <li class="menu-item"><a href="/about/"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512" class="icon "><path d="M248 8C111 8 0 119 0 256s111 248 248 248 248-111 248-248S385 8 248 8zm0 96c48.6 0 88 39.4 88 88s-39.4 88-88 88-88-39.4-88-88 39.4-88 88-88zm0 344c-58.7 0-111.3-26.6-146.5-68.2 18.8-35.4 55.6-59.8 98.5-59.8 2.4 0 4.8.4 7.1 1.1 13 4.2 26.6 6.9 40.9 6.9 14.3 0 28-2.7 40.9-6.9 2.3-.7 4.7-1.1 7.1-1.1 42.9 0 79.7 24.4 98.5 59.8C359.3 421.4 306.7 448 248 448z"/></svg><span class="menu-item-name">关于</span></a>
+                <li class="menu-item"><a href="/about/"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512" class="icon user-circle"><path d="M248 8C111 8 0 119 0 256s111 248 248 248 248-111 248-248S385 8 248 8zm0 96c48.6 0 88 39.4 88 88s-39.4 88-88 88-88-39.4-88-88 39.4-88 88-88zm0 344c-58.7 0-111.3-26.6-146.5-68.2 18.8-35.4 55.6-59.8 98.5-59.8 2.4 0 4.8.4 7.1 1.1 13 4.2 26.6 6.9 40.9 6.9 14.3 0 28-2.7 40.9-6.9 2.3-.7 4.7-1.1 7.1-1.1 42.9 0 79.7 24.4 98.5 59.8C359.3 421.4 306.7 448 248 448z"/></svg><span class="menu-item-name">关于</span></a>
                 </li>
             
         
             
                 
-                    <li class="menu-item">
-                        
-    
-        
+                    
+                    
+                        <li class="menu-item">
+                            <a id="theme-switcher" href="#"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon theme-icon-light"><path d="M193.2 104.5l48.8-97.5a18 18 0 0128 0l48.8 97.5 103.4 -34.5a18 18 0 0119.8 19.8l-34.5 103.4l97.5 48.8a18 18 0 010 28l-97.5 48.8 34.5 103.4a18 18 0 01-19.8 19.8l-103.4-34.5-48.8 97.5a18 18 0 01-28 0l-48.8-97.5l-103.4 34.5a18 18 0 01-19.8-19.8l34.5-103.4-97.5-48.8a18 18 0 010-28l97.5-48.8-34.5-103.4a18 18 0 0119.8-19.8zM256 128a128 128 0 10.01 0M256 160a96 96 0 10.01 0"/></svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon theme-icon-dark"><path d="M27 412a256 256 0 10154-407a11.5 11.5 0 00-5 20a201.5 201.5 0 01-134 374a11.5 11.5 0 00-15 13"/></svg></a>
+                        </li>
+                    
+                
             
         
-        <div id="theme-switcher">🌞</div>
-    
+            
+                
+            
+        
+            
+                <li class="menu-item search-item">
+                        <form id="search" class="search" role="search">
+    <label for="search-input"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon search-icon"><path d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"/></svg></label>
+    <input type="search" id="search-input" class="search-input">
+</form>
 
+<template id="search-result" hidden>
+    <article class="content post">
+        <h2 class="post-title"><a class="summary-title-link"></a></h2>
+        <summary class="summary"></summary>
+        <div class="read-more-container">
+            <a class="read-more-link">阅读更多 »</a>
+        </div>
+    </article>
+</template>
 
                     </li>
                 
             
         
-            
-                
-            
-        
-            
-                <li class="menu-item"><a href=""></a>
-                </li>
-            
-        
     </ul>
 </nav>
 
+                    
                 </div>
             </div>
             
@@ -408,1342 +391,1563 @@
                     
                 
                 
-                
+
+                <ul class="list-categories">
                     
-                    
-                    
-                    
-                    
-                    
-                    
-                        <p style="padding-left: 2.4em">
+                        
+                        
+                        
+                        
+                        
+
+                        
+                            
+
+                            
+                            
+
+                            
+                            
+                                
+                                
+                            
+
+                            
+                                <li>
+                            
+                            
+
                             <a href="/categories/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/" class="category-item">文件系统</a>
                             
                                 <span class="category-count">(2)</span>
                             
-                        </p>
+
+                            
+                                
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                            
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                            
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                
+                                    
+                                    
+                                
+                                    
+                                    
+                                
+                                    
+                                    
+                                
+                                    
+                                    
+                                
+                                    
+                                    
+                                
+                                    
+                                    
+                                
+                                
+                                
+    
+    
+    
+    
+
+    <ul class="list-posts">
+        
+            <li>
+                <a href="/posts/filesystem/fat/" class="category-post">Fat32文件系统详解</a>
+            </li>
+        
+            <li>
+                <a href="/posts/filesystem/%E5%B5%8C%E5%85%A5%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/" class="category-post">嵌入式文件系统</a>
+            </li>
+        
+        
+    </ul>
+
+
+                            
+
+                            
+                            
+                                </li>
+                            
+                        
                     
-                    
                         
                         
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                                    <p style="padding-left: 4.8em">
-                                        <a href="/posts/filesystem/fat/" class="category-post">Fat32文件系统详解</a>
-                                    </p>
-                                
-                            
+                        
+                        
+                        
+
                         
                             
+
                             
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                                    <p style="padding-left: 4.8em">
-                                        <a href="/posts/filesystem/%E5%B5%8C%E5%85%A5%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/" class="category-post">嵌入式文件系统</a>
-                                    </p>
-                                
-                            
-                        
-                            
                             
                                 
                                 
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
                             
+
                             
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
                             
-                            
-                                
                                 
-                                    
-                                    
                                 
-                                
-                                
-                            
-                        
-                            
-                            
-                        
-                            
-                            
-                        
-                            
-                            
-                        
-                            
-                            
-                        
-                            
-                            
-                        
                             
+
                             
-                        
+                                <li>
                             
                             
-                        
-                    
-                
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                        <p style="padding-left: 2.4em">
+
                             <a href="/categories/%E6%9C%BA%E5%99%A8%E4%BA%BA/" class="category-item">机器人</a>
                             
                                 <span class="category-count">(4)</span>
                             
-                        </p>
+
+                            
+                                
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                            
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                            
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                            
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                            
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                
+                                    
+                                    
+                                
+                                    
+                                    
+                                
+                                    
+                                    
+                                
+                                    
+                                    
+                                
+                                    
+                                    
+                                
+                                    
+                                    
+                                
+                                
+                                
+    
+    
+    
+    
+
+    <ul class="list-posts">
+        
+            <li>
+                <a href="/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E4%BA%BA%E5%B7%A5%E5%8A%BF%E5%9C%BA%E6%B3%95/" class="category-post">多车编队 人工势场法</a>
+            </li>
+        
+            <li>
+                <a href="/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E5%9B%BE%E8%AE%BA%E7%9A%84%E6%96%B9%E6%B3%95/" class="category-post">多车编队 基于图论的方法</a>
+            </li>
+        
+            <li>
+                <a href="/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E8%A1%8C%E4%B8%BA%E7%9A%84%E6%96%B9%E6%B3%95/" class="category-post">多车编队 基于行为的方法</a>
+            </li>
+        
+            <li>
+                <a href="/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E9%A2%86%E8%88%AA%E8%B7%9F%E9%9A%8F%E6%B3%95/" class="category-post">多车编队 领航跟随法</a>
+            </li>
+        
+        
+    </ul>
+
+
+                            
+
+                            
+                            
+                                </li>
+                            
+                        
                     
-                    
                         
                         
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
+                        
+                        
+                        
+
                         
                             
+
                             
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                                    <p style="padding-left: 4.8em">
-                                        <a href="/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E4%BA%BA%E5%B7%A5%E5%8A%BF%E5%9C%BA%E6%B3%95/" class="category-post">多车编队 人工势场法</a>
-                                    </p>
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                                    <p style="padding-left: 4.8em">
-                                        <a href="/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E5%9B%BE%E8%AE%BA%E7%9A%84%E6%96%B9%E6%B3%95/" class="category-post">多车编队 基于图论的方法</a>
-                                    </p>
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                                    <p style="padding-left: 4.8em">
-                                        <a href="/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E8%A1%8C%E4%B8%BA%E7%9A%84%E6%96%B9%E6%B3%95/" class="category-post">多车编队 基于行为的方法</a>
-                                    </p>
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                                    <p style="padding-left: 4.8em">
-                                        <a href="/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E9%A2%86%E8%88%AA%E8%B7%9F%E9%9A%8F%E6%B3%95/" class="category-post">多车编队 领航跟随法</a>
-                                    </p>
-                                
                             
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
                                 
                                 
-                                
                             
-                        
+
                             
                             
-                                
                                 
-                                    
-                                    
                                 
-                                
-                                
-                            
-                        
-                            
-                            
-                        
-                            
-                            
-                        
-                            
-                            
-                        
-                            
-                            
-                        
-                            
-                            
-                        
                             
+
                             
-                        
+                                <li>
                             
                             
-                        
-                    
-                
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                        <p style="padding-left: 2.4em">
+
                             <a href="/categories/c%E8%AF%AD%E8%A8%80/" class="category-item">c语言</a>
                             
                                 <span class="category-count">(2)</span>
                             
-                        </p>
+
+                            
+                                
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                            
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                            
+                                        
+                                    
+                                
+                                    
+                                    
+                                
+                                    
+                                    
+                                
+                                    
+                                    
+                                
+                                    
+                                    
+                                
+                                    
+                                    
+                                
+                                    
+                                    
+                                
+                                    
+                                    
+                                
+                                
+                                
+    
+    
+    
+    
+
+    <ul class="list-posts">
+        
+            <li>
+                <a href="/posts/c/%E8%BF%90%E7%AE%97%E7%AC%A6/" class="category-post">c语言运算符</a>
+            </li>
+        
+            <li>
+                <a href="/posts/c/%E4%BD%9C%E7%94%A8%E5%9F%9F%E9%93%BE%E6%8E%A5%E5%AD%98%E5%82%A8%E7%B1%BB%E5%9E%8B/" class="category-post">作用域、链接、存储类型</a>
+            </li>
+        
+        
+    </ul>
+
+
+                            
+
+                            
+                            
+                                </li>
+                            
+                        
                     
-                    
                         
                         
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
+                        
+                        
+                        
+
                         
                             
+
                             
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                                    <p style="padding-left: 4.8em">
-                                        <a href="/posts/c/%E8%BF%90%E7%AE%97%E7%AC%A6/" class="category-post">c语言运算符</a>
-                                    </p>
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
                             
-                            
-                                
-                                
-                                    
-                                    
-                                
                                 
                                 
                             
-                        
+
                             
                             
                                 
                                 
-                                    
-                                    
-                                
-                                
-                                
-                                    <p style="padding-left: 4.8em">
-                                        <a href="/posts/c/%E4%BD%9C%E7%94%A8%E5%9F%9F%E9%93%BE%E6%8E%A5%E5%AD%98%E5%82%A8%E7%B1%BB%E5%9E%8B/" class="category-post">作用域、链接、存储类型</a>
-                                    </p>
-                                
-                            
-                        
-                            
-                            
-                        
-                            
-                            
-                        
-                            
-                            
-                        
-                            
-                            
-                        
-                            
-                            
-                        
                             
+
                             
-                        
+                                <li>
                             
                             
-                        
-                    
-                
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                        <p style="padding-left: 2.4em">
+
                             <a href="/categories/linux%E5%86%85%E6%A0%B8/" class="category-item">linux内核</a>
                             
                                 <span class="category-count">(6)</span>
                             
-                        </p>
+
+                            
+                                
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                            
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                            
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                            
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                            
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                            
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                            
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                
+                                    
+                                    
+                                
+                                    
+                                    
+                                
+                                    
+                                    
+                                
+                                    
+                                    
+                                
+                                    
+                                    
+                                
+                                    
+                                    
+                                
+                                
+                                
+    
+    
+    
+    
+
+    <ul class="list-posts">
+        
+            <li>
+                <a href="/posts/linux-kernel/bpf%E7%9A%84jit%E7%BC%96%E8%AF%91%E5%99%A8/" class="category-post">bpf的jit编译器</a>
+            </li>
+        
+            <li>
+                <a href="/posts/linux-kernel/bpf-paper/" class="category-post">The BSD Packet Filter论文笔记及源码解析</a>
+            </li>
+        
+            <li>
+                <a href="/posts/linux-kernel/waitqueue/" class="category-post">Waitqueue简介</a>
+            </li>
+        
+            <li>
+                <a href="/posts/linux-kernel/%E8%BF%9B%E7%A8%8B%E8%99%9A%E6%8B%9F%E5%9C%B0%E5%9D%80%E7%A9%BA%E9%97%B4/" class="category-post">进程虚拟地址空间</a>
+            </li>
+        
+            <li>
+                <a href="/posts/linux-kernel/%E4%BC%99%E4%BC%B4%E7%B3%BB%E7%BB%9F/" class="category-post">伙伴系统</a>
+            </li>
+        
+            <li>
+                <a href="/posts/linux-kernel/slab/" class="category-post">Slab分配器</a>
+            </li>
+        
+        
+    </ul>
+
+
+                            
+
+                            
+                            
+                                </li>
+                            
+                        
                     
-                    
                         
                         
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
+                        
+                        
+                        
+
                         
                             
+
                             
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                                    <p style="padding-left: 4.8em">
-                                        <a href="/posts/linux-kernel/bpf%E7%9A%84jit%E7%BC%96%E8%AF%91%E5%99%A8/" class="category-post">bpf的jit编译器</a>
-                                    </p>
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                                    <p style="padding-left: 4.8em">
-                                        <a href="/posts/linux-kernel/bpf-paper/" class="category-post">The BSD Packet Filter论文笔记及源码解析</a>
-                                    </p>
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                                    <p style="padding-left: 4.8em">
-                                        <a href="/posts/linux-kernel/waitqueue/" class="category-post">Waitqueue简介</a>
-                                    </p>
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                                    <p style="padding-left: 4.8em">
-                                        <a href="/posts/linux-kernel/%E8%BF%9B%E7%A8%8B%E8%99%9A%E6%8B%9F%E5%9C%B0%E5%9D%80%E7%A9%BA%E9%97%B4/" class="category-post">进程虚拟地址空间</a>
-                                    </p>
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
                             
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                                    <p style="padding-left: 4.8em">
-                                        <a href="/posts/linux-kernel/%E4%BC%99%E4%BC%B4%E7%B3%BB%E7%BB%9F/" class="category-post">伙伴系统</a>
-                                    </p>
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
                                 
-                                    
-                                    
                                 
-                                
-                                
-                                    <p style="padding-left: 4.8em">
-                                        <a href="/posts/linux-kernel/slab/" class="category-post">Slab分配器</a>
-                                    </p>
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                        
-                            
-                            
-                        
-                            
-                            
-                        
-                            
-                            
-                        
                             
+
                             
-                        
                             
+
                             
-                        
+                                <li>
                             
                             
-                        
-                    
-                
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                        <p style="padding-left: 2.4em">
+
                             <a href="/categories/mit6828-os%E5%AE%9E%E9%AA%8C/" class="category-item">mit6828 OS实验</a>
                             
                                 <span class="category-count">(5)</span>
                             
-                        </p>
+
+                            
+                                
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                            
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                            
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                            
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                            
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                            
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                        
+                                        
+                                            
+                                            
+                                        
+                                        
+                                        
+                                    
+                                
+                                    
+                                    
+                                
+                                    
+                                    
+                                
+                                    
+                                    
+                                
+                                    
+                                    
+                                
+                                    
+                                    
+                                
+                                    
+                                    
+                                
+                                    
+                                    
+                                
+                                
+                                
+    
+    
+    
+    
+
+    <ul class="list-posts">
+        
+            <li>
+                <a href="/posts/course/mit6828/lab5/" class="category-post">Lab5 - 实验笔记</a>
+            </li>
+        
+            <li>
+                <a href="/posts/course/mit6828/lab4/" class="category-post">Lab4 - 实验笔记</a>
+            </li>
+        
+            <li>
+                <a href="/posts/course/mit6828/lab3/" class="category-post">Lab3 - 实验笔记</a>
+            </li>
+        
+            <li>
+                <a href="/posts/course/mit6828/lab2/" class="category-post">Lab2 - 实验笔记</a>
+            </li>
+        
+            <li>
+                <a href="/posts/course/mit6828/lab1/" class="category-post">Lab1 - 实验笔记</a>
+            </li>
+        
+        
+    </ul>
+
+
+                            
+
+                            
+                            
+                                </li>
+                            
+                        
                     
-                    
-                        
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                                    <p style="padding-left: 4.8em">
-                                        <a href="/posts/course/mit6828/lab5/" class="category-post">Lab5 - 实验笔记</a>
-                                    </p>
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                                    <p style="padding-left: 4.8em">
-                                        <a href="/posts/course/mit6828/lab4/" class="category-post">Lab4 - 实验笔记</a>
-                                    </p>
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                                    <p style="padding-left: 4.8em">
-                                        <a href="/posts/course/mit6828/lab3/" class="category-post">Lab3 - 实验笔记</a>
-                                    </p>
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                                    <p style="padding-left: 4.8em">
-                                        <a href="/posts/course/mit6828/lab2/" class="category-post">Lab2 - 实验笔记</a>
-                                    </p>
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                                    <p style="padding-left: 4.8em">
-                                        <a href="/posts/course/mit6828/lab1/" class="category-post">Lab1 - 实验笔记</a>
-                                    </p>
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                                
-                                
-                                    
-                                    
-                                
-                                
-                                
-                            
-                        
-                            
-                            
-                        
-                            
-                            
-                        
-                            
-                            
-                        
-                            
-                            
-                        
-                            
-                            
-                        
-                            
-                            
-                        
-                            
-                            
-                        
-                    
-                
+                </ul>
             </div>
         </div>
     </div>
 </main>
+
     
 
             
     <div id="back-to-top" class="back-to-top">
-        <a href="#"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="icon"><path d="M34.9 289.5l-22.2-22.2c-9.4-9.4-9.4-24.6 0-33.9L207 39c9.4-9.4 24.6-9.4 33.9 0l194.3 194.3c9.4 9.4 9.4 24.6 0 33.9L413 289.4c-9.5 9.5-25 9.3-34.3-.4L264 168.6V456c0 13.3-10.7 24-24 24h-32c-13.3 0-24-10.7-24-24V168.6L69.2 289.1c-9.3 9.8-24.8 10-34.3.4z"/></svg></a>
+        <a href="#"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="icon arrow-up"><path d="M34.9 289.5l-22.2-22.2c-9.4-9.4-9.4-24.6 0-33.9L207 39c9.4-9.4 24.6-9.4 33.9 0l194.3 194.3c9.4 9.4 9.4 24.6 0 33.9L413 289.4c-9.5 9.5-25 9.3-34.3-.4L264 168.6V456c0 13.3-10.7 24-24 24h-32c-13.3 0-24-10.7-24-24V168.6L69.2 289.1c-9.3 9.8-24.8 10-34.3.4z"/></svg></a>
     </div>
+
 
             
     <footer id="footer" class="footer">
-        <div class="footer-inner"><div class="site-info">©&nbsp;2019–2020&nbsp;<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon footer-icon"><path d="M462.3 62.6C407.5 15.9 326 24.3 275.7 76.2L256 96.5l-19.7-20.3C186.1 24.3 104.5 15.9 49.7 62.6c-62.8 53.6-66.1 149.8-9.9 207.9l193.5 199.8c12.5 12.9 32.8 12.9 45.3 0l193.5-199.8c56.3-58.1 53-154.3-9.8-207.9z"/></svg>&nbsp;程书意</div><div class="powered-by">Powered by <a href="https://github.com/gohugoio/hugo" target="_blank" rel="noopener">Hugo</a> | Theme is <a href="https://github.com/reuixiy/hugo-theme-meme" target="_blank" rel="noopener">MemE</a></div><div class="site-copyright"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a></div>
+        <div class="footer-inner">
+            <div class="site-info">©&nbsp;2019–2020&nbsp;<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon footer-icon"><path d="M462.3 62.6C407.5 15.9 326 24.3 275.7 76.2L256 96.5l-19.7-20.3C186.1 24.3 104.5 15.9 49.7 62.6c-62.8 53.6-66.1 149.8-9.9 207.9l193.5 199.8c12.5 12.9 32.8 12.9 45.3 0l193.5-199.8c56.3-58.1 53-154.3-9.8-207.9z"/></svg>&nbsp;程书意</div><div class="powered-by">Powered by <a href="https://github.com/gohugoio/hugo" target="_blank" rel="noopener">Hugo</a> | Theme is <a href="https://github.com/reuixiy/hugo-theme-meme" target="_blank" rel="noopener">MemE</a></div><div class="site-copyright"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a></div>
+
+            
+
 
             
         </div>
@@ -1751,9 +1955,7 @@
 
 
         </div>
-        <script src="/js/meme.min.e173d917b4d2012bf68b1ff9d69316b4067c8f101bc3edf8d126cded554538b6.js" integrity="sha256-4XPZF7TSASv2ix/51pMWtAZ8jxAbw+340SbN7VVFOLY="></script>
-
-
+        
     <script src="https://cdn.jsdelivr.net/gh/cferdinandi/smooth-scroll/dist/smooth-scroll.polyfills.min.js"></script>
 
 <script>
