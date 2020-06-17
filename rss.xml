@@ -23,7 +23,7 @@
         
             <copyright>[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh)</copyright>
         
-        <lastBuildDate>Tue, 16 Jun 2020 03:19:29 +0000</lastBuildDate>
+        <lastBuildDate>Wed, 17 Jun 2020 13:19:15 +0000</lastBuildDate>
         
             <atom:link rel="self" type="application/rss+xml" href="https://chengshuyi.github.io/rss.xml" />
         
@@ -159,7 +159,7 @@ CHS:Cylinder Head Sector -->
                 <copyright>[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh)</copyright>
                 
                     <description><![CDATA[<p>2001年，Eric Dumazet往bpf添加了jit（just in time）compiler功能，加速了bpf filter程序运行时间（包含编译+运行）。在<a href="https://chengshuyi.github.io/posts/linux-kernel/bpf-paper/">上一篇博文</a>，我们知道bpf的原始filter程序是通过翻译一条指令也代表着执行一条指令（没有转换成对应机器的机器码的过程），没有编译的过程。jit编译器可以将bpf的filter程序（伪代码）编译成可以直接在主机运行的机器码。该<a href="https://lwn.net/Articles/437884/">patch</a>实现了bfp程序到x86_64机器码的转换。</p>
-<p>本文介绍了jit编译器的原理</p>
+<p>本文简单介绍了jit编译器的原理，并有实例分析。</p>
 <h3 id="jit编译器">jit编译器</h3>
 <p>jit编译器的出现更多的是为了不同指令集之间的转换，对应着也就是跨平台的实现。以java和c为例，java的运行程序（字节码）可以在任意平台上运行，而c语言运行程序不行。这是因为java在不同的平台都配置有相应的jit编译器。在程序运行的时候，jit编译器会将字节码转换成对应平台的指令，然后执行。</p>
 <ol>
@@ -254,7 +254,7 @@ jmp 02
 xor %eax,%eax
 leaveq
 ret
-</code></pre><p>源码有删除一部分</p>
+</code></pre><p>下面是jit编译的源码，有删除一部分。同时，给了一部分的注释：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre class="chroma"><code><span class="lnt">  1
@@ -702,35 +702,13 @@ ret
 </span><span class="lnt">443
 </span><span class="lnt">444
 </span><span class="lnt">445
-</span><span class="lnt">446
-</span><span class="lnt">447
-</span><span class="lnt">448
-</span><span class="lnt">449
-</span><span class="lnt">450
-</span><span class="lnt">451
-</span><span class="lnt">452
-</span><span class="lnt">453
-</span><span class="lnt">454
-</span><span class="lnt">455
-</span><span class="lnt">456
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-c" data-lang="c">
-<span class="cm">/* bpf_jit_comp.c : BPF JIT compiler
-</span><span class="cm"> *
-</span><span class="cm"> * Copyright (C) 2011 Eric Dumazet (eric.dumazet@gmail.com)
-</span><span class="cm"> *
-</span><span class="cm"> * This program is free software; you can redistribute it and/or
-</span><span class="cm"> * modify it under the terms of the GNU General Public License
-</span><span class="cm"> * as published by the Free Software Foundation; version 2
-</span><span class="cm"> * of the License.
-</span><span class="cm"> */</span>
-<span class="cp">#include</span> <span class="cpf">&lt;linux/moduleloader.h&gt;</span><span class="cp">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="cp">#include</span> <span class="cpf">&lt;linux/moduleloader.h&gt;</span><span class="cp">
 </span><span class="cp">#include</span> <span class="cpf">&lt;asm/cacheflush.h&gt;</span><span class="cp">
 </span><span class="cp">#include</span> <span class="cpf">&lt;linux/netdevice.h&gt;</span><span class="cp">
 </span><span class="cp">#include</span> <span class="cpf">&lt;linux/filter.h&gt;</span><span class="cp">
-</span><span class="cp"></span>
-<span class="cm">/*
+</span><span class="cp"></span><span class="cm">/*
 </span><span class="cm"> * Conventions :
 </span><span class="cm"> *  EAX : BPF A accumulator
 </span><span class="cm"> *  EBX : BPF X accumulator
@@ -1176,8 +1154,8 @@ ret
 </div><h3 id="参考文章">参考文章</h3>
 <p>[1]. Mccanne S , Jacobson V . The BSD Packet Filter: A New Architecture for User-level Packet Capture[C]// Proceedings of the USENIX Winter 1993 Conference Proceedings on USENIX Winter 1993 Conference Proceedings. USENIX Association, 1993.
 [2]. A JIT for packet filters. <a href="https://lwn.net/Articles/437981/">https://lwn.net/Articles/437981/</a>.
-[3]. net: filter: Just In Time compiler. <a href="https://lwn.net/Articles/437884/">https://lwn.net/Articles/437884/</a>.</p>
-<p>[4]. Understanding JIT compiler (just-in-time compiler) for java. <a href="https://aboullaite.me/understanding-jit-compiler-just-in-time-compiler/">https://aboullaite.me/understanding-jit-compiler-just-in-time-compiler/</a>.</p>
+[3]. net: filter: Just In Time compiler. <a href="https://lwn.net/Articles/437884/">https://lwn.net/Articles/437884/</a>.
+[4]. Understanding JIT compiler (just-in-time compiler) for java. <a href="https://aboullaite.me/understanding-jit-compiler-just-in-time-compiler/">https://aboullaite.me/understanding-jit-compiler-just-in-time-compiler/</a>.</p>
 ]]></description>
                 
                 
@@ -1206,7 +1184,7 @@ ret
                                 
                                 
                                 
-                                    <category domain="https://chengshuyi.github.io/tags/bpf/">bpf</category>
+                                    <category domain="https://chengshuyi.github.io/tags/linux%E5%B7%A5%E5%85%B7/">linux工具</category>
                                 
                             
                         
@@ -2023,7 +2001,7 @@ L5: ret #0						# 返回长度0
                                 
                                 
                                 
-                                    <category domain="https://chengshuyi.github.io/tags/bpf/">bpf</category>
+                                    <category domain="https://chengshuyi.github.io/tags/linux%E5%B7%A5%E5%85%B7/">linux工具</category>
                                 
                             
                         

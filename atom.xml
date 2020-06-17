@@ -4,7 +4,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom" xml:lang="zh-CN">
     <title type="text">程书意</title>
     <subtitle type="html">MemE 是一个强大且可高度定制的 GoHugo 博客主题，专为个人博客设计。</subtitle>
-    <updated>2020-06-16T03:19:29+00:00</updated>
+    <updated>2020-06-17T13:19:15+00:00</updated>
     <id>https://chengshuyi.github.io/</id>
     <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/" />
     <link rel="self" type="application/atom+xml" href="https://chengshuyi.github.io/atom.xml" />
@@ -20,7 +20,7 @@
             <title type="text">Fat32文件系统详解</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/filesystem/fat/" />
             <id>https://chengshuyi.github.io/posts/filesystem/fat/</id>
-            <updated>2020-06-16T03:19:26+00:00</updated>
+            <updated>2020-06-17T13:19:11+00:00</updated>
             <published>2020-05-14T20:06:37+08:00</published>
             <author>
                     <name>程书意</name>
@@ -145,7 +145,7 @@ CHS:Cylinder Head Sector -->
             <title type="text">bpf的jit编译器</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/linux-kernel/bpf%E7%9A%84jit%E7%BC%96%E8%AF%91%E5%99%A8/" />
             <id>https://chengshuyi.github.io/posts/linux-kernel/bpf%E7%9A%84jit%E7%BC%96%E8%AF%91%E5%99%A8/</id>
-            <updated>2020-06-16T03:19:26+00:00</updated>
+            <updated>2020-06-17T13:19:11+00:00</updated>
             <published>2020-05-10T16:33:22+08:00</published>
             <author>
                     <name>程书意</name>
@@ -157,7 +157,7 @@ CHS:Cylinder Head Sector -->
     <summary type="html"><![CDATA[2001年，Eric Dumazet往bpf添加了jit（just in time）compiler功能，加速了bpf filter程序运行时间（包含编译+运行）。在上一篇博文，……]]></summary>
             
                 <content type="html"><![CDATA[<p>2001年，Eric Dumazet往bpf添加了jit（just in time）compiler功能，加速了bpf filter程序运行时间（包含编译+运行）。在<a href="https://chengshuyi.github.io/posts/linux-kernel/bpf-paper/">上一篇博文</a>，我们知道bpf的原始filter程序是通过翻译一条指令也代表着执行一条指令（没有转换成对应机器的机器码的过程），没有编译的过程。jit编译器可以将bpf的filter程序（伪代码）编译成可以直接在主机运行的机器码。该<a href="https://lwn.net/Articles/437884/">patch</a>实现了bfp程序到x86_64机器码的转换。</p>
-<p>本文介绍了jit编译器的原理</p>
+<p>本文简单介绍了jit编译器的原理，并有实例分析。</p>
 <h3 id="jit编译器">jit编译器</h3>
 <p>jit编译器的出现更多的是为了不同指令集之间的转换，对应着也就是跨平台的实现。以java和c为例，java的运行程序（字节码）可以在任意平台上运行，而c语言运行程序不行。这是因为java在不同的平台都配置有相应的jit编译器。在程序运行的时候，jit编译器会将字节码转换成对应平台的指令，然后执行。</p>
 <ol>
@@ -252,7 +252,7 @@ jmp 02
 xor %eax,%eax
 leaveq
 ret
-</code></pre><p>源码有删除一部分</p>
+</code></pre><p>下面是jit编译的源码，有删除一部分。同时，给了一部分的注释：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre class="chroma"><code><span class="lnt">  1
@@ -700,35 +700,13 @@ ret
 </span><span class="lnt">443
 </span><span class="lnt">444
 </span><span class="lnt">445
-</span><span class="lnt">446
-</span><span class="lnt">447
-</span><span class="lnt">448
-</span><span class="lnt">449
-</span><span class="lnt">450
-</span><span class="lnt">451
-</span><span class="lnt">452
-</span><span class="lnt">453
-</span><span class="lnt">454
-</span><span class="lnt">455
-</span><span class="lnt">456
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-c" data-lang="c">
-<span class="cm">/* bpf_jit_comp.c : BPF JIT compiler
-</span><span class="cm"> *
-</span><span class="cm"> * Copyright (C) 2011 Eric Dumazet (eric.dumazet@gmail.com)
-</span><span class="cm"> *
-</span><span class="cm"> * This program is free software; you can redistribute it and/or
-</span><span class="cm"> * modify it under the terms of the GNU General Public License
-</span><span class="cm"> * as published by the Free Software Foundation; version 2
-</span><span class="cm"> * of the License.
-</span><span class="cm"> */</span>
-<span class="cp">#include</span> <span class="cpf">&lt;linux/moduleloader.h&gt;</span><span class="cp">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="cp">#include</span> <span class="cpf">&lt;linux/moduleloader.h&gt;</span><span class="cp">
 </span><span class="cp">#include</span> <span class="cpf">&lt;asm/cacheflush.h&gt;</span><span class="cp">
 </span><span class="cp">#include</span> <span class="cpf">&lt;linux/netdevice.h&gt;</span><span class="cp">
 </span><span class="cp">#include</span> <span class="cpf">&lt;linux/filter.h&gt;</span><span class="cp">
-</span><span class="cp"></span>
-<span class="cm">/*
+</span><span class="cp"></span><span class="cm">/*
 </span><span class="cm"> * Conventions :
 </span><span class="cm"> *  EAX : BPF A accumulator
 </span><span class="cm"> *  EBX : BPF X accumulator
@@ -1174,8 +1152,8 @@ ret
 </div><h3 id="参考文章">参考文章</h3>
 <p>[1]. Mccanne S , Jacobson V . The BSD Packet Filter: A New Architecture for User-level Packet Capture[C]// Proceedings of the USENIX Winter 1993 Conference Proceedings on USENIX Winter 1993 Conference Proceedings. USENIX Association, 1993.
 [2]. A JIT for packet filters. <a href="https://lwn.net/Articles/437981/">https://lwn.net/Articles/437981/</a>.
-[3]. net: filter: Just In Time compiler. <a href="https://lwn.net/Articles/437884/">https://lwn.net/Articles/437884/</a>.</p>
-<p>[4]. Understanding JIT compiler (just-in-time compiler) for java. <a href="https://aboullaite.me/understanding-jit-compiler-just-in-time-compiler/">https://aboullaite.me/understanding-jit-compiler-just-in-time-compiler/</a>.</p>
+[3]. net: filter: Just In Time compiler. <a href="https://lwn.net/Articles/437884/">https://lwn.net/Articles/437884/</a>.
+[4]. Understanding JIT compiler (just-in-time compiler) for java. <a href="https://aboullaite.me/understanding-jit-compiler-just-in-time-compiler/">https://aboullaite.me/understanding-jit-compiler-just-in-time-compiler/</a>.</p>
 ]]></content>
             
             
@@ -1204,7 +1182,7 @@ ret
                             
                             
                             
-                                <category scheme="https://chengshuyi.github.io/tags/bpf/" term="bpf" label="bpf" />
+                                <category scheme="https://chengshuyi.github.io/tags/linux%E5%B7%A5%E5%85%B7/" term="linux工具" label="linux工具" />
                             
                         
                     
@@ -1216,7 +1194,7 @@ ret
             <title type="text">The BSD Packet Filter论文笔记及源码解析</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/linux-kernel/bpf-paper/" />
             <id>https://chengshuyi.github.io/posts/linux-kernel/bpf-paper/</id>
-            <updated>2020-06-16T03:19:26+00:00</updated>
+            <updated>2020-06-17T13:19:11+00:00</updated>
             <published>2020-05-09T08:36:36+08:00</published>
             <author>
                     <name>程书意</name>
@@ -2026,7 +2004,7 @@ L5: ret #0						# 返回长度0
                             
                             
                             
-                                <category scheme="https://chengshuyi.github.io/tags/bpf/" term="bpf" label="bpf" />
+                                <category scheme="https://chengshuyi.github.io/tags/linux%E5%B7%A5%E5%85%B7/" term="linux工具" label="linux工具" />
                             
                         
                     
@@ -2038,7 +2016,7 @@ L5: ret #0						# 返回长度0
             <title type="text">Waitqueue简介</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/linux-kernel/waitqueue/" />
             <id>https://chengshuyi.github.io/posts/linux-kernel/waitqueue/</id>
-            <updated>2020-06-16T03:19:26+00:00</updated>
+            <updated>2020-06-17T13:19:11+00:00</updated>
             <published>2020-05-06T20:00:07+08:00</published>
             <author>
                     <name>程书意</name>
@@ -2591,7 +2569,7 @@ func read:
             <title type="text">Lab5 - 实验笔记</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/course/mit6828/lab5/" />
             <id>https://chengshuyi.github.io/posts/course/mit6828/lab5/</id>
-            <updated>2020-06-16T03:19:26+00:00</updated>
+            <updated>2020-06-17T13:19:11+00:00</updated>
             <published>2020-04-25T13:34:18+08:00</published>
             <author>
                     <name>程书意</name>
@@ -3273,7 +3251,7 @@ func read:
             <title type="text">Lab4 - 实验笔记</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/course/mit6828/lab4/" />
             <id>https://chengshuyi.github.io/posts/course/mit6828/lab4/</id>
-            <updated>2020-06-16T03:19:26+00:00</updated>
+            <updated>2020-06-17T13:19:11+00:00</updated>
             <published>2020-04-25T13:34:16+08:00</published>
             <author>
                     <name>程书意</name>
@@ -3527,7 +3505,7 @@ func read:
             <title type="text">Lab3 - 实验笔记</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/course/mit6828/lab3/" />
             <id>https://chengshuyi.github.io/posts/course/mit6828/lab3/</id>
-            <updated>2020-06-16T03:19:26+00:00</updated>
+            <updated>2020-06-17T13:19:11+00:00</updated>
             <published>2020-04-25T13:34:13+08:00</published>
             <author>
                     <name>程书意</name>
@@ -3879,7 +3857,7 @@ func read:
             <title type="text">Lab2 - 实验笔记</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/course/mit6828/lab2/" />
             <id>https://chengshuyi.github.io/posts/course/mit6828/lab2/</id>
-            <updated>2020-06-16T03:19:26+00:00</updated>
+            <updated>2020-06-17T13:19:11+00:00</updated>
             <published>2020-04-25T13:34:11+08:00</published>
             <author>
                     <name>程书意</name>
@@ -4176,7 +4154,7 @@ func read:
             <title type="text">Lab1 - 实验笔记</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/course/mit6828/lab1/" />
             <id>https://chengshuyi.github.io/posts/course/mit6828/lab1/</id>
-            <updated>2020-06-16T03:19:26+00:00</updated>
+            <updated>2020-06-17T13:19:11+00:00</updated>
             <published>2020-04-24T20:24:40+08:00</published>
             <author>
                     <name>程书意</name>
@@ -4552,7 +4530,7 @@ f0100ade:	e8 b7 ff ff ff       	call   f0100a9a &lt;vcprintf&gt;
             <title type="text">嵌入式文件系统</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/filesystem/%E5%B5%8C%E5%85%A5%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/" />
             <id>https://chengshuyi.github.io/posts/filesystem/%E5%B5%8C%E5%85%A5%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/</id>
-            <updated>2020-06-16T03:19:26+00:00</updated>
+            <updated>2020-06-17T13:19:11+00:00</updated>
             <published>2020-04-21T14:11:20+08:00</published>
             <author>
                     <name>程书意</name>
@@ -4803,7 +4781,7 @@ f0100ade:	e8 b7 ff ff ff       	call   f0100a9a &lt;vcprintf&gt;
             <title type="text">进程虚拟地址空间</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/linux-kernel/%E8%BF%9B%E7%A8%8B%E8%99%9A%E6%8B%9F%E5%9C%B0%E5%9D%80%E7%A9%BA%E9%97%B4/" />
             <id>https://chengshuyi.github.io/posts/linux-kernel/%E8%BF%9B%E7%A8%8B%E8%99%9A%E6%8B%9F%E5%9C%B0%E5%9D%80%E7%A9%BA%E9%97%B4/</id>
-            <updated>2020-06-16T03:19:26+00:00</updated>
+            <updated>2020-06-17T13:19:11+00:00</updated>
             <published>2020-04-04T19:31:04+08:00</published>
             <author>
                     <name>程书意</name>
@@ -4899,7 +4877,7 @@ f0100ade:	e8 b7 ff ff ff       	call   f0100a9a &lt;vcprintf&gt;
             <title type="text">多车编队 人工势场法</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E4%BA%BA%E5%B7%A5%E5%8A%BF%E5%9C%BA%E6%B3%95/" />
             <id>https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E4%BA%BA%E5%B7%A5%E5%8A%BF%E5%9C%BA%E6%B3%95/</id>
-            <updated>2020-06-16T03:19:26+00:00</updated>
+            <updated>2020-06-17T13:19:11+00:00</updated>
             <published>2020-04-04T10:02:06+08:00</published>
             <author>
                     <name>程书意</name>
@@ -5032,7 +5010,7 @@ $$
             <title type="text">多车编队 基于图论的方法</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E5%9B%BE%E8%AE%BA%E7%9A%84%E6%96%B9%E6%B3%95/" />
             <id>https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E5%9B%BE%E8%AE%BA%E7%9A%84%E6%96%B9%E6%B3%95/</id>
-            <updated>2020-06-16T03:19:26+00:00</updated>
+            <updated>2020-06-17T13:19:11+00:00</updated>
             <published>2020-04-04T10:00:47+08:00</published>
             <author>
                     <name>程书意</name>
@@ -5133,7 +5111,7 @@ $$
             <title type="text">多车编队 基于行为的方法</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E8%A1%8C%E4%B8%BA%E7%9A%84%E6%96%B9%E6%B3%95/" />
             <id>https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E8%A1%8C%E4%B8%BA%E7%9A%84%E6%96%B9%E6%B3%95/</id>
-            <updated>2020-06-16T03:19:26+00:00</updated>
+            <updated>2020-06-17T13:19:11+00:00</updated>
             <published>2020-04-04T09:11:07+08:00</published>
             <author>
                     <name>程书意</name>
@@ -5301,7 +5279,7 @@ $$
             <title type="text">c语言运算符</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/c/%E8%BF%90%E7%AE%97%E7%AC%A6/" />
             <id>https://chengshuyi.github.io/posts/c/%E8%BF%90%E7%AE%97%E7%AC%A6/</id>
-            <updated>2020-06-16T03:19:26+00:00</updated>
+            <updated>2020-06-17T13:19:11+00:00</updated>
             <published>2020-04-03T17:25:34+08:00</published>
             <author>
                     <name>程书意</name>
@@ -5512,7 +5490,7 @@ $$</p>
             <title type="text">伙伴系统</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/linux-kernel/%E4%BC%99%E4%BC%B4%E7%B3%BB%E7%BB%9F/" />
             <id>https://chengshuyi.github.io/posts/linux-kernel/%E4%BC%99%E4%BC%B4%E7%B3%BB%E7%BB%9F/</id>
-            <updated>2020-06-16T03:19:26+00:00</updated>
+            <updated>2020-06-17T13:19:11+00:00</updated>
             <published>2020-04-03T15:26:04+08:00</published>
             <author>
                     <name>程书意</name>
@@ -5738,7 +5716,7 @@ $$</p>
             <title type="text">多车编队 领航跟随法</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E9%A2%86%E8%88%AA%E8%B7%9F%E9%9A%8F%E6%B3%95/" />
             <id>https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E9%A2%86%E8%88%AA%E8%B7%9F%E9%9A%8F%E6%B3%95/</id>
-            <updated>2020-06-16T03:19:26+00:00</updated>
+            <updated>2020-06-17T13:19:11+00:00</updated>
             <published>2020-04-03T11:27:11+08:00</published>
             <author>
                     <name>程书意</name>
@@ -5855,7 +5833,7 @@ $$
             <title type="text">Slab分配器</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/linux-kernel/slab/" />
             <id>https://chengshuyi.github.io/posts/linux-kernel/slab/</id>
-            <updated>2020-06-16T03:19:26+00:00</updated>
+            <updated>2020-06-17T13:19:11+00:00</updated>
             <published>2020-04-02T16:24:50+08:00</published>
             <author>
                     <name>程书意</name>
@@ -5957,7 +5935,7 @@ $$
             <title type="text">作用域、链接、存储类型</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/c/%E4%BD%9C%E7%94%A8%E5%9F%9F%E9%93%BE%E6%8E%A5%E5%AD%98%E5%82%A8%E7%B1%BB%E5%9E%8B/" />
             <id>https://chengshuyi.github.io/posts/c/%E4%BD%9C%E7%94%A8%E5%9F%9F%E9%93%BE%E6%8E%A5%E5%AD%98%E5%82%A8%E7%B1%BB%E5%9E%8B/</id>
-            <updated>2020-06-16T03:19:26+00:00</updated>
+            <updated>2020-06-17T13:19:11+00:00</updated>
             <published>2020-04-02T13:41:27+08:00</published>
             <author>
                     <name>程书意</name>
@@ -6234,7 +6212,7 @@ $$
             <title type="text"></title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/computer-network/untitled/" />
             <id>https://chengshuyi.github.io/posts/computer-network/untitled/</id>
-            <updated>2020-06-16T03:19:26+00:00</updated>
+            <updated>2020-06-17T13:19:11+00:00</updated>
             <published>0001-01-01T00:00:00+00:00</published>
             <author>
                     <name>程书意</name>
@@ -6303,7 +6281,7 @@ does not provide: reliability, flow control, congestion control, timing, through
             <title type="text"></title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/cse/" />
             <id>https://chengshuyi.github.io/posts/cse/</id>
-            <updated>2020-06-16T03:19:26+00:00</updated>
+            <updated>2020-06-17T13:19:11+00:00</updated>
             <published>0001-01-01T00:00:00+00:00</published>
             <author>
                     <name>程书意</name>
@@ -6379,7 +6357,7 @@ Soft link can create cycle by SYMLINK(&quot;a&quot;, &quot;a&quot;)
             <title type="text"></title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/leet/" />
             <id>https://chengshuyi.github.io/posts/leet/</id>
-            <updated>2020-06-16T03:19:26+00:00</updated>
+            <updated>2020-06-17T13:19:11+00:00</updated>
             <published>0001-01-01T00:00:00+00:00</published>
             <author>
                     <name>程书意</name>
@@ -6422,7 +6400,7 @@ Relational Algebra</p>
             <title type="text"></title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/linux-kernel/untitled/" />
             <id>https://chengshuyi.github.io/posts/linux-kernel/untitled/</id>
-            <updated>2020-06-16T03:19:26+00:00</updated>
+            <updated>2020-06-17T13:19:11+00:00</updated>
             <published>0001-01-01T00:00:00+00:00</published>
             <author>
                     <name>程书意</name>
