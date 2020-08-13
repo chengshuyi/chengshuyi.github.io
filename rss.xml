@@ -23,10 +23,66 @@
         
             <copyright>[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh)</copyright>
         
-        <lastBuildDate>Thu, 13 Aug 2020 12:58:40 &#43;0000</lastBuildDate>
+        <lastBuildDate>Thu, 13 Aug 2020 15:20:24 &#43;0000</lastBuildDate>
         
             <atom:link rel="self" type="application/rss&#43;xml" href="https://chengshuyi.github.io/rss.xml" />
         
+        
+            <item>
+                <title>记一次利用条件断点调试内存踩踏问题</title>
+                <link>https://chengshuyi.github.io/posts/%E7%BB%8F%E9%AA%8C/condition_breakpoints/</link>
+                <guid isPermaLink="true">https://chengshuyi.github.io/posts/%E7%BB%8F%E9%AA%8C/condition_breakpoints/</guid>
+                <pubDate>Thu, 13 Aug 2020 19:09:01 &#43;0800</pubDate>
+                
+                    <author>c15271843451@outlook.com (程书意)</author>
+                
+                <copyright>[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh)</copyright>
+                
+                    <description>&lt;p&gt;最近遇到一个bug，内存的数据被篡改，但是由于数据频繁变化、时间短（几毫秒更新一次）以及代码极多，无法利用单步调试确定是哪行代码修改了其内存数据。采用内存地址条件断点调试很快就解决了问题。&lt;/p&gt;
+&lt;h3 id=&#34;场景描述&#34;&gt;场景描述&lt;/h3&gt;
+&lt;p&gt;有64位整数数组为&lt;code&gt;uint64_t result[0x10000000]&lt;/code&gt;，外界通过http协议获取该数据的二进制，但是该数据有时会出现异常值。可以知道，&lt;code&gt;result&lt;/code&gt;数据被任意的篡改了。难点在于代码多，无法很好的定位哪里修改了&lt;code&gt;result&lt;/code&gt;。&lt;/p&gt;
+&lt;h3 id=&#34;解决方案&#34;&gt;解决方案&lt;/h3&gt;
+&lt;p&gt;通过观察发现，&lt;code&gt;result[0]&lt;/code&gt;每次都会被修改成整数&lt;code&gt;0x14d00000002&lt;/code&gt;，因此可以插入内存条件断点：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;假设&lt;code&gt;result&lt;/code&gt;的首地址为&lt;code&gt;0x12108920&lt;/code&gt;，则插入内存条件断点为&lt;code&gt;*((uint64_t *)(0x12108920)) == 0x14d00000002&lt;/code&gt;；&lt;/li&gt;
+&lt;li&gt;运行程序，当条件成立时，程序自动停止，发现是全局变量重名的问题。在另外一个文件里面同样定义了一个&lt;code&gt;uint64_t result[]&lt;/code&gt;的全局数组；&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;虽然问题很简单，但是也有不少启发：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;全局变量最后能用统一的文件进行维护；&lt;/li&gt;
+&lt;li&gt;内存数据篡改可以利用内存条件断点找到修改数据的指令地址；&lt;/li&gt;
+&lt;li&gt;可以采用反汇编搜索被篡改的内存地址，可以找到哪些函数或者指令修改了其数据；&lt;/li&gt;
+&lt;li&gt;能用&lt;code&gt;static&lt;/code&gt;就用&lt;code&gt;static&lt;/code&gt;；&lt;/li&gt;
+&lt;/ol&gt;
+</description>
+                
+                
+                
+                
+                
+                    
+                        
+                            
+                                
+                                
+                                
+                                    <category domain="https://chengshuyi.github.io/categories/%E6%9D%82%E8%B0%88/">杂谈</category>
+                                
+                            
+                        
+                    
+                        
+                            
+                                
+                                
+                                
+                                    <category domain="https://chengshuyi.github.io/tags/%E6%9D%82%E8%B0%88/">杂谈</category>
+                                
+                            
+                        
+                    
+                
+            </item>
         
             <item>
                 <title>redis源码分析四：跳跃表</title>
