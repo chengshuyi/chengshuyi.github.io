@@ -23,7 +23,7 @@
         
             <copyright>[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh)</copyright>
         
-        <lastBuildDate>Fri, 14 Aug 2020 07:16:38 &#43;0000</lastBuildDate>
+        <lastBuildDate>Fri, 14 Aug 2020 11:08:39 &#43;0000</lastBuildDate>
         
             <atom:link rel="self" type="application/rss&#43;xml" href="https://chengshuyi.github.io/rss.xml" />
         
@@ -49,10 +49,16 @@
 &lt;/ol&gt;
 &lt;p&gt;虽然问题很简单，但是也有不少启发：&lt;/p&gt;
 &lt;ol&gt;
-&lt;li&gt;全局变量最后能用统一的文件进行维护；&lt;/li&gt;
+&lt;li&gt;全局变量最好能用统一的文件进行维护；&lt;/li&gt;
 &lt;li&gt;内存数据篡改可以利用内存条件断点找到修改数据的指令地址；&lt;/li&gt;
 &lt;li&gt;可以采用反汇编搜索被篡改的内存地址，可以找到哪些函数或者指令修改了其数据；&lt;/li&gt;
 &lt;li&gt;能用&lt;code&gt;static&lt;/code&gt;就用&lt;code&gt;static&lt;/code&gt;；&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;内存断点原理&#34;&gt;内存断点原理&lt;/h3&gt;
+&lt;p&gt;内存断点是通过修改该物理地址对应的页面属性，比如设置成只读、只写或者不可读写。当有指令试图修改该地址对应的值就会触发异常，然后由异常处理函数接管会进行如下判断：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;判断是否有在该地址插入内存断点，有的话需要恢复该物理地址的属性，如变成可读可写的；&lt;/li&gt;
+&lt;li&gt;如果是条件断点还需要判断可以判断是否满足条件，如果满足条件则需要设置一个单步调试断点。&lt;/li&gt;
 &lt;/ol&gt;
 </description>
                 
@@ -1577,6 +1583,193 @@ CHS:Cylinder Head Sector --&gt;
                                 
                                 
                                     <category domain="https://chengshuyi.github.io/tags/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/">文件系统</category>
+                                
+                            
+                        
+                    
+                
+            </item>
+        
+            <item>
+                <title>linux Kprobe源码解析</title>
+                <link>https://chengshuyi.github.io/posts/linux-kernel/kprobe/</link>
+                <guid isPermaLink="true">https://chengshuyi.github.io/posts/linux-kernel/kprobe/</guid>
+                <pubDate>Thu, 14 May 2020 09:09:19 &#43;0800</pubDate>
+                
+                    <author>c15271843451@outlook.com (程书意)</author>
+                
+                <copyright>[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh)</copyright>
+                
+                    <description>&lt;p&gt;kprobe是linux内核的一个重要特性，是一个轻量级的内核调试工具，同时它又是其他一些更高级的内核调试工具（比如perf和systemtap）的“基础设施”。利用kprobe可以在内核任何代码位置插入用户代码，因此可以在一些关键点插入kprobe达到收集内核运行信息的目的。kprobe的机制也很简单，就是将被探测的位置的指令替换为断点指令（不考虑jmp优化），断点指令被执行后会通过notifier_call_chain机制来通知kprobes，kprobes会首先调用用户指定的pre_handler接口。执行pre_handler接口后会单步执行原始的指令，如果用户也指定了post_handler接口，会在调用post_handler接口后结束处理。基本的处理过程如下图所示：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://gitee.com/chengshuyi/scripts/raw/master/img/20200814080244.png&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+&lt;p&gt;上图是x86平台下的流程，arm平台也大致差不多（除了触发断点的指令不同）。本文只涉及arm64平台的kprobe源码。&lt;/p&gt;
+&lt;h3 id=&#34;kprobe结构体&#34;&gt;kprobe结构体&lt;/h3&gt;
+&lt;p&gt;kprobe结构体比较简单，只要注意两点即可：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;code&gt;kprobe_opcode_t *addr&lt;/code&gt;、&lt;code&gt;const char *symbol_name&lt;/code&gt;和&lt;code&gt;unsigned int offset&lt;/code&gt;三者的关系：&lt;code&gt;addr&lt;/code&gt;单独使用、&lt;code&gt;symbol_name&lt;/code&gt;和&lt;code&gt;offset&lt;/code&gt;联合使用。因为&lt;code&gt;symbol_name&lt;/code&gt;只能定位到函数的首地址，加上&lt;code&gt;offset&lt;/code&gt;就可以定位到函数内部的任意一条指令；&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;fault_handler&lt;/code&gt;：&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 9
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;10
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;11
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;12
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;13
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;14
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;15
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;16
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;17
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;18
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;19
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;20
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;21
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;22
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;k&#34;&gt;typedef&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;kprobe_pre_handler_t&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;kprobe&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;pt_regs&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;  &lt;span class=&#34;c1&#34;&gt;//
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;typedef&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;void&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;kprobe_post_handler_t&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;kprobe&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;pt_regs&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+				       &lt;span class=&#34;kt&#34;&gt;unsigned&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;long&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;flags&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;typedef&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;kprobe_fault_handler_t&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;kprobe&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;pt_regs&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+				       &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;trapnr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;typedef&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;kretprobe_handler_t&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;kretprobe_instance&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+				    &lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;pt_regs&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+
+&lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;kprobe&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;hlist_node&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;hlist&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;                                        &lt;span class=&#34;c1&#34;&gt;// 所有注册的kprobe都会添加到kprobe_table哈希表中
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;list_head&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;list&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;                                          &lt;span class=&#34;c1&#34;&gt;// 如果在同一个位置注册了多个kprobe，这些kprobe会形成一个队列
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;kt&#34;&gt;unsigned&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;long&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;nmissed&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+	&lt;span class=&#34;n&#34;&gt;kprobe_opcode_t&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;addr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;                                          &lt;span class=&#34;c1&#34;&gt;// 探测的地址
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;k&#34;&gt;const&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;char&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;symbol_name&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;                                        &lt;span class=&#34;c1&#34;&gt;// 探测点的符号名称。名称和地址不能同时指定，否则注册时会返回EINVAL错误
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;kt&#34;&gt;unsigned&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;offset&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;                                            &lt;span class=&#34;c1&#34;&gt;// 探测点相对于符号地址的偏移，同symblo_name联合使用
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;n&#34;&gt;kprobe_pre_handler_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;pre_handler&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;                               &lt;span class=&#34;c1&#34;&gt;//
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;n&#34;&gt;kprobe_post_handler_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;post_handler&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;                             &lt;span class=&#34;c1&#34;&gt;//
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;n&#34;&gt;kprobe_fault_handler_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;fault_handler&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;                           &lt;span class=&#34;c1&#34;&gt;//
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;n&#34;&gt;kprobe_opcode_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;opcode&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;                                         &lt;span class=&#34;c1&#34;&gt;// 被修改的指令保存下来以便返回时恢复    
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;arch_specific_insn&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ainsn&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;                                &lt;span class=&#34;c1&#34;&gt;// 保存了探测点原始指令的拷贝。这里拷贝的指令要比opcode中存储的指令多，拷贝的大小为MAX_INSN_SIZE * sizeof(kprobe_opcode_t)。
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;n&#34;&gt;u32&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;flags&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;};&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h3 id=&#34;register_kprobe&#34;&gt;register_kprobe&lt;/h3&gt;
+&lt;p&gt;前面讲到kprobe的基本结构，接着我们会看到kprobe的注册流程，下面的脑图已经很清晰了，见脑图：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://gitee.com/chengshuyi/scripts/raw/master/img/20200811132549.png&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+&lt;h3 id=&#34;breakpoint-handler注册&#34;&gt;breakpoint handler注册&lt;/h3&gt;
+&lt;p&gt;前面讲到在某个内核地址或者符号注册一个kprobe时，kprobe会将该地址或者符号+offset对应的地址的指令保存下来，然后用触发断点指令替换掉，也就是BRK_OPCODE_KPROBES指令。接下来，我将会介绍到内核如何将断点中断路由给kprobe进行处理。&lt;/p&gt;
+&lt;p&gt;kprobe自身也是作为linux内核的一个模块而存在，linux内核启动时会加载并初始化每一个模块，kprobe也不例外。&lt;code&gt;kernel/kprobes.c&lt;/code&gt;是初始化kprobe的源码，在&lt;code&gt;init_kprobes&lt;/code&gt;会调用&lt;code&gt;arch_init_kprobes&lt;/code&gt;，&lt;code&gt;arch_init_kprobes&lt;/code&gt;是系统结构相关代码初始化，kprobe的breakpoint handler就是在这个函数内进行注册的。见下面的代码：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 9
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;10
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;11
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;12
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;13
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;14
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;15
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;16
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;__init&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;arch_init_kprobes&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+	&lt;span class=&#34;n&#34;&gt;register_kernel_break_hook&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;kprobes_break_hook&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;	&lt;span class=&#34;c1&#34;&gt;// 注册断点kprobe处理函数
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;n&#34;&gt;register_kernel_step_hook&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;kprobes_step_hook&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;		&lt;span class=&#34;c1&#34;&gt;// 注册单步kprobe处理函数
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;k&#34;&gt;static&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;break_hook&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;kprobes_break_hook&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;imm&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;KPROBES_BRK_IMM&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;								&lt;span class=&#34;c1&#34;&gt;// 这里的立即数就是之前脑图上提到的16位立即数，用于标识kprobe
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;fn&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;kprobe_breakpoint_handler&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;};&lt;/span&gt;
+
+&lt;span class=&#34;k&#34;&gt;static&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;step_hook&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;kprobes_step_hook&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;fn&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;kprobe_single_step_handler&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;};&lt;/span&gt;
+
+&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;先简述一下整个流程：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;krpobe模块调用&lt;code&gt;arch_init_kprobes&lt;/code&gt;；&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;register_kernel_break_hook&lt;/code&gt;：当内核出现断点中断时，内核会检查出现断点的位置的断点指令（同步中断的基础概念），根据断点指令的立即数同&lt;code&gt;break_hook&lt;/code&gt;结构体的&lt;code&gt;imm&lt;/code&gt;成员比较，匹配成功则调用回调函数，执行进一步的处理；&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;register_kernel_step_hook&lt;/code&gt;：同&lt;code&gt;break_hook&lt;/code&gt;不同，&lt;code&gt;step_hook&lt;/code&gt;没有立即数，但是kprobe会检查单步的指令地址来判断是否是自己发出的单步请求。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 9
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;10
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;11
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;break_hook&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;list_head&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;node&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+	&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;fn&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;pt_regs&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;regs&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;unsigned&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;esr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+	&lt;span class=&#34;n&#34;&gt;u16&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;imm&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;                                                        &lt;span class=&#34;c1&#34;&gt;// 这里的立即数就是之前脑图上提到的16位立即数，用于标识kprobe
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;n&#34;&gt;u16&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;mask&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;cm&#34;&gt;/* These bits are ignored when comparing with imm */&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;};&lt;/span&gt;
+
+&lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;step_hook&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;list_head&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;node&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+	&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;fn&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;pt_regs&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;regs&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;unsigned&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;esr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;};&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;下面的脑图详尽的描述了kprobe的&lt;code&gt;kprobe_breakpoint_handler&lt;/code&gt;和&lt;code&gt;kprobe_single_step_handler&lt;/code&gt;函数流程。需要注意以下两点：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;kprobe对于post handler的触发做了优化，也就是判断探测地址的指令是否支持模拟，如果支持模拟直接进行模拟，省去了单步的开销；&lt;/li&gt;
+&lt;li&gt;需要检查单步的请求是否是自己发出的，因为单步没有立即数用来区分是否是kprobe发出的单步。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;img src=&#34;https://gitee.com/chengshuyi/scripts/raw/master/img/20200814091000.png&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+&lt;h3 id=&#34;参考阅读&#34;&gt;参考阅读&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a href=&#34;https://lwn.net/Articles/132196/&#34;&gt;An introduction to KProbes&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+</description>
+                
+                
+                
+                
+                
+                    
+                        
+                            
+                                
+                                
+                                
+                                    <category domain="https://chengshuyi.github.io/categories/linux%E5%86%85%E6%A0%B8/">linux内核</category>
+                                
+                            
+                        
+                    
+                        
+                            
+                                
+                                
+                                
+                                    <category domain="https://chengshuyi.github.io/tags/linux%E5%86%85%E6%A0%B8/">linux内核</category>
                                 
                             
                         
