@@ -4,7 +4,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom" xml:lang="zh-CN">
     <title type="text">程书意</title>
     <subtitle type="html">MemE 是一个强大且可高度定制的 GoHugo 博客主题，专为个人博客设计。</subtitle>
-    <updated>2020-08-14T11:08:39&#43;00:00</updated>
+    <updated>2020-08-15T11:14:12&#43;00:00</updated>
     <id>https://chengshuyi.github.io/</id>
     <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/" />
     <link rel="self" type="application/atom&#43;xml" href="https://chengshuyi.github.io/atom.xml" />
@@ -20,7 +20,7 @@
             <title type="text">记一次利用条件断点调试内存踩踏问题</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/%E7%BB%8F%E9%AA%8C/condition_breakpoints/" />
             <id>https://chengshuyi.github.io/posts/%E7%BB%8F%E9%AA%8C/condition_breakpoints/</id>
-            <updated>2020-08-14T11:08:35&#43;00:00</updated>
+            <updated>2020-08-15T11:14:09&#43;00:00</updated>
             <published>2020-08-13T19:09:01&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -87,7 +87,7 @@
             <title type="text">redis源码分析四：跳跃表</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/redis/4-zsl/" />
             <id>https://chengshuyi.github.io/posts/redis/4-zsl/</id>
-            <updated>2020-08-14T11:08:35&#43;00:00</updated>
+            <updated>2020-08-15T11:14:09&#43;00:00</updated>
             <published>2020-08-12T16:35:33&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -357,7 +357,7 @@
             <title type="text">redis源码分析三：dict数据结构</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/redis/3-dict/" />
             <id>https://chengshuyi.github.io/posts/redis/3-dict/</id>
-            <updated>2020-08-14T11:08:35&#43;00:00</updated>
+            <updated>2020-08-15T11:14:09&#43;00:00</updated>
             <published>2020-08-12T16:35:16&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -716,7 +716,7 @@
             <title type="text">redis源码分析二：adlist数据结构</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/redis/2-adlist/" />
             <id>https://chengshuyi.github.io/posts/redis/2-adlist/</id>
-            <updated>2020-08-14T11:08:35&#43;00:00</updated>
+            <updated>2020-08-15T11:14:09&#43;00:00</updated>
             <published>2020-08-12T16:35:08&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -883,7 +883,7 @@ return list;
             <title type="text">redis源码分析一：sds数据结构</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/redis/1-sds/" />
             <id>https://chengshuyi.github.io/posts/redis/1-sds/</id>
-            <updated>2020-08-14T11:08:35&#43;00:00</updated>
+            <updated>2020-08-15T11:14:09&#43;00:00</updated>
             <published>2020-08-12T16:32:50&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -1074,10 +1074,260 @@ return list;
         </entry>
     
         <entry>
+            <title type="text">linux完全公平调度源码解析</title>
+            <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/linux-kernel/cfs/" />
+            <id>https://chengshuyi.github.io/posts/linux-kernel/cfs/</id>
+            <updated>2020-08-15T11:14:09&#43;00:00</updated>
+            <published>2020-08-12T07:59:25&#43;08:00</published>
+            <author>
+                    <name>程书意</name>
+                    <uri>https://chengshuyi.github.io</uri>
+                    <email>c15271843451@outlook.com</email>
+                    </author>
+            <rights>[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh)</rights><summary type="html">cfs相关结构体 同cfs相关的结构体一共有三个： struct sched_class：cfs调度类的实现； cfs_rq：当前cpu使用cfs调度算法的进程队列； sched_enti……
+    
+    </summary>
+            
+                <content type="html">&lt;h3 id=&#34;cfs相关结构体&#34;&gt;cfs相关结构体&lt;/h3&gt;
+&lt;p&gt;同cfs相关的结构体一共有三个：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;struct sched_class：cfs调度类的实现；&lt;/li&gt;
+&lt;li&gt;cfs_rq：当前cpu使用cfs调度算法的进程队列；&lt;/li&gt;
+&lt;li&gt;sched_entity：调度实体；&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 9
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;10
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;11
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;12
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;13
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;14
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;15
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;16
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;17
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;18
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;19
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;20
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;21
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;22
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;23
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;24
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;25
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;26
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;27
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;28
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;29
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;30
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;31
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;32
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;33
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;34
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;35
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;36
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;37
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;38
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;39
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;40
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;41
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;42
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;43
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;44
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;45
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;46
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;47
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;48
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;49
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;50
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;cm&#34;&gt;/*
+&lt;/span&gt;&lt;span class=&#34;cm&#34;&gt; * All the scheduling class methods:
+&lt;/span&gt;&lt;span class=&#34;cm&#34;&gt; */&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;const&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;sched_class&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;fair_sched_class&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;next&lt;/span&gt;			&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;idle_sched_class&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;enqueue_task&lt;/span&gt;		&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;enqueue_task_fair&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;			&lt;span class=&#34;c1&#34;&gt;// 将进程加入到cfs rq
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;dequeue_task&lt;/span&gt;		&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;dequeue_task_fair&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;			&lt;span class=&#34;c1&#34;&gt;// 从cfs rq中删除
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;yield_task&lt;/span&gt;		&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;yield_task_fair&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;yield_to_task&lt;/span&gt;		&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;yield_to_task_fair&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;check_preempt_curr&lt;/span&gt;	&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;check_preempt_wakeup&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;pick_next_task&lt;/span&gt;		&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;__pick_next_task_fair&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;		&lt;span class=&#34;c1&#34;&gt;// 选择下一个进程
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;put_prev_task&lt;/span&gt;		&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;put_prev_task_fair&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;set_next_task&lt;/span&gt;          &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;set_next_task_fair&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;task_tick&lt;/span&gt;		&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;task_tick_fair&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;task_fork&lt;/span&gt;		&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;task_fork_fair&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;					&lt;span class=&#34;c1&#34;&gt;// 新进程创建，参数预处理，确定其vruntime
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;prio_changed&lt;/span&gt;		&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;prio_changed_fair&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;switched_from&lt;/span&gt;		&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;switched_from_fair&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;switched_to&lt;/span&gt;		&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;switched_to_fair&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;get_rr_interval&lt;/span&gt;	&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;get_rr_interval_fair&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;update_curr&lt;/span&gt;		&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;update_curr_fair&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;             &lt;span class=&#34;c1&#34;&gt;// 更新进程的vruntime和更新cfsrq min_vruntime
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;};&lt;/span&gt;
+
+&lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;cfs_rq&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;load_weight&lt;/span&gt;	&lt;span class=&#34;n&#34;&gt;load&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;							&lt;span class=&#34;c1&#34;&gt;// 运行队列总的进程权重
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;kt&#34;&gt;unsigned&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;long&lt;/span&gt;		&lt;span class=&#34;n&#34;&gt;runnable_weight&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+	&lt;span class=&#34;kt&#34;&gt;unsigned&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt;		&lt;span class=&#34;n&#34;&gt;nr_running&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;						&lt;span class=&#34;c1&#34;&gt;// 进程的个数
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;kt&#34;&gt;unsigned&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt;		&lt;span class=&#34;n&#34;&gt;h_nr_running&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;      &lt;span class=&#34;cm&#34;&gt;/* SCHED_{NORMAL,BATCH,IDLE} */&lt;/span&gt;
+	&lt;span class=&#34;kt&#34;&gt;unsigned&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt;		&lt;span class=&#34;n&#34;&gt;idle_h_nr_running&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;cm&#34;&gt;/* SCHED_IDLE */&lt;/span&gt;
+	&lt;span class=&#34;n&#34;&gt;u64&lt;/span&gt;			&lt;span class=&#34;n&#34;&gt;exec_clock&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;								&lt;span class=&#34;c1&#34;&gt;// 运行的时钟
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;n&#34;&gt;u64&lt;/span&gt;			&lt;span class=&#34;n&#34;&gt;min_vruntime&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;							&lt;span class=&#34;c1&#34;&gt;// 该cpu运行队列的vruntime推进值, 一般是红黑树中最小的vruntime值
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;rb_root_cached&lt;/span&gt;	&lt;span class=&#34;n&#34;&gt;tasks_timeline&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;				&lt;span class=&#34;c1&#34;&gt;// 红黑树的根结点，也能获取到left_rbmost
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;sched_entity&lt;/span&gt;	&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;curr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;							&lt;span class=&#34;c1&#34;&gt;// 当前运行进程, 下一个将要调度的进程, 马上要抢占的进程, 
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;sched_entity&lt;/span&gt;	&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;next&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;sched_entity&lt;/span&gt;	&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;last&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;sched_entity&lt;/span&gt;	&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;skip&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;};&lt;/span&gt;
+
+&lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;sched_entity&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;load_weight&lt;/span&gt;		&lt;span class=&#34;n&#34;&gt;load&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;				&lt;span class=&#34;c1&#34;&gt;// 进程的权重
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;kt&#34;&gt;unsigned&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;long&lt;/span&gt;			&lt;span class=&#34;n&#34;&gt;runnable_weight&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;		
+	&lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;rb_node&lt;/span&gt;			&lt;span class=&#34;n&#34;&gt;run_node&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;			&lt;span class=&#34;c1&#34;&gt;// 运行队列中的红黑树结点
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;list_head&lt;/span&gt;		&lt;span class=&#34;n&#34;&gt;group_node&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;			&lt;span class=&#34;c1&#34;&gt;// 与组调度有关
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;kt&#34;&gt;unsigned&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt;			&lt;span class=&#34;n&#34;&gt;on_rq&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;				&lt;span class=&#34;c1&#34;&gt;// 进程现在是否处于TASK_RUNNING状态
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;
+	&lt;span class=&#34;n&#34;&gt;u64&lt;/span&gt;				&lt;span class=&#34;n&#34;&gt;exec_start&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;					&lt;span class=&#34;c1&#34;&gt;// 一个调度tick的开始时间
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;n&#34;&gt;u64&lt;/span&gt;				&lt;span class=&#34;n&#34;&gt;sum_exec_runtime&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;			&lt;span class=&#34;c1&#34;&gt;// 进程从出生开始, 已经运行的实际时间
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;n&#34;&gt;u64&lt;/span&gt;				&lt;span class=&#34;n&#34;&gt;vruntime&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;					&lt;span class=&#34;c1&#34;&gt;// 虚拟运行时间
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;n&#34;&gt;u64&lt;/span&gt;				&lt;span class=&#34;n&#34;&gt;prev_sum_exec_runtime&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;		&lt;span class=&#34;c1&#34;&gt;// 本次调度之前, 进程已经运行的实际时间
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;};&lt;/span&gt;
+
+&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h3 id=&#34;cfs调度关键参数&#34;&gt;cfs调度关键参数&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;每个调度实体的vruntime：每次选择vruntime最小的调度实体去运行；&lt;/li&gt;
+&lt;li&gt;cfs_rq的min_vruntime：该值是单调递增的，主要是用于计算新进程、从另外一个cpu迁移过来的进程和睡眠进程的vruntime的计算；&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;cfs相关算法物理时间和虚拟时间对应关系&#34;&gt;cfs相关算法：物理时间和虚拟时间对应关系&lt;/h3&gt;
+&lt;p&gt;$$
+delta = delta_exec * \frac{NICE_0_LOAD}{curr-&amp;gt;load.weight}
+$$&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;delta_exec：curr运行的实际物理时间；&lt;/li&gt;
+&lt;li&gt;NICE_0_LOAD：nice值为0的权重，也就是1024；&lt;/li&gt;
+&lt;li&gt;curr-&amp;gt;load.weight：进程的权重；&lt;/li&gt;
+&lt;li&gt;delta：进程虚拟时间的增加值&lt;/li&gt;
+&lt;/ul&gt;
+&lt;!-- 分配给进程的运行时间 = 调度周期 * 进程权重 / 所有进程权重之和
+
+vruntime = 实际运行时间 * 1024 / 进程权重
+
+vruntime = (调度周期 * 进程权重 / 所有进程总权重) * 1024 / 进程权重 = 调度周期 * 1024 / 所有进程总权重  --&gt;
+&lt;h3 id=&#34;cfs调度基础&#34;&gt;cfs调度基础&lt;/h3&gt;
+&lt;p&gt;下面脑图描述了创建新进程后，经历的流程。特别需要注意&lt;code&gt;update_curr&lt;/code&gt;和&lt;code&gt;place_entity&lt;/code&gt;这两个函数，&lt;code&gt;update_curr&lt;/code&gt;负责更新当前运行进程的vruntime和更新cfs rq的min_vruntime。当有新的进程加入该cfs rq时，&lt;code&gt;place_entity&lt;/code&gt;计算该新进程合理的vruntime。结合脑图有以下几个问题：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;如何保证min_vruntime的单调递增？ min_vruntime在&lt;code&gt;update_curr&lt;/code&gt;函数里被更新，可以知道min_vruntime = max(cfs_rq当前的min_vunrtime,cfs_rq curr的vruntime,cfs leftmost的vruntime)；&lt;/li&gt;
+&lt;li&gt;在&lt;code&gt;task_for_fair&lt;/code&gt;函数里，新进程的vruntime为什么要减去cfs_rq-&amp;gt;min_vruntime呢？ 因为父进程和新进程可能是在不同的cpu上运行的，不同cpu的cfs rq的min_vruntime可能是不同的，所以可以等到将该进程部署到具体的cpu时，再加上对应的cfs_rq-&amp;gt;min_vruntime；&lt;/li&gt;
+&lt;li&gt;在&lt;code&gt;place_entity&lt;/code&gt;函数中，如果是新进程，则其vruntime添加惩罚值（延迟跟踪机制），如果是睡眠进程唤醒的话，则减去一定的thresh（以便其尽快得到调度）；&lt;/li&gt;
+&lt;li&gt;在&lt;code&gt;place_entity&lt;/code&gt;函数中，为什么进程最终的vruntime取一个最大值？主要是考虑到睡眠进程唤醒vruntime的更新。假设一个进程睡眠1ms，如果thresh为3ms，则会导致该调度实体的vruntime回退。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;img src=&#34;https://gitee.com/chengshuyi/scripts/raw/master/img/20200815105430.png&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+&lt;h3 id=&#34;cfs调度比较器&#34;&gt;cfs调度比较器&lt;/h3&gt;
+&lt;p&gt;vruntime是unsigned，首先将二者vruntime相减，然后结果转换成signed，最后同0比较，便可以得到正确的大小关系。&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;k&#34;&gt;static&lt;/span&gt; &lt;span class=&#34;kr&#34;&gt;inline&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;entity_before&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;sched_entity&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;a&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+				&lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;sched_entity&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;b&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;s64&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;a&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;vruntime&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;b&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;vruntime&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;举个例子，当其中一个溢出的时候，判断是否能够得到正确的大小关系：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 9
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;10
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;11
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;12
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;13
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;memory&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;using&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;namespace&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;std&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;main&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;kt&#34;&gt;unsigned&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;long&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;long&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;vruntime1&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ULLONG_MAX&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+    &lt;span class=&#34;kt&#34;&gt;unsigned&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;long&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;long&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;vruntime2&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ULLONG_MAX&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+    &lt;span class=&#34;kt&#34;&gt;long&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;long&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;res&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;((&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;vruntime1&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;+&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;5&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;vruntime2&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;cout&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;res&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;endl&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;								&lt;span class=&#34;c1&#34;&gt;// 5  正确
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;n&#34;&gt;res&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;vruntime1&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;vruntime2&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;+&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;5&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;));&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;cout&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;res&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;endl&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;								&lt;span class=&#34;c1&#34;&gt;// -5 正确
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;!-- CFS的思想就是让每个调度实体（没有组调度的情形下就是进程，以后就说进程了）的vruntime互相追赶，而每个调度实体的vruntime增加速度不同，权重越大的增加的越慢，这样就能获得更多的cpu执行时间。
+
+实际上是以vruntime-min_vruntime为key，是为了防止溢出，反
+
+同时缓存树的最左侧节点，也就是vruntime最小的节点，这样可以迅速选中vruntime最小的进程。
+
+运行队列的min_vruntime的作用就是处理溢出问题的。
+
+
+通过考虑各个进程的相对权重，将一个延迟周期的时间在活动进程之间进行分配。对于由某个可
+调度实体表示的给定进程，分配到的时间如下计算： --&gt;&lt;blockquote&gt;
+&lt;/blockquote&gt;
+</content>
+            
+            
+            
+            
+            
+                
+                    
+                        
+                            
+                            
+                            
+                                <category scheme="https://chengshuyi.github.io/categories/linux%E5%86%85%E6%A0%B8/" term="linux内核" label="linux内核" />
+                            
+                        
+                    
+                
+                    
+                        
+                            
+                            
+                            
+                                <category scheme="https://chengshuyi.github.io/tags/linux%E5%86%85%E6%A0%B8/" term="linux内核" label="linux内核" />
+                            
+                        
+                    
+                
+            
+        </entry>
+    
+        <entry>
             <title type="text">快手一面复盘 - 内核组</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/%E9%9D%A2%E8%AF%95/%E5%BF%AB%E6%89%8B%E4%B8%80%E9%9D%A2%E5%A4%8D%E7%9B%98/" />
             <id>https://chengshuyi.github.io/posts/%E9%9D%A2%E8%AF%95/%E5%BF%AB%E6%89%8B%E4%B8%80%E9%9D%A2%E5%A4%8D%E7%9B%98/</id>
-            <updated>2020-08-14T11:08:35&#43;00:00</updated>
+            <updated>2020-08-15T11:14:09&#43;00:00</updated>
             <published>2020-08-08T17:13:31&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -1492,7 +1742,7 @@ c. 用户进程调用&lt;code&gt;sync()&lt;/code&gt;和&lt;code&gt;fsync&lt;/cod
             <title type="text">Fat32文件系统详解</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/filesystem/fat/" />
             <id>https://chengshuyi.github.io/posts/filesystem/fat/</id>
-            <updated>2020-08-14T11:08:35&#43;00:00</updated>
+            <updated>2020-08-15T11:14:09&#43;00:00</updated>
             <published>2020-05-14T20:06:37&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -1617,7 +1867,7 @@ CHS:Cylinder Head Sector --&gt;
             <title type="text">linux Kprobe源码解析</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/linux-kernel/kprobe/" />
             <id>https://chengshuyi.github.io/posts/linux-kernel/kprobe/</id>
-            <updated>2020-08-14T11:08:35&#43;00:00</updated>
+            <updated>2020-08-15T11:14:09&#43;00:00</updated>
             <published>2020-05-14T09:09:19&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -1809,7 +2059,7 @@ CHS:Cylinder Head Sector --&gt;
             <title type="text">bpf的jit编译器</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/linux-kernel/bpf%E7%9A%84jit%E7%BC%96%E8%AF%91%E5%99%A8/" />
             <id>https://chengshuyi.github.io/posts/linux-kernel/bpf%E7%9A%84jit%E7%BC%96%E8%AF%91%E5%99%A8/</id>
-            <updated>2020-08-14T11:08:35&#43;00:00</updated>
+            <updated>2020-08-15T11:14:09&#43;00:00</updated>
             <published>2020-05-10T16:33:22&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -2858,7 +3108,7 @@ ret
             <title type="text">The BSD Packet Filter论文笔记及源码解析</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/linux-kernel/bpf-paper/" />
             <id>https://chengshuyi.github.io/posts/linux-kernel/bpf-paper/</id>
-            <updated>2020-08-14T11:08:35&#43;00:00</updated>
+            <updated>2020-08-15T11:14:09&#43;00:00</updated>
             <published>2020-05-09T08:36:36&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -3680,7 +3930,7 @@ L5: ret #0						# 返回长度0
             <title type="text">Waitqueue简介</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/linux-kernel/waitqueue/" />
             <id>https://chengshuyi.github.io/posts/linux-kernel/waitqueue/</id>
-            <updated>2020-08-14T11:08:35&#43;00:00</updated>
+            <updated>2020-08-15T11:14:09&#43;00:00</updated>
             <published>2020-05-06T20:00:07&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -4233,7 +4483,7 @@ func read:
             <title type="text">Lab5 - 实验笔记</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/course/mit6828/lab5/" />
             <id>https://chengshuyi.github.io/posts/course/mit6828/lab5/</id>
-            <updated>2020-08-14T11:08:35&#43;00:00</updated>
+            <updated>2020-08-15T11:14:09&#43;00:00</updated>
             <published>2020-04-25T13:34:18&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -4915,7 +5165,7 @@ func read:
             <title type="text">Lab4 - 实验笔记</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/course/mit6828/lab4/" />
             <id>https://chengshuyi.github.io/posts/course/mit6828/lab4/</id>
-            <updated>2020-08-14T11:08:35&#43;00:00</updated>
+            <updated>2020-08-15T11:14:09&#43;00:00</updated>
             <published>2020-04-25T13:34:16&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -5169,7 +5419,7 @@ func read:
             <title type="text">Lab3 - 实验笔记</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/course/mit6828/lab3/" />
             <id>https://chengshuyi.github.io/posts/course/mit6828/lab3/</id>
-            <updated>2020-08-14T11:08:35&#43;00:00</updated>
+            <updated>2020-08-15T11:14:09&#43;00:00</updated>
             <published>2020-04-25T13:34:13&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -5521,7 +5771,7 @@ func read:
             <title type="text">Lab2 - 实验笔记</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/course/mit6828/lab2/" />
             <id>https://chengshuyi.github.io/posts/course/mit6828/lab2/</id>
-            <updated>2020-08-14T11:08:35&#43;00:00</updated>
+            <updated>2020-08-15T11:14:09&#43;00:00</updated>
             <published>2020-04-25T13:34:11&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -5818,7 +6068,7 @@ func read:
             <title type="text">Lab1 - 实验笔记</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/course/mit6828/lab1/" />
             <id>https://chengshuyi.github.io/posts/course/mit6828/lab1/</id>
-            <updated>2020-08-14T11:08:35&#43;00:00</updated>
+            <updated>2020-08-15T11:14:09&#43;00:00</updated>
             <published>2020-04-24T20:24:40&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -6194,7 +6444,7 @@ f0100ade:	e8 b7 ff ff ff       	call   f0100a9a &amp;lt;vcprintf&amp;gt;
             <title type="text">嵌入式文件系统</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/filesystem/%E5%B5%8C%E5%85%A5%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/" />
             <id>https://chengshuyi.github.io/posts/filesystem/%E5%B5%8C%E5%85%A5%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/</id>
-            <updated>2020-08-14T11:08:35&#43;00:00</updated>
+            <updated>2020-08-15T11:14:09&#43;00:00</updated>
             <published>2020-04-21T14:11:20&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -6445,7 +6695,7 @@ f0100ade:	e8 b7 ff ff ff       	call   f0100a9a &amp;lt;vcprintf&amp;gt;
             <title type="text">进程虚拟地址空间</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/linux-kernel/%E8%BF%9B%E7%A8%8B%E8%99%9A%E6%8B%9F%E5%9C%B0%E5%9D%80%E7%A9%BA%E9%97%B4/" />
             <id>https://chengshuyi.github.io/posts/linux-kernel/%E8%BF%9B%E7%A8%8B%E8%99%9A%E6%8B%9F%E5%9C%B0%E5%9D%80%E7%A9%BA%E9%97%B4/</id>
-            <updated>2020-08-14T11:08:35&#43;00:00</updated>
+            <updated>2020-08-15T11:14:09&#43;00:00</updated>
             <published>2020-04-04T19:31:04&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -6541,7 +6791,7 @@ f0100ade:	e8 b7 ff ff ff       	call   f0100a9a &amp;lt;vcprintf&amp;gt;
             <title type="text">多车编队 人工势场法</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E4%BA%BA%E5%B7%A5%E5%8A%BF%E5%9C%BA%E6%B3%95/" />
             <id>https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E4%BA%BA%E5%B7%A5%E5%8A%BF%E5%9C%BA%E6%B3%95/</id>
-            <updated>2020-08-14T11:08:35&#43;00:00</updated>
+            <updated>2020-08-15T11:14:09&#43;00:00</updated>
             <published>2020-04-04T10:02:06&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -6674,7 +6924,7 @@ $$
             <title type="text">多车编队 基于图论的方法</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E5%9B%BE%E8%AE%BA%E7%9A%84%E6%96%B9%E6%B3%95/" />
             <id>https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E5%9B%BE%E8%AE%BA%E7%9A%84%E6%96%B9%E6%B3%95/</id>
-            <updated>2020-08-14T11:08:35&#43;00:00</updated>
+            <updated>2020-08-15T11:14:09&#43;00:00</updated>
             <published>2020-04-04T10:00:47&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -6775,7 +7025,7 @@ $$
             <title type="text">多车编队 基于行为的方法</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E8%A1%8C%E4%B8%BA%E7%9A%84%E6%96%B9%E6%B3%95/" />
             <id>https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E8%A1%8C%E4%B8%BA%E7%9A%84%E6%96%B9%E6%B3%95/</id>
-            <updated>2020-08-14T11:08:35&#43;00:00</updated>
+            <updated>2020-08-15T11:14:09&#43;00:00</updated>
             <published>2020-04-04T09:11:07&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -6943,7 +7193,7 @@ $$
             <title type="text">c语言运算符</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/c/%E8%BF%90%E7%AE%97%E7%AC%A6/" />
             <id>https://chengshuyi.github.io/posts/c/%E8%BF%90%E7%AE%97%E7%AC%A6/</id>
-            <updated>2020-08-14T11:08:35&#43;00:00</updated>
+            <updated>2020-08-15T11:14:09&#43;00:00</updated>
             <published>2020-04-03T17:25:34&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -7154,7 +7404,7 @@ $$&lt;/p&gt;
             <title type="text">伙伴系统</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/linux-kernel/%E4%BC%99%E4%BC%B4%E7%B3%BB%E7%BB%9F/" />
             <id>https://chengshuyi.github.io/posts/linux-kernel/%E4%BC%99%E4%BC%B4%E7%B3%BB%E7%BB%9F/</id>
-            <updated>2020-08-14T11:08:35&#43;00:00</updated>
+            <updated>2020-08-15T11:14:09&#43;00:00</updated>
             <published>2020-04-03T15:26:04&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -7380,7 +7630,7 @@ $$&lt;/p&gt;
             <title type="text">多车编队 领航跟随法</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E9%A2%86%E8%88%AA%E8%B7%9F%E9%9A%8F%E6%B3%95/" />
             <id>https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E9%A2%86%E8%88%AA%E8%B7%9F%E9%9A%8F%E6%B3%95/</id>
-            <updated>2020-08-14T11:08:35&#43;00:00</updated>
+            <updated>2020-08-15T11:14:09&#43;00:00</updated>
             <published>2020-04-03T11:27:11&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -7497,7 +7747,7 @@ $$
             <title type="text">Slab分配器</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/linux-kernel/slab/" />
             <id>https://chengshuyi.github.io/posts/linux-kernel/slab/</id>
-            <updated>2020-08-14T11:08:35&#43;00:00</updated>
+            <updated>2020-08-15T11:14:09&#43;00:00</updated>
             <published>2020-04-02T16:24:50&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -7599,7 +7849,7 @@ $$
             <title type="text">作用域、链接、存储类型</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/c/%E4%BD%9C%E7%94%A8%E5%9F%9F%E9%93%BE%E6%8E%A5%E5%AD%98%E5%82%A8%E7%B1%BB%E5%9E%8B/" />
             <id>https://chengshuyi.github.io/posts/c/%E4%BD%9C%E7%94%A8%E5%9F%9F%E9%93%BE%E6%8E%A5%E5%AD%98%E5%82%A8%E7%B1%BB%E5%9E%8B/</id>
-            <updated>2020-08-14T11:08:35&#43;00:00</updated>
+            <updated>2020-08-15T11:14:09&#43;00:00</updated>
             <published>2020-04-02T13:41:27&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -7876,7 +8126,7 @@ $$
             <title type="text"></title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/computer-network/untitled/" />
             <id>https://chengshuyi.github.io/posts/computer-network/untitled/</id>
-            <updated>2020-08-14T11:08:35&#43;00:00</updated>
+            <updated>2020-08-15T11:14:09&#43;00:00</updated>
             <published>0001-01-01T00:00:00&#43;00:00</published>
             <author>
                     <name>程书意</name>
@@ -7945,7 +8195,7 @@ does not provide: reliability, flow control, congestion control, timing, through
             <title type="text"></title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/cse/" />
             <id>https://chengshuyi.github.io/posts/cse/</id>
-            <updated>2020-08-14T11:08:35&#43;00:00</updated>
+            <updated>2020-08-15T11:14:09&#43;00:00</updated>
             <published>0001-01-01T00:00:00&#43;00:00</published>
             <author>
                     <name>程书意</name>
@@ -8021,7 +8271,7 @@ Soft link can create cycle by SYMLINK(&amp;quot;a&amp;quot;, &amp;quot;a&amp;quo
             <title type="text"></title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/leet/" />
             <id>https://chengshuyi.github.io/posts/leet/</id>
-            <updated>2020-08-14T11:08:35&#43;00:00</updated>
+            <updated>2020-08-15T11:14:09&#43;00:00</updated>
             <published>0001-01-01T00:00:00&#43;00:00</published>
             <author>
                     <name>程书意</name>
@@ -8064,7 +8314,7 @@ Relational Algebra&lt;/p&gt;
             <title type="text"></title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/linux-kernel/untitled/" />
             <id>https://chengshuyi.github.io/posts/linux-kernel/untitled/</id>
-            <updated>2020-08-14T11:08:35&#43;00:00</updated>
+            <updated>2020-08-15T11:14:09&#43;00:00</updated>
             <published>0001-01-01T00:00:00&#43;00:00</published>
             <author>
                     <name>程书意</name>
