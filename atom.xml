@@ -4,7 +4,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom" xml:lang="zh-CN">
     <title type="text">程书意</title>
     <subtitle type="html">MemE 是一个强大且可高度定制的 GoHugo 博客主题，专为个人博客设计。</subtitle>
-    <updated>2020-08-17T05:24:57&#43;00:00</updated>
+    <updated>2020-08-17T05:36:00&#43;00:00</updated>
     <id>https://chengshuyi.github.io/</id>
     <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/" />
     <link rel="self" type="application/atom&#43;xml" href="https://chengshuyi.github.io/atom.xml" />
@@ -20,7 +20,7 @@
             <title type="text">记一次利用条件断点调试内存踩踏问题</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/%E7%BB%8F%E9%AA%8C/condition_breakpoints/" />
             <id>https://chengshuyi.github.io/posts/%E7%BB%8F%E9%AA%8C/condition_breakpoints/</id>
-            <updated>2020-08-17T05:24:53&#43;00:00</updated>
+            <updated>2020-08-17T05:35:56&#43;00:00</updated>
             <published>2020-08-13T19:09:01&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -87,7 +87,7 @@
             <title type="text">redis源码分析七：Ziplist</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/redis/7-ziplist/" />
             <id>https://chengshuyi.github.io/posts/redis/7-ziplist/</id>
-            <updated>2020-08-17T05:24:53&#43;00:00</updated>
+            <updated>2020-08-17T05:35:56&#43;00:00</updated>
             <published>2020-08-12T16:36:48&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -134,7 +134,7 @@
             <title type="text">redis源码分析六：intset整数集合</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/redis/6-intset/" />
             <id>https://chengshuyi.github.io/posts/redis/6-intset/</id>
-            <updated>2020-08-17T05:24:53&#43;00:00</updated>
+            <updated>2020-08-17T05:35:56&#43;00:00</updated>
             <published>2020-08-12T16:36:41&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -308,7 +308,7 @@
             <title type="text">redis源码分析五：Hyperloglog</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/redis/5-hyperlog/" />
             <id>https://chengshuyi.github.io/posts/redis/5-hyperlog/</id>
-            <updated>2020-08-17T05:24:53&#43;00:00</updated>
+            <updated>2020-08-17T05:35:56&#43;00:00</updated>
             <published>2020-08-12T16:35:57&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -623,7 +623,7 @@
             <title type="text">redis源码分析四：跳跃表</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/redis/4-zsl/" />
             <id>https://chengshuyi.github.io/posts/redis/4-zsl/</id>
-            <updated>2020-08-17T05:24:53&#43;00:00</updated>
+            <updated>2020-08-17T05:35:56&#43;00:00</updated>
             <published>2020-08-12T16:35:33&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -893,7 +893,7 @@
             <title type="text">redis源码分析三：dict数据结构</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/redis/3-dict/" />
             <id>https://chengshuyi.github.io/posts/redis/3-dict/</id>
-            <updated>2020-08-17T05:24:53&#43;00:00</updated>
+            <updated>2020-08-17T05:35:56&#43;00:00</updated>
             <published>2020-08-12T16:35:16&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -1252,7 +1252,7 @@
             <title type="text">redis源码分析二：adlist数据结构</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/redis/2-adlist/" />
             <id>https://chengshuyi.github.io/posts/redis/2-adlist/</id>
-            <updated>2020-08-17T05:24:53&#43;00:00</updated>
+            <updated>2020-08-17T05:35:56&#43;00:00</updated>
             <published>2020-08-12T16:35:08&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -1323,20 +1323,39 @@
 &lt;/div&gt;
 &lt;/div&gt;&lt;h3 id=&#34;创建双向链表&#34;&gt;创建双向链表&lt;/h3&gt;
 &lt;p&gt;双向链表创建只需要分配双向链表结构体即可，具体见注释：&lt;/p&gt;
-&lt;p&gt;list *listCreate(void)
-{
-struct list *list;&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;if ((list = zmalloc(sizeof(*list))) == NULL)    // 1. 分配内存：struct list
-    return NULL;
-list-&amp;gt;head = list-&amp;gt;tail = NULL;                 // 2. 双向链表置空
-list-&amp;gt;len = 0;
-list-&amp;gt;dup = NULL;
-list-&amp;gt;free = NULL;
-list-&amp;gt;match = NULL;
-return list;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;}&lt;/p&gt;
-&lt;h3 id=&#34;双向链表头插&#34;&gt;双向链表头插&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 9
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;10
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;11
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;12
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;13
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;n&#34;&gt;list&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;listCreate&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;list&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;list&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+
+    &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;((&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;list&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;zmalloc&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;sizeof&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;list&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)))&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;NULL&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;    &lt;span class=&#34;c1&#34;&gt;// 1. 分配内存：struct list
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;        &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;NULL&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;list&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;head&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;list&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;tail&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;NULL&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;                 &lt;span class=&#34;c1&#34;&gt;// 2. 双向链表置空
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;n&#34;&gt;list&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;len&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;list&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;dup&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;NULL&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;list&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;free&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;NULL&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;list&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;match&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;NULL&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;list&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h3 id=&#34;双向链表头插&#34;&gt;双向链表头插&lt;/h3&gt;
 &lt;p&gt;见注释：&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -1419,7 +1438,7 @@ return list;
             <title type="text">redis源码分析一：sds数据结构</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/redis/1-sds/" />
             <id>https://chengshuyi.github.io/posts/redis/1-sds/</id>
-            <updated>2020-08-17T05:24:53&#43;00:00</updated>
+            <updated>2020-08-17T05:35:56&#43;00:00</updated>
             <published>2020-08-12T16:32:50&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -1613,7 +1632,7 @@ return list;
             <title type="text">linux完全公平调度源码解析</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/linux-kernel/cfs/" />
             <id>https://chengshuyi.github.io/posts/linux-kernel/cfs/</id>
-            <updated>2020-08-17T05:24:53&#43;00:00</updated>
+            <updated>2020-08-17T05:35:56&#43;00:00</updated>
             <published>2020-08-12T07:59:25&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -1863,7 +1882,7 @@ vruntime = (调度周期 * 进程权重 / 所有进程总权重) * 1024 / 进程
             <title type="text">快手一面复盘 - 内核组</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/%E9%9D%A2%E8%AF%95/%E5%BF%AB%E6%89%8B%E4%B8%80%E9%9D%A2%E5%A4%8D%E7%9B%98/" />
             <id>https://chengshuyi.github.io/posts/%E9%9D%A2%E8%AF%95/%E5%BF%AB%E6%89%8B%E4%B8%80%E9%9D%A2%E5%A4%8D%E7%9B%98/</id>
-            <updated>2020-08-17T05:24:53&#43;00:00</updated>
+            <updated>2020-08-17T05:35:56&#43;00:00</updated>
             <published>2020-08-08T17:13:31&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -2278,7 +2297,7 @@ c. 用户进程调用&lt;code&gt;sync()&lt;/code&gt;和&lt;code&gt;fsync&lt;/cod
             <title type="text">Fat32文件系统详解</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/filesystem/fat/" />
             <id>https://chengshuyi.github.io/posts/filesystem/fat/</id>
-            <updated>2020-08-17T05:24:53&#43;00:00</updated>
+            <updated>2020-08-17T05:35:56&#43;00:00</updated>
             <published>2020-05-14T20:06:37&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -2403,7 +2422,7 @@ CHS:Cylinder Head Sector --&gt;
             <title type="text">linux Kprobe源码解析</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/linux-kernel/kprobe/" />
             <id>https://chengshuyi.github.io/posts/linux-kernel/kprobe/</id>
-            <updated>2020-08-17T05:24:53&#43;00:00</updated>
+            <updated>2020-08-17T05:35:56&#43;00:00</updated>
             <published>2020-05-14T09:09:19&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -2595,7 +2614,7 @@ CHS:Cylinder Head Sector --&gt;
             <title type="text">bpf的jit编译器</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/linux-kernel/bpf%E7%9A%84jit%E7%BC%96%E8%AF%91%E5%99%A8/" />
             <id>https://chengshuyi.github.io/posts/linux-kernel/bpf%E7%9A%84jit%E7%BC%96%E8%AF%91%E5%99%A8/</id>
-            <updated>2020-08-17T05:24:53&#43;00:00</updated>
+            <updated>2020-08-17T05:35:56&#43;00:00</updated>
             <published>2020-05-10T16:33:22&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -3644,7 +3663,7 @@ ret
             <title type="text">The BSD Packet Filter论文笔记及源码解析</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/linux-kernel/bpf-paper/" />
             <id>https://chengshuyi.github.io/posts/linux-kernel/bpf-paper/</id>
-            <updated>2020-08-17T05:24:53&#43;00:00</updated>
+            <updated>2020-08-17T05:35:56&#43;00:00</updated>
             <published>2020-05-09T08:36:36&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -4466,7 +4485,7 @@ L5: ret #0						# 返回长度0
             <title type="text">Waitqueue简介</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/linux-kernel/waitqueue/" />
             <id>https://chengshuyi.github.io/posts/linux-kernel/waitqueue/</id>
-            <updated>2020-08-17T05:24:53&#43;00:00</updated>
+            <updated>2020-08-17T05:35:56&#43;00:00</updated>
             <published>2020-05-06T20:00:07&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -5019,7 +5038,7 @@ func read:
             <title type="text">Lab5 - 实验笔记</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/course/mit6828/lab5/" />
             <id>https://chengshuyi.github.io/posts/course/mit6828/lab5/</id>
-            <updated>2020-08-17T05:24:53&#43;00:00</updated>
+            <updated>2020-08-17T05:35:56&#43;00:00</updated>
             <published>2020-04-25T13:34:18&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -5701,7 +5720,7 @@ func read:
             <title type="text">Lab4 - 实验笔记</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/course/mit6828/lab4/" />
             <id>https://chengshuyi.github.io/posts/course/mit6828/lab4/</id>
-            <updated>2020-08-17T05:24:53&#43;00:00</updated>
+            <updated>2020-08-17T05:35:56&#43;00:00</updated>
             <published>2020-04-25T13:34:16&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -5955,7 +5974,7 @@ func read:
             <title type="text">Lab3 - 实验笔记</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/course/mit6828/lab3/" />
             <id>https://chengshuyi.github.io/posts/course/mit6828/lab3/</id>
-            <updated>2020-08-17T05:24:53&#43;00:00</updated>
+            <updated>2020-08-17T05:35:56&#43;00:00</updated>
             <published>2020-04-25T13:34:13&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -6307,7 +6326,7 @@ func read:
             <title type="text">Lab2 - 实验笔记</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/course/mit6828/lab2/" />
             <id>https://chengshuyi.github.io/posts/course/mit6828/lab2/</id>
-            <updated>2020-08-17T05:24:53&#43;00:00</updated>
+            <updated>2020-08-17T05:35:56&#43;00:00</updated>
             <published>2020-04-25T13:34:11&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -6604,7 +6623,7 @@ func read:
             <title type="text">Lab1 - 实验笔记</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/course/mit6828/lab1/" />
             <id>https://chengshuyi.github.io/posts/course/mit6828/lab1/</id>
-            <updated>2020-08-17T05:24:53&#43;00:00</updated>
+            <updated>2020-08-17T05:35:56&#43;00:00</updated>
             <published>2020-04-24T20:24:40&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -6980,7 +6999,7 @@ f0100ade:	e8 b7 ff ff ff       	call   f0100a9a &amp;lt;vcprintf&amp;gt;
             <title type="text">嵌入式文件系统</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/filesystem/%E5%B5%8C%E5%85%A5%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/" />
             <id>https://chengshuyi.github.io/posts/filesystem/%E5%B5%8C%E5%85%A5%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/</id>
-            <updated>2020-08-17T05:24:53&#43;00:00</updated>
+            <updated>2020-08-17T05:35:56&#43;00:00</updated>
             <published>2020-04-21T14:11:20&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -7231,7 +7250,7 @@ f0100ade:	e8 b7 ff ff ff       	call   f0100a9a &amp;lt;vcprintf&amp;gt;
             <title type="text">进程虚拟地址空间</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/linux-kernel/%E8%BF%9B%E7%A8%8B%E8%99%9A%E6%8B%9F%E5%9C%B0%E5%9D%80%E7%A9%BA%E9%97%B4/" />
             <id>https://chengshuyi.github.io/posts/linux-kernel/%E8%BF%9B%E7%A8%8B%E8%99%9A%E6%8B%9F%E5%9C%B0%E5%9D%80%E7%A9%BA%E9%97%B4/</id>
-            <updated>2020-08-17T05:24:53&#43;00:00</updated>
+            <updated>2020-08-17T05:35:56&#43;00:00</updated>
             <published>2020-04-04T19:31:04&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -7327,7 +7346,7 @@ f0100ade:	e8 b7 ff ff ff       	call   f0100a9a &amp;lt;vcprintf&amp;gt;
             <title type="text">多车编队 人工势场法</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E4%BA%BA%E5%B7%A5%E5%8A%BF%E5%9C%BA%E6%B3%95/" />
             <id>https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E4%BA%BA%E5%B7%A5%E5%8A%BF%E5%9C%BA%E6%B3%95/</id>
-            <updated>2020-08-17T05:24:53&#43;00:00</updated>
+            <updated>2020-08-17T05:35:56&#43;00:00</updated>
             <published>2020-04-04T10:02:06&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -7460,7 +7479,7 @@ $$
             <title type="text">多车编队 基于图论的方法</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E5%9B%BE%E8%AE%BA%E7%9A%84%E6%96%B9%E6%B3%95/" />
             <id>https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E5%9B%BE%E8%AE%BA%E7%9A%84%E6%96%B9%E6%B3%95/</id>
-            <updated>2020-08-17T05:24:53&#43;00:00</updated>
+            <updated>2020-08-17T05:35:56&#43;00:00</updated>
             <published>2020-04-04T10:00:47&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -7561,7 +7580,7 @@ $$
             <title type="text">多车编队 基于行为的方法</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E8%A1%8C%E4%B8%BA%E7%9A%84%E6%96%B9%E6%B3%95/" />
             <id>https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E8%A1%8C%E4%B8%BA%E7%9A%84%E6%96%B9%E6%B3%95/</id>
-            <updated>2020-08-17T05:24:53&#43;00:00</updated>
+            <updated>2020-08-17T05:35:56&#43;00:00</updated>
             <published>2020-04-04T09:11:07&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -7729,7 +7748,7 @@ $$
             <title type="text">c语言运算符</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/c/%E8%BF%90%E7%AE%97%E7%AC%A6/" />
             <id>https://chengshuyi.github.io/posts/c/%E8%BF%90%E7%AE%97%E7%AC%A6/</id>
-            <updated>2020-08-17T05:24:53&#43;00:00</updated>
+            <updated>2020-08-17T05:35:56&#43;00:00</updated>
             <published>2020-04-03T17:25:34&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -7940,7 +7959,7 @@ $$&lt;/p&gt;
             <title type="text">伙伴系统</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/linux-kernel/%E4%BC%99%E4%BC%B4%E7%B3%BB%E7%BB%9F/" />
             <id>https://chengshuyi.github.io/posts/linux-kernel/%E4%BC%99%E4%BC%B4%E7%B3%BB%E7%BB%9F/</id>
-            <updated>2020-08-17T05:24:53&#43;00:00</updated>
+            <updated>2020-08-17T05:35:56&#43;00:00</updated>
             <published>2020-04-03T15:26:04&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -8166,7 +8185,7 @@ $$&lt;/p&gt;
             <title type="text">多车编队 领航跟随法</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E9%A2%86%E8%88%AA%E8%B7%9F%E9%9A%8F%E6%B3%95/" />
             <id>https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E9%A2%86%E8%88%AA%E8%B7%9F%E9%9A%8F%E6%B3%95/</id>
-            <updated>2020-08-17T05:24:53&#43;00:00</updated>
+            <updated>2020-08-17T05:35:56&#43;00:00</updated>
             <published>2020-04-03T11:27:11&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -8283,7 +8302,7 @@ $$
             <title type="text">Slab分配器</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/linux-kernel/slab/" />
             <id>https://chengshuyi.github.io/posts/linux-kernel/slab/</id>
-            <updated>2020-08-17T05:24:53&#43;00:00</updated>
+            <updated>2020-08-17T05:35:56&#43;00:00</updated>
             <published>2020-04-02T16:24:50&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -8385,7 +8404,7 @@ $$
             <title type="text">作用域、链接、存储类型</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/c/%E4%BD%9C%E7%94%A8%E5%9F%9F%E9%93%BE%E6%8E%A5%E5%AD%98%E5%82%A8%E7%B1%BB%E5%9E%8B/" />
             <id>https://chengshuyi.github.io/posts/c/%E4%BD%9C%E7%94%A8%E5%9F%9F%E9%93%BE%E6%8E%A5%E5%AD%98%E5%82%A8%E7%B1%BB%E5%9E%8B/</id>
-            <updated>2020-08-17T05:24:53&#43;00:00</updated>
+            <updated>2020-08-17T05:35:56&#43;00:00</updated>
             <published>2020-04-02T13:41:27&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -8662,7 +8681,7 @@ $$
             <title type="text"></title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/computer-network/untitled/" />
             <id>https://chengshuyi.github.io/posts/computer-network/untitled/</id>
-            <updated>2020-08-17T05:24:53&#43;00:00</updated>
+            <updated>2020-08-17T05:35:56&#43;00:00</updated>
             <published>0001-01-01T00:00:00&#43;00:00</published>
             <author>
                     <name>程书意</name>
@@ -8731,7 +8750,7 @@ does not provide: reliability, flow control, congestion control, timing, through
             <title type="text"></title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/cse/" />
             <id>https://chengshuyi.github.io/posts/cse/</id>
-            <updated>2020-08-17T05:24:53&#43;00:00</updated>
+            <updated>2020-08-17T05:35:56&#43;00:00</updated>
             <published>0001-01-01T00:00:00&#43;00:00</published>
             <author>
                     <name>程书意</name>
@@ -8807,7 +8826,7 @@ Soft link can create cycle by SYMLINK(&amp;quot;a&amp;quot;, &amp;quot;a&amp;quo
             <title type="text"></title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/leet/" />
             <id>https://chengshuyi.github.io/posts/leet/</id>
-            <updated>2020-08-17T05:24:53&#43;00:00</updated>
+            <updated>2020-08-17T05:35:56&#43;00:00</updated>
             <published>0001-01-01T00:00:00&#43;00:00</published>
             <author>
                     <name>程书意</name>
@@ -8850,7 +8869,7 @@ Relational Algebra&lt;/p&gt;
             <title type="text"></title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/linux-kernel/untitled/" />
             <id>https://chengshuyi.github.io/posts/linux-kernel/untitled/</id>
-            <updated>2020-08-17T05:24:53&#43;00:00</updated>
+            <updated>2020-08-17T05:35:56&#43;00:00</updated>
             <published>0001-01-01T00:00:00&#43;00:00</published>
             <author>
                     <name>程书意</name>
