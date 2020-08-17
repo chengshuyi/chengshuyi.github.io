@@ -4,7 +4,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom" xml:lang="zh-CN">
     <title type="text">程书意</title>
     <subtitle type="html">MemE 是一个强大且可高度定制的 GoHugo 博客主题，专为个人博客设计。</subtitle>
-    <updated>2020-08-17T05:36:00&#43;00:00</updated>
+    <updated>2020-08-17T12:52:45&#43;00:00</updated>
     <id>https://chengshuyi.github.io/</id>
     <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/" />
     <link rel="self" type="application/atom&#43;xml" href="https://chengshuyi.github.io/atom.xml" />
@@ -20,7 +20,7 @@
             <title type="text">记一次利用条件断点调试内存踩踏问题</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/%E7%BB%8F%E9%AA%8C/condition_breakpoints/" />
             <id>https://chengshuyi.github.io/posts/%E7%BB%8F%E9%AA%8C/condition_breakpoints/</id>
-            <updated>2020-08-17T05:35:56&#43;00:00</updated>
+            <updated>2020-08-17T12:52:41&#43;00:00</updated>
             <published>2020-08-13T19:09:01&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -87,7 +87,7 @@
             <title type="text">redis源码分析七：Ziplist</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/redis/7-ziplist/" />
             <id>https://chengshuyi.github.io/posts/redis/7-ziplist/</id>
-            <updated>2020-08-17T05:35:56&#43;00:00</updated>
+            <updated>2020-08-17T12:52:41&#43;00:00</updated>
             <published>2020-08-12T16:36:48&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -134,7 +134,7 @@
             <title type="text">redis源码分析六：intset整数集合</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/redis/6-intset/" />
             <id>https://chengshuyi.github.io/posts/redis/6-intset/</id>
-            <updated>2020-08-17T05:35:56&#43;00:00</updated>
+            <updated>2020-08-17T12:52:41&#43;00:00</updated>
             <published>2020-08-12T16:36:41&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -308,7 +308,7 @@
             <title type="text">redis源码分析五：Hyperloglog</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/redis/5-hyperlog/" />
             <id>https://chengshuyi.github.io/posts/redis/5-hyperlog/</id>
-            <updated>2020-08-17T05:35:56&#43;00:00</updated>
+            <updated>2020-08-17T12:52:41&#43;00:00</updated>
             <published>2020-08-12T16:35:57&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -623,7 +623,7 @@
             <title type="text">redis源码分析四：跳跃表</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/redis/4-zsl/" />
             <id>https://chengshuyi.github.io/posts/redis/4-zsl/</id>
-            <updated>2020-08-17T05:35:56&#43;00:00</updated>
+            <updated>2020-08-17T12:52:41&#43;00:00</updated>
             <published>2020-08-12T16:35:33&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -893,7 +893,7 @@
             <title type="text">redis源码分析三：dict数据结构</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/redis/3-dict/" />
             <id>https://chengshuyi.github.io/posts/redis/3-dict/</id>
-            <updated>2020-08-17T05:35:56&#43;00:00</updated>
+            <updated>2020-08-17T12:52:41&#43;00:00</updated>
             <published>2020-08-12T16:35:16&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -1252,7 +1252,7 @@
             <title type="text">redis源码分析二：adlist数据结构</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/redis/2-adlist/" />
             <id>https://chengshuyi.github.io/posts/redis/2-adlist/</id>
-            <updated>2020-08-17T05:35:56&#43;00:00</updated>
+            <updated>2020-08-17T12:52:41&#43;00:00</updated>
             <published>2020-08-12T16:35:08&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -1438,7 +1438,7 @@
             <title type="text">redis源码分析一：sds数据结构</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/redis/1-sds/" />
             <id>https://chengshuyi.github.io/posts/redis/1-sds/</id>
-            <updated>2020-08-17T05:35:56&#43;00:00</updated>
+            <updated>2020-08-17T12:52:41&#43;00:00</updated>
             <published>2020-08-12T16:32:50&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -1632,7 +1632,7 @@
             <title type="text">linux完全公平调度源码解析</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/linux-kernel/cfs/" />
             <id>https://chengshuyi.github.io/posts/linux-kernel/cfs/</id>
-            <updated>2020-08-17T05:35:56&#43;00:00</updated>
+            <updated>2020-08-17T12:52:41&#43;00:00</updated>
             <published>2020-08-12T07:59:25&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -1882,7 +1882,7 @@ vruntime = (调度周期 * 进程权重 / 所有进程总权重) * 1024 / 进程
             <title type="text">快手一面复盘 - 内核组</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/%E9%9D%A2%E8%AF%95/%E5%BF%AB%E6%89%8B%E4%B8%80%E9%9D%A2%E5%A4%8D%E7%9B%98/" />
             <id>https://chengshuyi.github.io/posts/%E9%9D%A2%E8%AF%95/%E5%BF%AB%E6%89%8B%E4%B8%80%E9%9D%A2%E5%A4%8D%E7%9B%98/</id>
-            <updated>2020-08-17T05:35:56&#43;00:00</updated>
+            <updated>2020-08-17T12:52:41&#43;00:00</updated>
             <published>2020-08-08T17:13:31&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -2297,7 +2297,7 @@ c. 用户进程调用&lt;code&gt;sync()&lt;/code&gt;和&lt;code&gt;fsync&lt;/cod
             <title type="text">Fat32文件系统详解</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/filesystem/fat/" />
             <id>https://chengshuyi.github.io/posts/filesystem/fat/</id>
-            <updated>2020-08-17T05:35:56&#43;00:00</updated>
+            <updated>2020-08-17T12:52:41&#43;00:00</updated>
             <published>2020-05-14T20:06:37&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -2422,7 +2422,7 @@ CHS:Cylinder Head Sector --&gt;
             <title type="text">linux Kprobe源码解析</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/linux-kernel/kprobe/" />
             <id>https://chengshuyi.github.io/posts/linux-kernel/kprobe/</id>
-            <updated>2020-08-17T05:35:56&#43;00:00</updated>
+            <updated>2020-08-17T12:52:41&#43;00:00</updated>
             <published>2020-05-14T09:09:19&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -2614,7 +2614,7 @@ CHS:Cylinder Head Sector --&gt;
             <title type="text">bpf的jit编译器</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/linux-kernel/bpf%E7%9A%84jit%E7%BC%96%E8%AF%91%E5%99%A8/" />
             <id>https://chengshuyi.github.io/posts/linux-kernel/bpf%E7%9A%84jit%E7%BC%96%E8%AF%91%E5%99%A8/</id>
-            <updated>2020-08-17T05:35:56&#43;00:00</updated>
+            <updated>2020-08-17T12:52:41&#43;00:00</updated>
             <published>2020-05-10T16:33:22&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -3663,7 +3663,7 @@ ret
             <title type="text">The BSD Packet Filter论文笔记及源码解析</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/linux-kernel/bpf-paper/" />
             <id>https://chengshuyi.github.io/posts/linux-kernel/bpf-paper/</id>
-            <updated>2020-08-17T05:35:56&#43;00:00</updated>
+            <updated>2020-08-17T12:52:41&#43;00:00</updated>
             <published>2020-05-09T08:36:36&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -4485,7 +4485,7 @@ L5: ret #0						# 返回长度0
             <title type="text">Waitqueue简介</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/linux-kernel/waitqueue/" />
             <id>https://chengshuyi.github.io/posts/linux-kernel/waitqueue/</id>
-            <updated>2020-08-17T05:35:56&#43;00:00</updated>
+            <updated>2020-08-17T12:52:41&#43;00:00</updated>
             <published>2020-05-06T20:00:07&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -5035,10 +5035,480 @@ func read:
         </entry>
     
         <entry>
+            <title type="text">poll select epoll对比分析</title>
+            <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/linux-kernel/poll_select_epoll/" />
+            <id>https://chengshuyi.github.io/posts/linux-kernel/poll_select_epoll/</id>
+            <updated>2020-08-17T12:52:41&#43;00:00</updated>
+            <published>2020-05-05T13:06:02&#43;08:00</published>
+            <author>
+                    <name>程书意</name>
+                    <uri>https://chengshuyi.github.io</uri>
+                    <email>c15271843451@outlook.com</email>
+                    </author>
+            <rights>[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh)</rights><summary type="html">文章1主要提到epoll需要新增几个syscall，来满足某些应用的需求（如qemu）。 epoll_ctl_batch：支持更新批量的fd，之前的epoll_ctl一次……
+    
+    </summary>
+            
+                <content type="html">&lt;p&gt;文章&lt;sup id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;https://chengshuyi.github.io/posts/linux-kernel/poll_select_epoll/#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;主要提到epoll需要新增几个syscall，来满足某些应用的需求（如qemu）。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;epoll_ctl_batch&lt;/code&gt;：支持更新批量的fd，之前的&lt;code&gt;epoll_ctl&lt;/code&gt;一次只能更新一个fd；&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;epoll_pwait1&lt;/code&gt;：解决&lt;code&gt;epoll_pwait&lt;/code&gt;的时间精度不高（毫秒级别）；&lt;/li&gt;
+&lt;li&gt;添加&lt;code&gt;EPOLLEXCLUSIVE&lt;/code&gt;标识，解决惊群效应，对应的wait queue采用&lt;code&gt;add_wait_queue_exclusive&lt;/code&gt;；&lt;/li&gt;
+&lt;li&gt;但是，这样会导致wait queue一直唤醒等在队首的进程，因此增加了&lt;code&gt;add_wait_queue_rr&lt;/code&gt;功能（&lt;strong&gt;没怎么理解，既然在等待队列上，说明该进程是空闲的，空闲的去执行任务不很正常吗？&lt;/strong&gt;）；&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;文章&lt;sup id=&#34;fnref:2&#34;&gt;&lt;a href=&#34;https://chengshuyi.github.io/posts/linux-kernel/poll_select_epoll/#fn:2&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;2&lt;/a&gt;&lt;/sup&gt;主要提到两个问题，一个是：惊群效应；另外一个是锁。&lt;/p&gt;
+&lt;p&gt;文章&lt;sup id=&#34;fnref:3&#34;&gt;&lt;a href=&#34;https://chengshuyi.github.io/posts/linux-kernel/poll_select_epoll/#fn:3&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;3&lt;/a&gt;&lt;/sup&gt;主要提到在用户空间和内核空间维护一个环形缓冲（mmap的方式）。因为目前监听的fd的事件主要通过&lt;code&gt;epoll_ctl&lt;/code&gt;的方式来进行修改，每次修改的话都需要进行一次系统用，比较耗时。因此，提出了采用环形缓冲的方式来通知事件。相当于，不采用系统调用的方式同内核通信，而是采用共享内存的方式，来提高程序的效率。这种ring-buffer的方式比较常见，比如io-uring等等。所以，作者提到内核是否能够提供一个统一的ring-buffer的交互形式，可以让编程人员更方便的使用。注：貌似该patch最后并没有整合到内核版本。&lt;/p&gt;
+&lt;p&gt;下面首先对select poll epoll的系统调用、支持的事件进行了对比，其次介绍了linux io复用的原理，最后从源码执行流程分析为什么epoll在监听大量描述符性能要好。&lt;/p&gt;
+&lt;h3 id=&#34;系统调用&#34;&gt;系统调用&lt;/h3&gt;
+&lt;p&gt;poll核心的系统调用只有一个，其中参数&lt;code&gt;struct pollfd *fds&lt;/code&gt;是一个链表，包含了要监听的所有文件，可以看到当监听的文件数量过多时，会发生大量的数据从用户空间拷贝到内核空间，但是&lt;strong&gt;poll监听的描述符个数没有限制&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;int poll(struct pollfd *fds, nfds_t nfds, int timeout);&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;select同poll一样将整个fd的传给内核，只是select采用位图的方式。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;int select(int nfds, fd_set *readfds, fd_set *writefds,
+                  fd_set *exceptfds, struct timeval *timeout);
+
+void FD_CLR(int fd, fd_set *set);		//将fd加入set集合
+int  FD_ISSET(int fd, fd_set *set);		//将fd从set集合中清除
+void FD_SET(int fd, fd_set *set);		//检测fd是否在set集合中，不在则返回0
+void FD_ZERO(fd_set *set);				//将set清零使集合中不含任何fd
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;epoll主要提供了三个系统调用，其中&lt;code&gt;epoll_ctl&lt;/code&gt;用来控制监听的fd列表，以及修改相关参数。&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;epoll_create&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;size&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;epoll_ctl&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;efd&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;op&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;fd&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;epoll_event&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;event&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;epoll_wait&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;epfd&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;epoll_event&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;events&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;maxevents&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;timeout&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h3 id=&#34;支持的事件&#34;&gt;支持的事件&lt;/h3&gt;
+&lt;p&gt;poll:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;POLLIN： 表示对应的文件描述符可以读（包括对端SOCKET正常关闭）；
+POLLPRI： 表示对应的文件描述符有紧急的数据可读（这里应该表示有带外数据到来）；
+POLLOUT： 表示对应的文件描述符可以写；
+POLLRDHUP：TCP连接被对方关闭；
+POLLERR： 表示对应的文件描述符发生错误；
+POLLHUP： 表示对应的文件描述符被挂断；
+POLLNVAL：文件描述符未打开；
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;select:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;POLLIN_SET：读
+POLLOUT_SET：写
+POLLEX_SET：异常
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;epoll:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;7
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;n&#34;&gt;EPOLLIN&lt;/span&gt; &lt;span class=&#34;err&#34;&gt;：&lt;/span&gt; &lt;span class=&#34;err&#34;&gt;表示对应的文件描述符可以读（包括对端&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;SOCKET正常关闭&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;）；&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;EPOLLOUT&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;：&lt;/span&gt; &lt;span class=&#34;err&#34;&gt;表示对应的文件描述符可以写；&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;EPOLLPRI&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;：&lt;/span&gt; &lt;span class=&#34;err&#34;&gt;表示对应的文件描述符有紧急的数据可读（这里应该表示有带外数据到来）；&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;EPOLLERR&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;：&lt;/span&gt; &lt;span class=&#34;err&#34;&gt;表示对应的文件描述符发生错误；&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;EPOLLHUP&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;：&lt;/span&gt; &lt;span class=&#34;err&#34;&gt;表示对应的文件描述符被挂断；&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;EPOLLET&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;：&lt;/span&gt; &lt;span class=&#34;err&#34;&gt;将&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;EPOLL设为边缘触发&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;Edge&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Triggered&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;模式（默认为水平触发），这是相对于水平触发&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;Level&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Triggered&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;来说的。&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;EPOLLONESHOT&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;：&lt;/span&gt; &lt;span class=&#34;err&#34;&gt;只监听一次事件，当监听完这次事件之后，如果还需要继续监听这个&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;socket的话&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;，需要再次把这个&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;socket加入到EPOLL队列里&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h3 id=&#34;linux-io复用基本原理&#34;&gt;linux io复用基本原理&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;首先需要理解的是：监听的描述符其实是将自身进程加入到该事件提供的等待队列上，事件到来时会从等待等列唤醒进程。比如：socket描述符包含了socket的描述信息，提供了poll方法，不论是select、poll或者epoll，调用socket提供的poll方法，然后由该poll方法将进程加入到socket等待队列上；&lt;/li&gt;
+&lt;li&gt;其次是io复用，也就是利用select、poll或者epoll同时监听多个事件，事件到来时用户程序可以读取或者发送数据；&lt;/li&gt;
+&lt;li&gt;最后要说的是，select、poll或者epoll各自有各自的优势。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;源码分析&#34;&gt;源码分析&lt;/h3&gt;
+&lt;p&gt;首先是select，下面是select脑图。其中比较关键的有两个点：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;select有三类事件输入、输出和异常，用bitmap进行存储；&lt;/li&gt;
+&lt;li&gt;poll_initwait函数，特别注意&lt;code&gt;struct poll_wqueues&lt;/code&gt;、&lt;code&gt;poll_table&lt;/code&gt;、&lt;code&gt;poll_table_page&lt;/code&gt;、&lt;code&gt;poll_table_entry&lt;/code&gt;、&lt;code&gt;poll_queue_proc&lt;/code&gt;几者之间的关系，以及作用；&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;9
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; 	&lt;span class=&#34;n&#34;&gt;poll_wqueues&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+	&lt;span class=&#34;n&#34;&gt;poll_table&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;pt&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;							&lt;span class=&#34;c1&#34;&gt;// 主要是一个回调函数，在调用vfs_poll时，具体会调用poll方法，poll方法回调该函数
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;poll_table_page&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;table&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;			&lt;span class=&#34;c1&#34;&gt;// 当内核栈不够用时，采用动态分配的poll_table_entry
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;task_struct&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;polling_task&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;		&lt;span class=&#34;c1&#34;&gt;// 当前的进程实体
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;triggered&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+	&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;error&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+	&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;inline_index&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+	&lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;poll_table_entry&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;inline_entries&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;N_INLINE_POLL_ENTRIES&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;];&lt;/span&gt;	&lt;span class=&#34;c1&#34;&gt;// 内核栈空间的poll_table_entry
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;};&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ol start=&#34;3&#34;&gt;
+&lt;li&gt;唤醒函数和poll一样，都是&lt;code&gt;pollwake&lt;/code&gt;。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;img src=&#34;https://gitee.com/chengshuyi/scripts/raw/master/img/20200816111232.png&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+&lt;p&gt;接着是epoll，下面是epoll脑图。其中比较关键的有两个点：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;epoll采用红黑树管理fd，方便插入和删除；&lt;/li&gt;
+&lt;li&gt;epoll同selet的&lt;code&gt;poll table&lt;/code&gt;的回调函数不一样，epoll是ep_ptable_queue_proc，这样可以修该wait queue的回调函数，以及传入epoll entry；&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;img src=&#34;https://gitee.com/chengshuyi/scripts/raw/master/img/20200816120550.png&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+&lt;!-- 
+```c
+struct pollfd {
+	int fd;
+	short events;
+	short revents;
+};
+
+struct poll_list {
+	struct poll_list *next;
+	int len;
+	struct pollfd entries[0];
+};
+// poll 可以监听不同的事件类型
+typedef struct poll_table_struct {
+	poll_queue_proc _qproc;
+	__poll_t _key;
+} poll_table;
+
+struct poll_table_entry {
+	struct file *filp;
+	__poll_t key;
+	wait_queue_entry_t wait;
+	wait_queue_head_t *wait_address;
+};
+
+struct poll_wqueues {
+	poll_table pt;
+	struct poll_table_page *table;
+	struct task_struct *polling_task;
+	int triggered;
+	int error;
+	int inline_index;
+    // 静态分配的poll_table_entry
+	struct poll_table_entry inline_entries[N_INLINE_POLL_ENTRIES];
+};
+
+struct poll_table_page {
+	struct poll_table_page * next;
+	struct poll_table_entry * entry;
+	struct poll_table_entry entries[0];
+};
+```
+
+```c
+static inline void poll_wait(struct file * filp, wait_queue_head_t * wait_address, poll_table *p)
+``` --&gt;
+&lt;!-- poll系统调用：
+    将毫秒转换成内核struct timespec64时间结构体行态
+    call do_sys_poll
+        将用户传进来的struct pollfd数组拷贝到内核空间，用struct poll_list管理，每个poll_list占用4K的内存
+
+初始化struct poll_wqueues，主要是记录当前的polling_task和poll_table的_qproc
+ do_poll
+遍历struct poll_list
+    call do_pollfd
+        call vfs_poll
+            call file-&gt;f_op-&gt;poll(file, pt)
+                调用file_operations的poll函数
+                call socket-&gt;os-&gt;poll
+                tcp_poll
+                    call sock_poll_wait
+                        call poll_wait
+                            如果poll_table-&gt;_qproc为NULL直接返回，因为已经挂载过一次
+                            call poll_table-&gt;_qproc，该值在编号1处赋值
+                            __pollwait:将wait queue挂载到目标wait queue
+                                通过poll_table获取struct poll_wqueues
+                                从struct poll_wqueues获取struct poll_table_entry
+                                初始化struct poll_table_entry，特别需要注意其挂载在sock的waitqueue上和其wait queue entry的回调函数是pollwake
+                                初始化wait queue entry
+                                call add_wait_queue
+                                    将当前任务挂载到sock wait queue
+                    将当前socket的状态返回
+                返回socket的状态
+            返回socket的状态
+        返回值不为0，说明有事件发生；返回值为0，说明没有事件发生
+        将poll_table-&gt;_qproc置为NULL，这样下次不会重复将其挂载到wait queue和重复的poll table entry
+        call poll_schedule_timeout
+call poll_schedule_timeout
+    发起调度，timeout唤醒
+
+当事件发生时，比如sock会修改其对应的状态，然后调用类似`wake_up`函数：
+
+```
+pollwake
+    call __pollwake
+        struct poll_wqueues triggered置为1，表示有事件发生
+        call default_wake_function
+            call try_to_wake_up
+``` --&gt;
+&lt;!-- ```
+epoll_create
+epoll_ctl
+
+struct eventpoll {
+	/*
+	 * This mutex is used to ensure that files are not removed
+	 * while epoll is using them. This is held during the event
+	 * collection loop, the file cleanup path, the epoll file exit
+	 * code and the ctl operations.
+	 */
+	struct mutex mtx;
+	/* Wait queue used by sys_epoll_wait() */
+	wait_queue_head_t wq;
+	/* Wait queue used by file-&gt;poll() */
+	wait_queue_head_t poll_wait;
+	/* List of ready file descriptors */
+	struct list_head rdllist;
+	/* Lock which protects rdllist and ovflist */
+	rwlock_t lock;
+	/* RB tree root used to store monitored fd structs */
+	struct rb_root_cached rbr;
+	/*
+	 * This is a single linked list that chains all the &#34;struct epitem&#34; that
+	 * happened while transferring ready events to userspace w/out
+	 * holding -&gt;lock.
+	 */
+	struct epitem *ovflist;
+	/* wakeup_source used when ep_scan_ready_list is running */
+	struct wakeup_source *ws;
+	/* The user that created the eventpoll descriptor */
+	struct user_struct *user;
+	struct file *file;
+	/* used to optimize loop detection check */
+	int visited;
+	struct list_head visited_list_link;
+};
+
+struct epitem {
+	union {
+		/* RB tree node links this structure to the eventpoll RB tree */
+		struct rb_node rbn;
+		/* Used to free the struct epitem */
+		struct rcu_head rcu;
+	};
+
+	/* List header used to link this structure to the eventpoll ready list */
+	struct list_head rdllink;
+
+	/*
+	 * Works together &#34;struct eventpoll&#34;-&gt;ovflist in keeping the
+	 * single linked chain of items.
+	 */
+	struct epitem *next;
+
+	/* The file descriptor information this item refers to */
+	struct epoll_filefd ffd;
+
+	/* Number of active wait queue attached to poll operations */
+	int nwait;
+
+	/* List containing poll wait queues */
+	struct list_head pwqlist;
+
+	/* The &#34;container&#34; of this item */
+	struct eventpoll *ep;
+
+	/* List header used to link this item to the &#34;struct file&#34; items list */
+	struct list_head fllink;
+
+	/* wakeup_source used when EPOLLWAKEUP is set */
+	struct wakeup_source __rcu *ws;
+
+	/* The structure that describe the interested events and the source fd */
+	struct epoll_event event;
+};
+struct epoll_filefd {
+	struct file *file;
+	int fd;
+} __packed;
+```
+
+do_epoll_wait
+    获取epoll file
+    call ep_poll
+        call ep_events_available
+            检查struct eventpoll中rdllist是否存在元素
+        call init_waitqueue_entry
+        call __add_wait_queue_exclusive
+        set_current_state(TASK_INTERRUPTIBLE);
+        ep_events_available
+        schedule_hrtimeout_range --&gt;
+&lt;!-- 
+epoll源码解析：https://blog.csdn.net/qq_36347375/article/details/91177145
+int poll(struct pollfd *fds, nfds_t nfds, int timeout);
+int ppoll(struct pollfd *fds, nfds_t nfds, const struct timespec *tmo_p, const sigset_t *sigmask);
+
+nfds: The caller should specify the number of items in the fds array in nfds.
+```c
+struct pollfd {
+    int   fd;         /* file descriptor */
+    short events;     /* requested events */
+    short revents;    /* returned events */
+};
+```
+
+ POLLHUP, POLLERR, and POLLNVAL 
+
+        The timeout argument specifies the number of milliseconds that poll()
+       should block waiting for a file descriptor to become ready.  The call
+       will block until either:
+    
+       · a file descriptor becomes ready;
+    
+       · the call is interrupted by a signal handler; or
+    
+       · the timeout expires. --&gt;
+&lt;!-- ### 唤醒
+
+从下面代码可以看到，select和poll均采用default_wake_function。`init_waitqueue_func_entry(&amp;entry-&gt;wait, pollwake);`
+
+```c
+static int __pollwake(wait_queue_entry_t *wait, unsigned mode, int sync, void *key)
+{
+	struct poll_wqueues *pwq = wait-&gt;private;
+	DECLARE_WAITQUEUE(dummy_wait, pwq-&gt;polling_task);
+
+	/*
+	 * Although this function is called under waitqueue lock, LOCK
+	 * doesn&#39;t imply write barrier and the users expect write
+	 * barrier semantics on wakeup functions.  The following
+	 * smp_wmb() is equivalent to smp_wmb() in try_to_wake_up()
+	 * and is paired with smp_store_mb() in poll_schedule_timeout.
+	 */
+	smp_wmb();
+	pwq-&gt;triggered = 1;
+
+	/*
+	 * Perform the default wake up operation using a dummy
+	 * waitqueue.
+	 *
+	 * TODO: This is hacky but there currently is no interface to
+	 * pass in @sync.  @sync is scheduled to be removed and once
+	 * that happens, wake_up_process() can be used directly.
+	 */
+	return default_wake_function(&amp;dummy_wait, mode, sync, key);
+}
+
+static int pollwake(wait_queue_entry_t *wait, unsigned mode, int sync, void *key)
+{
+	struct poll_table_entry *entry;
+
+	entry = container_of(wait, struct poll_table_entry, wait);
+	if (key &amp;&amp; !(key_to_poll(key) &amp; entry-&gt;key))
+		return 0;
+	return __pollwake(wait, mode, sync, key);
+}
+/* Add a new entry */
+static void __pollwait(struct file *filp, wait_queue_head_t *wait_address,
+				poll_table *p)
+{
+	struct poll_wqueues *pwq = container_of(p, struct poll_wqueues, pt);
+	struct poll_table_entry *entry = poll_get_entry(pwq);
+	if (!entry)
+		return;
+	entry-&gt;filp = get_file(filp);
+	// sock的waitqueue head
+	entry-&gt;wait_address = wait_address;
+	entry-&gt;key = p-&gt;_key;
+	init_waitqueue_func_entry(&amp;entry-&gt;wait, pollwake);
+	entry-&gt;wait.private = pwq;
+	add_wait_queue(wait_address, &amp;entry-&gt;wait);
+}
+```
+
+`init_poll_funcptr(&amp;epq.pt, ep_ptable_queue_proc);`
+
+`init_waitqueue_func_entry(&amp;pwq-&gt;wait, ep_poll_callback);`
+
+```c
+init_poll_funcptr(&amp;epq.pt, ep_ptable_queue_proc);
+
+static void ep_ptable_queue_proc(struct file *file, wait_queue_head_t *whead,
+				 poll_table *pt)
+{
+	struct epitem *epi = ep_item_from_epqueue(pt);
+	struct eppoll_entry *pwq;
+
+	if (epi-&gt;nwait &gt;= 0 &amp;&amp; (pwq = kmem_cache_alloc(pwq_cache, GFP_KERNEL))) {
+		init_waitqueue_func_entry(&amp;pwq-&gt;wait, ep_poll_callback);
+		pwq-&gt;whead = whead;
+		pwq-&gt;base = epi;
+		if (epi-&gt;event.events &amp; EPOLLEXCLUSIVE)
+			add_wait_queue_exclusive(whead, &amp;pwq-&gt;wait);
+		else
+			add_wait_queue(whead, &amp;pwq-&gt;wait);
+		list_add_tail(&amp;pwq-&gt;llink, &amp;epi-&gt;pwqlist);
+		epi-&gt;nwait++;
+	} else {
+		/* We have to signal that an error occurred */
+		epi-&gt;nwait = -1;
+	}
+}
+
+
+``` --&gt;
+&lt;h3 id=&#34;参考文献&#34;&gt;参考文献&lt;/h3&gt;
+&lt;section class=&#34;footnotes&#34; role=&#34;doc-endnotes&#34;&gt;
+&lt;hr&gt;
+&lt;ol&gt;
+&lt;li id=&#34;fn:1&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;p&gt;Epoll evolving. &lt;a href=&#34;https://lwn.net/Articles/633422/&#34;&gt;https://lwn.net/Articles/633422/&lt;/a&gt;. &lt;a href=&#34;https://chengshuyi.github.io/posts/linux-kernel/poll_select_epoll/#fnref:1&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:2&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;p&gt;Issues with epoll(). &lt;a href=&#34;https://lwn.net/Articles/637435/&#34;&gt;https://lwn.net/Articles/637435/&lt;/a&gt;. &lt;a href=&#34;https://chengshuyi.github.io/posts/linux-kernel/poll_select_epoll/#fnref:2&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:3&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;p&gt;A ring buffer for epoll. &lt;a href=&#34;https://lwn.net/Articles/789603/&#34;&gt;https://lwn.net/Articles/789603/&lt;/a&gt;. &lt;a href=&#34;https://chengshuyi.github.io/posts/linux-kernel/poll_select_epoll/#fnref:3&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/section&gt;
+</content>
+            
+            
+            
+            
+            
+                
+                    
+                        
+                            
+                            
+                            
+                                <category scheme="https://chengshuyi.github.io/categories/linux%E5%86%85%E6%A0%B8/" term="linux内核" label="linux内核" />
+                            
+                        
+                    
+                
+                    
+                        
+                            
+                            
+                            
+                                <category scheme="https://chengshuyi.github.io/tags/linux%E5%86%85%E6%A0%B8/" term="linux内核" label="linux内核" />
+                            
+                        
+                    
+                
+            
+        </entry>
+    
+        <entry>
             <title type="text">Lab5 - 实验笔记</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/course/mit6828/lab5/" />
             <id>https://chengshuyi.github.io/posts/course/mit6828/lab5/</id>
-            <updated>2020-08-17T05:35:56&#43;00:00</updated>
+            <updated>2020-08-17T12:52:41&#43;00:00</updated>
             <published>2020-04-25T13:34:18&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -5720,7 +6190,7 @@ func read:
             <title type="text">Lab4 - 实验笔记</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/course/mit6828/lab4/" />
             <id>https://chengshuyi.github.io/posts/course/mit6828/lab4/</id>
-            <updated>2020-08-17T05:35:56&#43;00:00</updated>
+            <updated>2020-08-17T12:52:41&#43;00:00</updated>
             <published>2020-04-25T13:34:16&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -5974,7 +6444,7 @@ func read:
             <title type="text">Lab3 - 实验笔记</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/course/mit6828/lab3/" />
             <id>https://chengshuyi.github.io/posts/course/mit6828/lab3/</id>
-            <updated>2020-08-17T05:35:56&#43;00:00</updated>
+            <updated>2020-08-17T12:52:41&#43;00:00</updated>
             <published>2020-04-25T13:34:13&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -6326,7 +6796,7 @@ func read:
             <title type="text">Lab2 - 实验笔记</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/course/mit6828/lab2/" />
             <id>https://chengshuyi.github.io/posts/course/mit6828/lab2/</id>
-            <updated>2020-08-17T05:35:56&#43;00:00</updated>
+            <updated>2020-08-17T12:52:41&#43;00:00</updated>
             <published>2020-04-25T13:34:11&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -6623,7 +7093,7 @@ func read:
             <title type="text">Lab1 - 实验笔记</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/course/mit6828/lab1/" />
             <id>https://chengshuyi.github.io/posts/course/mit6828/lab1/</id>
-            <updated>2020-08-17T05:35:56&#43;00:00</updated>
+            <updated>2020-08-17T12:52:41&#43;00:00</updated>
             <published>2020-04-24T20:24:40&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -6999,7 +7469,7 @@ f0100ade:	e8 b7 ff ff ff       	call   f0100a9a &amp;lt;vcprintf&amp;gt;
             <title type="text">嵌入式文件系统</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/filesystem/%E5%B5%8C%E5%85%A5%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/" />
             <id>https://chengshuyi.github.io/posts/filesystem/%E5%B5%8C%E5%85%A5%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/</id>
-            <updated>2020-08-17T05:35:56&#43;00:00</updated>
+            <updated>2020-08-17T12:52:41&#43;00:00</updated>
             <published>2020-04-21T14:11:20&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -7250,7 +7720,7 @@ f0100ade:	e8 b7 ff ff ff       	call   f0100a9a &amp;lt;vcprintf&amp;gt;
             <title type="text">进程虚拟地址空间</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/linux-kernel/%E8%BF%9B%E7%A8%8B%E8%99%9A%E6%8B%9F%E5%9C%B0%E5%9D%80%E7%A9%BA%E9%97%B4/" />
             <id>https://chengshuyi.github.io/posts/linux-kernel/%E8%BF%9B%E7%A8%8B%E8%99%9A%E6%8B%9F%E5%9C%B0%E5%9D%80%E7%A9%BA%E9%97%B4/</id>
-            <updated>2020-08-17T05:35:56&#43;00:00</updated>
+            <updated>2020-08-17T12:52:41&#43;00:00</updated>
             <published>2020-04-04T19:31:04&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -7346,7 +7816,7 @@ f0100ade:	e8 b7 ff ff ff       	call   f0100a9a &amp;lt;vcprintf&amp;gt;
             <title type="text">多车编队 人工势场法</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E4%BA%BA%E5%B7%A5%E5%8A%BF%E5%9C%BA%E6%B3%95/" />
             <id>https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E4%BA%BA%E5%B7%A5%E5%8A%BF%E5%9C%BA%E6%B3%95/</id>
-            <updated>2020-08-17T05:35:56&#43;00:00</updated>
+            <updated>2020-08-17T12:52:41&#43;00:00</updated>
             <published>2020-04-04T10:02:06&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -7479,7 +7949,7 @@ $$
             <title type="text">多车编队 基于图论的方法</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E5%9B%BE%E8%AE%BA%E7%9A%84%E6%96%B9%E6%B3%95/" />
             <id>https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E5%9B%BE%E8%AE%BA%E7%9A%84%E6%96%B9%E6%B3%95/</id>
-            <updated>2020-08-17T05:35:56&#43;00:00</updated>
+            <updated>2020-08-17T12:52:41&#43;00:00</updated>
             <published>2020-04-04T10:00:47&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -7580,7 +8050,7 @@ $$
             <title type="text">多车编队 基于行为的方法</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E8%A1%8C%E4%B8%BA%E7%9A%84%E6%96%B9%E6%B3%95/" />
             <id>https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E5%9F%BA%E4%BA%8E%E8%A1%8C%E4%B8%BA%E7%9A%84%E6%96%B9%E6%B3%95/</id>
-            <updated>2020-08-17T05:35:56&#43;00:00</updated>
+            <updated>2020-08-17T12:52:41&#43;00:00</updated>
             <published>2020-04-04T09:11:07&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -7748,7 +8218,7 @@ $$
             <title type="text">c语言运算符</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/c/%E8%BF%90%E7%AE%97%E7%AC%A6/" />
             <id>https://chengshuyi.github.io/posts/c/%E8%BF%90%E7%AE%97%E7%AC%A6/</id>
-            <updated>2020-08-17T05:35:56&#43;00:00</updated>
+            <updated>2020-08-17T12:52:41&#43;00:00</updated>
             <published>2020-04-03T17:25:34&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -7959,7 +8429,7 @@ $$&lt;/p&gt;
             <title type="text">伙伴系统</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/linux-kernel/%E4%BC%99%E4%BC%B4%E7%B3%BB%E7%BB%9F/" />
             <id>https://chengshuyi.github.io/posts/linux-kernel/%E4%BC%99%E4%BC%B4%E7%B3%BB%E7%BB%9F/</id>
-            <updated>2020-08-17T05:35:56&#43;00:00</updated>
+            <updated>2020-08-17T12:52:41&#43;00:00</updated>
             <published>2020-04-03T15:26:04&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -8185,7 +8655,7 @@ $$&lt;/p&gt;
             <title type="text">多车编队 领航跟随法</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E9%A2%86%E8%88%AA%E8%B7%9F%E9%9A%8F%E6%B3%95/" />
             <id>https://chengshuyi.github.io/posts/robot/%E5%A4%9A%E8%BD%A6%E7%BC%96%E9%98%9F-%E9%A2%86%E8%88%AA%E8%B7%9F%E9%9A%8F%E6%B3%95/</id>
-            <updated>2020-08-17T05:35:56&#43;00:00</updated>
+            <updated>2020-08-17T12:52:41&#43;00:00</updated>
             <published>2020-04-03T11:27:11&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -8302,7 +8772,7 @@ $$
             <title type="text">Slab分配器</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/linux-kernel/slab/" />
             <id>https://chengshuyi.github.io/posts/linux-kernel/slab/</id>
-            <updated>2020-08-17T05:35:56&#43;00:00</updated>
+            <updated>2020-08-17T12:52:41&#43;00:00</updated>
             <published>2020-04-02T16:24:50&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -8404,7 +8874,7 @@ $$
             <title type="text">作用域、链接、存储类型</title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/c/%E4%BD%9C%E7%94%A8%E5%9F%9F%E9%93%BE%E6%8E%A5%E5%AD%98%E5%82%A8%E7%B1%BB%E5%9E%8B/" />
             <id>https://chengshuyi.github.io/posts/c/%E4%BD%9C%E7%94%A8%E5%9F%9F%E9%93%BE%E6%8E%A5%E5%AD%98%E5%82%A8%E7%B1%BB%E5%9E%8B/</id>
-            <updated>2020-08-17T05:35:56&#43;00:00</updated>
+            <updated>2020-08-17T12:52:41&#43;00:00</updated>
             <published>2020-04-02T13:41:27&#43;08:00</published>
             <author>
                     <name>程书意</name>
@@ -8681,7 +9151,7 @@ $$
             <title type="text"></title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/computer-network/untitled/" />
             <id>https://chengshuyi.github.io/posts/computer-network/untitled/</id>
-            <updated>2020-08-17T05:35:56&#43;00:00</updated>
+            <updated>2020-08-17T12:52:41&#43;00:00</updated>
             <published>0001-01-01T00:00:00&#43;00:00</published>
             <author>
                     <name>程书意</name>
@@ -8750,7 +9220,7 @@ does not provide: reliability, flow control, congestion control, timing, through
             <title type="text"></title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/cse/" />
             <id>https://chengshuyi.github.io/posts/cse/</id>
-            <updated>2020-08-17T05:35:56&#43;00:00</updated>
+            <updated>2020-08-17T12:52:41&#43;00:00</updated>
             <published>0001-01-01T00:00:00&#43;00:00</published>
             <author>
                     <name>程书意</name>
@@ -8826,7 +9296,7 @@ Soft link can create cycle by SYMLINK(&amp;quot;a&amp;quot;, &amp;quot;a&amp;quo
             <title type="text"></title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/leet/" />
             <id>https://chengshuyi.github.io/posts/leet/</id>
-            <updated>2020-08-17T05:35:56&#43;00:00</updated>
+            <updated>2020-08-17T12:52:41&#43;00:00</updated>
             <published>0001-01-01T00:00:00&#43;00:00</published>
             <author>
                     <name>程书意</name>
@@ -8869,7 +9339,7 @@ Relational Algebra&lt;/p&gt;
             <title type="text"></title>
             <link rel="alternate" type="text/html" href="https://chengshuyi.github.io/posts/linux-kernel/untitled/" />
             <id>https://chengshuyi.github.io/posts/linux-kernel/untitled/</id>
-            <updated>2020-08-17T05:35:56&#43;00:00</updated>
+            <updated>2020-08-17T12:52:41&#43;00:00</updated>
             <published>0001-01-01T00:00:00&#43;00:00</published>
             <author>
                     <name>程书意</name>
