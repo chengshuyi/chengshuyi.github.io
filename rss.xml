@@ -23,7 +23,7 @@
         
             <copyright>[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh)</copyright>
         
-        <lastBuildDate>Wed, 19 Aug 2020 02:26:57 &#43;0000</lastBuildDate>
+        <lastBuildDate>Thu, 20 Aug 2020 09:42:22 &#43;0000</lastBuildDate>
         
             <atom:link rel="self" type="application/rss&#43;xml" href="https://chengshuyi.github.io/rss.xml" />
         
@@ -3158,10 +3158,10 @@ ret
 &lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;h3 id=&#34;参考文章&#34;&gt;参考文章&lt;/h3&gt;
-&lt;p&gt;[1]. Mccanne S , Jacobson V . The BSD Packet Filter: A New Architecture for User-level Packet Capture[C]// Proceedings of the USENIX Winter 1993 Conference Proceedings on USENIX Winter 1993 Conference Proceedings. USENIX Association, 1993.
-[2]. A JIT for packet filters. &lt;a href=&#34;https://lwn.net/Articles/437981/&#34;&gt;https://lwn.net/Articles/437981/&lt;/a&gt;.
-[3]. net: filter: Just In Time compiler. &lt;a href=&#34;https://lwn.net/Articles/437884/&#34;&gt;https://lwn.net/Articles/437884/&lt;/a&gt;.
-[4]. Understanding JIT compiler (just-in-time compiler) for java. &lt;a href=&#34;https://aboullaite.me/understanding-jit-compiler-just-in-time-compiler/&#34;&gt;https://aboullaite.me/understanding-jit-compiler-just-in-time-compiler/&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;[1]. Mccanne S , Jacobson V . The BSD Packet Filter: A New Architecture for User-level Packet Capture[C]// Proceedings of the USENIX Winter 1993 Conference Proceedings on USENIX Winter 1993 Conference Proceedings. USENIX Association, 1993.&lt;/p&gt;
+&lt;p&gt;[2]. A JIT for packet filters. &lt;a href=&#34;https://lwn.net/Articles/437981/&#34;&gt;https://lwn.net/Articles/437981/&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;[3]. net: filter: Just In Time compiler. &lt;a href=&#34;https://lwn.net/Articles/437884/&#34;&gt;https://lwn.net/Articles/437884/&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;[4]. Understanding JIT compiler (just-in-time compiler) for java. &lt;a href=&#34;https://aboullaite.me/understanding-jit-compiler-just-in-time-compiler/&#34;&gt;https://aboullaite.me/understanding-jit-compiler-just-in-time-compiler/&lt;/a&gt;.&lt;/p&gt;
 </description>
                 
                 
